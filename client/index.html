@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hairy Tibble</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.offcanvas.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Hairy Tibble</h1>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 col-md-7 col-lg-8">
+                <div class="well">
+                    <form>
+                        <div class="form-group">
+                            <textarea placeholder="Vraag" class="form-control" autofocus></textarea>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Antwoord" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Vraagtype <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">Openvraag</a></li>
+                                    <li><a href="#">Meerkeuzevraag</a></li>
+                                    <li><a href="#">Uitlegtekst</a></li>
+                                </ul>
+                            </div>
+                            <input type="submit" value="Opslaan" class="btn btn-success pull-right">
+                        </div>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+
+                <div>
+                    <table class="table">
+                        <caption>Opgeslagen vragen</caption>
+                        <tbody>
+                            <tr class="info">
+                                <td>
+                                    What is the ultimate answer to live the universe and everything?
+                                </td>
+                                <td style="width:100px;" class="text-right">
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Aanpassen">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                    tempor incididunt ut labore et dolore magna aliqua.
+                                </td>
+                                <td style="width:100px;" class="text-right">
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Voeg toe aan toets">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </button>
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Aanpassen">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="info">
+                                <td>
+                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo...
+                                </td>
+                                <td style="width:100px;" class="text-right">
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Aanpassen">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="info">
+                                <td>
+                                    Nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo?
+                                </td>
+                                <td style="width:100px;" class="text-right">
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Aanpassen">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Excepteur sint occaecat cupidatat non
+                                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                </td>
+                                <td style="width:100px;" class="text-right">
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Voeg toe aan toets">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                    </button>
+                                    <button class="btn btn-info btn-xs" data-toggle="tooltip" title="Aanpassen">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <nav class="text-center">
+                        <ul class="pagination">
+                            <li>
+                                <a href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <li class="active"><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li>
+                                <a href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                          </ul>
+                    </nav>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-5 col-lg-4">
+                <form>
+                    <div class="form-group">
+                        <select class="form-control">
+                            <option>Kies een andere toets...</option>
+                            <option>The Hitchhiker's Guide to the Galaxy</option>
+                            <option>Lorem ipsum dolor sit amet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Nieuwe toets">
+                            <span class="input-group-btn">
+                                <input type="submit" value="Maak" class="btn btn-success">
+                            </span>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    <h4>The Hitchhiker's Guide to the Galaxy</h4>
+                    <div class="text-right">
+                        <button class="btn btn-info btn-xs">Bewerk</button>
+                        <button class="btn btn-danger btn-xs">Verwijder</button>
+                    </div>
+                    <br>
+                    <div id="listWithHandle" class="list-group">
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-1 col-sm-1 col-md-1">
+                                    <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-xs-9 col-sm-8 col-md-9">
+                                    What is the ultimate answer to live the universe and everything?
+                                </div>
+                                <div class="col-xs-2 col-sm-2 col-md-2">
+                                    <button class="btn btn-danger btn-xs pull-right" data-toggle="tooltip" title="Verwijder uit toets">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-1 col-sm-1 col-md-1">
+                                    <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-xs-9 col-sm-8 col-md-9">
+                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo... 
+                                </div>
+                                <div class="col-xs-2 col-sm-2 col-md-2">
+                                    <button class="btn btn-danger btn-xs pull-right" data-toggle="tooltip" title="Verwijder uit toets">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="list-group-item">
+                            <div class="row">
+                                <div class="col-xs-1 col-sm-1 col-md-1">
+                                    <span class="glyphicon glyphicon-move" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-xs-9 col-sm-8 col-md-9">
+                                    Nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo? 
+                                </div>
+                                <div class="col-xs-2 col-sm-2 col-md-2">
+                                    <button class="btn btn-danger btn-xs pull-right" data-toggle="tooltip" title="Verwijder uit toets">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="text-right">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Exporteer antwoordblad <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">PDF</a></li>
+                                    <li><a href="#">Microsoft Word</a></li>
+                                    <li><a href="#">ODF</a></li>
+                                    <li><a href="#">Platte tekst</a></li>
+                                </ul>
+                            </div>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    Exporteer <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#">PDF</a></li>
+                                    <li><a href="#">Microsoft Word</a></li>
+                                    <li><a href="#">ODF</a></li>
+                                    <li><a href="#">Platte tekst</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script type="text/javascript" src="assets/js/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="assets/js/bootstrap.offcanvas.min.js"></script>
+    <script type="text/javascript" src="assets/js/Sortable.min.js"></script>
+    <script type="text/javascript" src="assets/js/main.js"></script>
+</body>
+</html>
