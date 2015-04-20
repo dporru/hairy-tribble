@@ -1,0 +1,85 @@
+name:                ph
+version:             0.1.0.0
+synopsis:            Turbo-Batman
+-- description:         
+-- license:             
+license-file:        LICENSE
+author:              Arie Peterson
+maintainer:          ariep@xs4all.nl
+-- copyright:           
+category:            Web
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >= 1.10
+
+library
+  exposed-modules:
+    PH.Types
+  other-modules:
+    Common,
+    ID
+  build-depends:
+    aeson >= 0.8 && < 0.9,
+    base >= 4.7 && < 4.8,
+    concurrent-supply >= 0.1 && < 0.2,
+    generic-aeson >= 0.2 && < 0.3,
+    happstack-server >= 7.4 && < 7.5,
+    json-schema >= 0.7 && < 0.8,
+    rest-core >= 0.35 && < 0.36,
+    TCache >= 0.12 && < 0.13,
+    text >= 1.2 && < 1.3,
+    transformers >= 0.4 && < 0.5
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  default-extensions:
+    OverloadedStrings,
+    DeriveGeneric,
+    DeriveDataTypeable
+
+executable ph
+  main-is:             Main.hs
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:
+    aeson >= 0.8 && < 0.9,
+    base >= 4.7 && < 4.8,
+    concurrent-supply >= 0.1 && < 0.2,
+    generic-aeson >= 0.2 && < 0.3,
+    happstack-server >= 7.4 && < 7.5,
+    json-schema >= 0.7 && < 0.8,
+    ph,
+    rest-core >= 0.35 && < 0.36,
+    rest-happstack >= 0.2 && < 0.3,
+    TCache >= 0.12 && < 0.13,
+    text >= 1.2 && < 1.3,
+    transformers >= 0.4 && < 0.5
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  default-extensions:
+    OverloadedStrings,
+    DeriveGeneric,
+    DeriveDataTypeable
+
+executable generate
+  main-is:             Generate.hs
+  ghc-options:            -main-is Generate
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:
+    aeson >= 0.8 && < 0.9,
+    base >= 4.7 && < 4.8,
+    concurrent-supply >= 0.1 && < 0.2,
+    generic-aeson >= 0.2 && < 0.3,
+    json-schema >= 0.7 && < 0.8,
+    ph,
+    rest-core >= 0.35 && < 0.36,
+    rest-gen >= 0.17 && < 0.18,
+    TCache >= 0.12 && < 0.13,
+    text >= 1.2 && < 1.3,
+    transformers >= 0.4 && < 0.5
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  default-extensions:
+    OverloadedStrings,
+    DeriveGeneric,
+    DeriveDataTypeable
