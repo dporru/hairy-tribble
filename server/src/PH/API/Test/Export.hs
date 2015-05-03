@@ -12,6 +12,7 @@ import qualified Data.TCache.ID        as ID
 import qualified Data.Text             as Text
 import qualified Rest                  as R
 import           Rest (Void)
+import qualified Rest.Dictionary.Types as R
 import qualified Rest.Handler          as R
 import qualified Rest.Resource         as R
 
@@ -30,16 +31,25 @@ resource = R.mkResourceReader
   }
 
 get :: R.Handler (ReaderT Format (ReaderT (ID.Ref Test) IO))
-get = R.mkHandler R.fileO $ \ _env -> ExceptT $
+get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
     test <- DB.run $ ID.deref testRef
+    let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
       PDF       -> do
-        PDF.export WithAnswers test >>= \case
+        PDF.export mode test >>= \case
           Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
           Right b -> return $ Right (b,suggestedFileName test format)
+ where
+  dict = R.mkPar modePar . R.fileO
+  modePar = R.Param ["withAnswers"] p where
+    p []        = Right OnlyQuestions
+    p [Nothing] = Right WithAnswers
+    p [Just ""] = Right WithAnswers
+    p [Just x]  = Left . R.ParseError $ "Unexpected query parameter: " ++ x
+    p _         = Left . R.ParseError $ "Too many query parameters."
 
 data Format
   = PDF
