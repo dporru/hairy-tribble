@@ -13,6 +13,7 @@ import           Data.Tree (Tree(Node))
 import qualified System.Console.Argument as CP
 import qualified System.Console.Command  as CP
 import qualified System.Console.Program  as CP
+import           System.Random.Shuffle (shuffleM)
 
 
 main :: IO ()
@@ -67,7 +68,13 @@ instance Input Question where
   input = do
     q <- ask "Question:"
     a <- ask "Answer:"
-    return $ Question q (Open a)
+    putStrLn "Enter more answers for multiple choice, empty line when done:"
+    others <- askMany
+    if null others
+      then return . Question q $ Open a
+      else do
+        randomOrder <- shuffleM [0 .. length others]
+        return $ Question q $ MultipleChoice a others randomOrder
 
 instance Input Test where
   input = do
@@ -82,3 +89,10 @@ askF :: (String -> a) -> String -> IO a
 askF f s = do
   putStrLn s
   f <$> getLine
+
+askMany :: IO [Text]
+askMany = do
+  x <- getLine
+  if null x
+    then return []
+    else (pack x :) <$> askMany

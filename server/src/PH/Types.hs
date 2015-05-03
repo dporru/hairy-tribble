@@ -17,8 +17,16 @@ testVraag = Question { question = "Is dit een testvraag?", answer = Open "Ja!" }
 
 data Answer
   = Open Text
-  | MultipleChoice Text [Text]
+  | MultipleChoice
+    {
+      correct   :: Text
+    , incorrect :: [Text]
+    , order     :: AnswerOrder
+    }
   deriving (Generic,Typeable,Show)
+
+type AnswerOrder
+  = [Int]
 
 data Test
   = Test
