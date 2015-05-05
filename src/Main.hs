@@ -2,8 +2,8 @@ module Main where
 
 
 import           Common
-import           PH.API   (api)
-import qualified PH.DB as DB
+import           PH.API                     (api)
+import qualified PH.DB            as DB
 
 import qualified Happstack.Server as H
 import           Rest.Driver.Happstack      (apiToHandler')
@@ -17,6 +17,7 @@ main = do
     [
       H.dir "api" apiHandle
     , H.dir "docs" docsHandle
+    , H.serveDirectory H.DisableBrowsing ["index.html"] "./client/"
     , H.serveDirectory H.DisableBrowsing [] "./rest-gen-files/Docs/"
     ]
 
