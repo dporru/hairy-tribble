@@ -11,8 +11,11 @@ import qualified Data.TCache.IndexQuery  as T
 
 initialiseIndices :: IO ()
 initialiseIndices = do
-  T.index (ID.selector :: ID.WithID Question -> ID.ID)
-  T.index (ID.selector :: ID.WithID Test     -> ID.ID)
+  T.index (ID.selector :: ID.WithID Question -> ID.ID Question)
+  T.index (ID.selector :: ID.WithID Test     -> ID.ID Test    )
 
 run :: STM a -> IO a
 run = T.atomicallySync
+
+flush :: STM ()
+flush = T.flushAll

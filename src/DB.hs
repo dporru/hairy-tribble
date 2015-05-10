@@ -58,8 +58,8 @@ commands = Node
       ]
   ]
 
-idArg :: CP.Type ID.ID
-idArg = fromInteger <$> CP.integer
+idArg :: CP.Type (ID.ID a)
+idArg = ID.ID . pack <$> CP.string
 
 class Input x where
   input :: IO x
@@ -79,7 +79,7 @@ instance Input Question where
 instance Input Test where
   input = do
     name <- ask "Name:"
-    qs <- map ID.lookup <$> askF read "Questions:"
+    qs <- map (ID.lookup . ID.ID . pack) <$> askF read "Questions:"
     return $ Test name qs
 
 ask :: String -> IO Text

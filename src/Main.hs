@@ -22,7 +22,9 @@ main = do
     ]
 
 apiHandle :: H.ServerPartT IO H.Response
-apiHandle = apiToHandler' liftIO api
+apiHandle = do
+  H.decodeBody (H.defaultBodyPolicy "/tmp/" 1048576 1048576 4096)
+  apiToHandler' liftIO api
 
 docsHandle :: H.ServerPartT IO H.Response
 docsHandle = apiDocsHandler "/docs/" "rest-gen-files/Docs/" api

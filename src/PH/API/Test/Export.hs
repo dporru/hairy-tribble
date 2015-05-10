@@ -29,7 +29,7 @@ resource :: R.Resource
 resource = R.mkResourceReader
   {
     R.name   = "export"
-  , R.schema = R.noListing $ R.named [("format",R.singleBy readFormat)]
+  , R.schema = R.noListing $ R.unnamedSingle readFormat
   , R.get    = Just get
   }
 
