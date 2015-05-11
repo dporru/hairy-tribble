@@ -31,12 +31,14 @@ renderTest mode name qs = P.setTitle (textP name) . P.doc $
   renderQuestion q = P.para (textP $ question q) <> case answer q of
     Open a                -> case mode of
       OnlyQuestions -> mempty
-      WithAnswers   -> P.para $ textP "Antwoord: " <> P.strong (textP a)
-    MultipleChoice { .. } -> mconcat $ map renderChoice answers where
+      WithAnswers   -> P.para $ P.strong (textP a)
+    MultipleChoice { .. } -> P.orderedListWith (1,P.UpperAlpha,P.OneParen)
+      $ map renderChoice answers
+     where
       answers = ((True,correct) : map ((,) False) incorrect) `orderBy` order
       renderChoice (corr,t) = P.para $ case mode of
-        OnlyQuestions -> textP "☐ "                         <> textP t
-        WithAnswers   -> textP (if corr then "☑ " else "☐ ") <> textP t
+        OnlyQuestions -> textP t
+        WithAnswers   -> (if corr then P.strikeout else P.strong) $ textP t
 
 orderBy :: [a] -> [Int] -> [a]
 orderBy = map . (!!)

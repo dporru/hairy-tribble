@@ -22,7 +22,6 @@ export = return . Right . utf8ByteString . P.writeLaTeX
     {
       P.writerStandalone = True
     , P.writerTemplate   = template
-    , P.writerVariables  = [("mainfont","DejaVu Sans")]
     }
 
 template :: String

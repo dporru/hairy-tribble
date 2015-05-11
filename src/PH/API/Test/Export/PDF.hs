@@ -19,5 +19,4 @@ export = P.makePDF "xelatex" P.writeLaTeX
     {
       P.writerStandalone = True
     , P.writerTemplate   = LaTeX.template
-    , P.writerVariables  = [("mainfont","DejaVu Sans")]
     } 
