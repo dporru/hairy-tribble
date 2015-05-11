@@ -56,7 +56,7 @@ RUN cabal update &&\
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout 5c14e879fa62642d4ea5ebedcf54f9e5edc5999c
+    git checkout 78d307ef2a243428948e5bc39c2f6b20288c8fd5
 
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
