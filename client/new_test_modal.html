@@ -1,0 +1,15 @@
+<div class="modal-header">
+    <h3 class="modal-title">Maak een nieuwe test aan.</h3>
+</div>
+
+<form ng-submit="nt.save()">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="text" placeholder="Nieuwe test" class="form-control" ng-model="nt.newTestName" required>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning" ng-click="nt.cancel()">Annuleer</button>
+        <input class="btn btn-primary" type="submit" value="Opslaan">
+    </div>
+</form>

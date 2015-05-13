@@ -32,7 +32,7 @@ TESTS = {
     ]
 };
 
-angular.module('ph', ['restangular']);
+angular.module('ph', ['restangular', 'ui.bootstrap']);
 
 angular.module('ph').config(function(RestangularProvider){
     RestangularProvider.setBaseUrl('/api/v0.0.0');
@@ -54,13 +54,14 @@ angular.module('ph').config(function(RestangularProvider){
     });
 });
 
-angular.module('ph').controller('TestController', function(Restangular){
+angular.module('ph').controller('TestController', function(Restangular, $modal){
     var test = this;
     test.currentTest = null;
     test.newQuestionType = 'open';
     test.questionFormFocus = false;
 
     tests = Restangular.all('test');
+    questions = Restangular.all('question');
 
     test.reloadTests = function(){
         tests.getList().then(function(tests){
@@ -68,7 +69,7 @@ angular.module('ph').controller('TestController', function(Restangular){
                 test.currentTest = tests[0];
             }
         },function(){
-            test.currentTest = TESTS.items[0];
+            test.openNewTestModal();
         });        
     }
 
@@ -76,13 +77,9 @@ angular.module('ph').controller('TestController', function(Restangular){
         if (typeof(test.currentTest) != 'undefined'){
             test.currentTest.get().then(function(data){
                 test.currentTest = data;
-            }, function(){
-                test.currentTest = TESTS.items[0];
             });
         }
     }
-
-    questions = Restangular.all('question');
 
     test.getNewQuestionRows = function(){
         return !test.questionFormFocus ? 2 : 5;
@@ -116,5 +113,39 @@ angular.module('ph').controller('TestController', function(Restangular){
         test.newQuestionType = 'open';
     };
 
+    test.openNewTestModal = function(){
+        var modalInstance = $modal.open({
+            templateUrl: 'new_test_modal.html',
+            controller: 'NewTestModalController as nt',
+            resolve: {context: function(){return 'Mijn context'}},
+            keyboard: false
+        });
+
+        modalInstance.result.then(function (newTestName) {
+
+            newTest = {
+                'name': newTestName,
+                'questions': []
+            }
+            tests.post(newTest).then(function(newTest){
+                test.currentTest = newTest;
+                test.reloadCurrentTest();
+            });
+        });
+    };
+
     test.reloadTests();
+});
+
+angular.module('ph').controller('NewTestModalController', function ($modalInstance, context) {
+
+    nt = this;
+
+    nt.save = function () {
+        $modalInstance.close(nt.newTestName);
+    };
+
+    nt.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
 });
