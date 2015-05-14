@@ -15,24 +15,12 @@ RUN wget https://www.haskell.org/ghc/dist/7.8.4/ghc-7.8.4-x86_64-unknown-linux-d
     cd .. &&\
     rm -fr ghc-7.8.4-x86_64-unknown-linux-deb7.tar.bz2 ghc-7.8.4
 
-# Install Cabal install 1.22.3.0
-RUN wget http://hackage.haskell.org/package/cabal-install-1.22.3.0/cabal-install-1.22.3.0.tar.gz &&\
-    tar xvfz cabal-install-1.22.3.0.tar.gz &&\
-    cd cabal-install-1.22.3.0 && ./bootstrap.sh &&\
-    cd .. &&\
-    rm -fr cabal-install-1.22.3.0*
-
-# Add cabal binaries to the PATH
-ENV PATH /root/.cabal/bin:$PATH
-ENV LANG C.UTF-8
-
 # Install app-specific requirements.
 RUN apt-get update -y &&\
     apt-get install -y git libtinfo-dev texlive-xetex
 
 # Add user ph.
-RUN chmod a+rx /root &&\
-    groupadd -g 9000 ph &&\
+RUN groupadd -g 9000 ph &&\
     useradd -mg 9000 ph &&\
     chown ph:ph /home/ph &&\
     mkdir -p /hairy-tribble/TCache &&\
@@ -41,16 +29,24 @@ RUN chmod a+rx /root &&\
 # Run the rest of the statements as user ph.
 USER ph
 
+# Install Cabal install 1.22.3.0
+RUN cd /home/ph &&\
+    wget http://hackage.haskell.org/package/cabal-install-1.22.3.0/cabal-install-1.22.3.0.tar.gz &&\
+    tar xvfz cabal-install-1.22.3.0.tar.gz &&\
+    cd cabal-install-1.22.3.0 && ./bootstrap.sh &&\
+    cd .. &&\
+    rm -fr cabal-install-1.22.3.0*
+
+# Add cabal binaries to the PATH
+ENV PATH /home/ph/.cabal/bin:$PATH
+ENV LANG C.UTF-8
+
 # Expose port 8000 and set workdir for CMD command.
 EXPOSE 8000
 WORKDIR /hairy-tribble
 
 # Expose /hairy-tribble as a volume for development.
 VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
-
-# Install happy.
-RUN cabal update &&\
-    cabal install happy
 
 # Download enhanced version of TCache.
 RUN cd /home/ph &&\
@@ -66,6 +62,7 @@ RUN cd /home/ph &&\
     cabal sandbox add-source /hairy-tribble &&\
     cabal update &&\
     touch /hairy-tribble/LICENSE &&\
+    cabal install happy &&\
     cabal install --only-dependencies ph &&\
     rm /hairy-tribble/LICENSE
 
