@@ -1,37 +1,3 @@
-QUESTIONS = {
-    offset: 0,
-    count: 3,
-    items: [
-        {
-            id: 1,
-            question: 'Dit is de vraag?',
-            answer: {
-                open: 'Maar wat is het antwoord?'
-            }
-        },
-        {
-            id: 2,
-            question: 'Welk antwoord is juist?',
-            answer: {
-                multipleChoice: {
-                    correct: 'Deze natuurlijk',
-                    incorrect: ['Deze niet', 'En deze ook niet'],
-                    order: [1,2,0]
-                }
-            }
-        }
-    ]
-};
-
-TESTS = {
-    offset: 0, 
-    count: 2,
-    items: [
-        {id: 1,name: 'Daans eerste test', questions: QUESTIONS.items},
-        {id: 2, name: 'Een andere mooie test', questions: []}
-    ]
-};
-
 angular.module('ph', ['restangular', 'ui.bootstrap']);
 
 angular.module('ph').config(function(RestangularProvider){
@@ -39,9 +5,6 @@ angular.module('ph').config(function(RestangularProvider){
 
     RestangularProvider.addResponseInterceptor(function(data, operation, what, url, response, deferred){
         var extractedData;
-        if (what == 'test') {
-            data = TESTS;
-        }
 
         if (operation === "getList") {
             extractedData = data.items;
@@ -65,11 +28,12 @@ angular.module('ph').controller('TestController', function(Restangular, $modal){
 
     test.reloadTests = function(){
         tests.getList().then(function(tests){
-            if (!test.currentTest && tests.length) {
+            if (!tests.length) {
+                tests.openNewTestModal();
+            }else if (!test.currentTest && tests.length) {
                 test.currentTest = tests[0];
+                console.log(test.currentTest);
             }
-        },function(){
-            test.openNewTestModal();
         });        
     }
 
