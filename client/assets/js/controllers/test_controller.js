@@ -1,27 +1,16 @@
-angular.module('ph').controller('TestController', function($modal, $http, Question){
+angular.module('ph').controller('TestController', function($modal, $http, Question, Test){
     var test = this;
-    test.currentTest = null;
+    test.currentTestId = null;
     test.newQuestionType = 'open';
     test.questionFormFocus = false;
 
-    test.reloadTests = function(){
-        $http.get('/api/v0.0.0/test').then(function(result){
-            var tests = result.data.items;
-            if (!tests.length) {
-                test.openNewTestModal();
-            }else if (!test.currentTest && tests.length) {
-                test.currentTest = tests[0];
-            }
-        });        
-    }
+    test.getCurrentTest = function() {
+        return Test.getTestById(test.currentTestId);
+    };
 
-    test.reloadCurrentTest = function(){
-        if (typeof(test.currentTest) != 'undefined'){
-            test.currentTest.get().then(function(data){
-                test.currentTest = data;
-            });
-        }
-    }
+    test.getTests = function() {
+        return Test.getList();
+    };
 
     test.getNewQuestionRows = function(){
         return !test.questionFormFocus ? 2 : 5;
@@ -39,21 +28,10 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
             answer: answer
         };
 
-        $http.post('/api/v0.0.0/question', newQuestion).then(function(){
-            updatedTest = {
-                name: test.currentTest.object.name,
-                questions: ['Question-gqimwjlw']
-            }
-            $http.put('/api/v0.0.0/test/id/' + test.currentTest.id, updatedTest).then(function(){
-                // test.reloadCurrentTest();
-                test.resetNewQuestion();
-                Question.load();
-            });
+        Question.create(newQuestion).then(function() {
+            var questionId = 'Question-gqimwjlw';
+            Test.addQuestion(test.currentTestId, questionId);
         });
-
-        // TESTS.items[0].questions.push(newQuestion);
-        // test.reloadCurrentTest();
-        // test.resetNewQuestion();
     };
 
     test.resetNewQuestion = function(){
@@ -83,5 +61,9 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
         });
     };
 
-    test.reloadTests();
+    Test.load().then(function() {
+        if (!test.currentTestId && test.getTests().length) {
+            test.currentTestId = test.getTests()[0].id;
+        }
+    });
 });
