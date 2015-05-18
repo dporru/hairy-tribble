@@ -108,16 +108,16 @@
                 </div>
             </div>
             <div class="col-md-5 col-lg-4">
-                <div>
+                <div ng-controller="QuestionListController as questionList">
                     <form>
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Zoek binnen alle vragen">
+                            <input type="text" class="form-control" placeholder="Zoek binnen alle vragen" ng-model="questionList.query">
                         </div>
                     </form>
                     <table class="table table-striped">
-                        <caption class="text-right">5 van 23 resultaten</caption>
+                        <caption class="text-right">Totaal {{ questionList.getNumberOfQuestions() }} resultaten</caption>
                         <tbody>
-                            <tr>
+                            <!-- <tr>
                                 <td class="text-muted">
                                     What is the ultimate answer to live the universe and everything?
                                 </td>
@@ -126,47 +126,10 @@
                                         <span class="glyphicon glyphicon-edit"></span>
                                     </button>
                                 </td>
-                            </tr>
-                            <tr>
+                            </tr> -->
+                            <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: 'object.question' | itemsPerPage: questionList.itemsPerPage">
                                 <td>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua.
-                                </td>
-                                <td style="width:100px;" class="text-right">
-                                    <button class="btn btn-success btn-xs" data-toggle="tooltip" title="Voeg toe aan toets">
-                                        <span class="glyphicon glyphicon-plus"></span>
-                                    </button>
-                                    <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                                    quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo...
-                                </td>
-                                <td style="width:100px;" class="text-right">
-                                    <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="text-muted">
-                                    Nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo?
-                                </td>
-                                <td style="width:100px;" class="text-right">
-                                    <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Excepteur sint occaecat cupidatat non
-                                    proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                                    {{ question.object.question }}
                                 </td>
                                 <td style="width:100px;" class="text-right">
                                     <button class="btn btn-success btn-xs" data-toggle="tooltip" title="Voeg toe aan toets">
@@ -179,25 +142,9 @@
                             </tr>
                         </tbody>
                     </table>
-                    <nav class="text-center">
-                        <ul class="pagination">
-                            <li>
-                                <a href="#" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                            <li class="active"><a href="#">1</a></li>
-                            <li><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">4</a></li>
-                            <li><a href="#">5</a></li>
-                            <li>
-                                <a href="#" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                          </ul>
-                    </nav>
+                    <div class="text-center">
+                        <dir-pagination-controls on-page-change="questionList.pageChangeHandler(newPageNumber)"></dir-pagination-controls>
+                    </div>
                 </div>
             </div>
         </div>
@@ -206,10 +153,13 @@
     </div>
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script>
     <script type="text/javascript" src="assets/js/ui-bootstrap-0.9.0.min.js"></script>
     <script type="text/javascript" src="assets/js/ui-bootstrap-tpls-0.9.0.min.js"></script>
     <script type="text/javascript" src="assets/js/main.js"></script>
+    <script type="text/javascript" src="assets/js/dirPagination.js"></script>
+    <script type="text/javascript" src="assets/js/services/question_service.js"></script>
+    <script type="text/javascript" src="assets/js/controllers/test_controller.js"></script>
+    <script type="text/javascript" src="assets/js/controllers/new_test_controller.js"></script>
+    <script type="text/javascript" src="assets/js/controllers/question_list_controller.js"></script>
 </body>
 </html>
