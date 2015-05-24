@@ -15,34 +15,34 @@
         </div>
 
         <div class="row">
-            <div class="col-md-7 col-lg-8" ng-controller="TestController as test">
-                <form ng-submit="test.submitNewQuestion()">
+            <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl">
+                <form ng-submit="testCtrl.submitNewQuestion()">
                     <div class="form-group">
-                        <textarea placeholder="Nieuwe vraag" class="form-control" ng-model="test.newQuestion" ng-focus="test.questionFormFocus=true" rows="{{ test.getNewQuestionRows() }}" required></textarea>
+                        <textarea placeholder="Nieuwe vraag" class="form-control" ng-model="testCtrl.newQuestion" ng-focus="testCtrl.questionFormFocus=true" rows="{{ testCtrl.getNewQuestionRows() }}" required></textarea>
                     </div>
                     <div class="form-group">
-                        <textarea placeholder="Antwoord" class="form-control" ng-show="test.questionFormFocus" ng-model="test.newOpenAnswer" rows="5"></textarea>
+                        <textarea placeholder="Antwoord" class="form-control" ng-show="testCtrl.questionFormFocus" ng-model="testCtrl.newOpenAnswer" rows="5"></textarea>
                     </div>
-                    <div class="form-group" ng-show="test.questionFormFocus">
+                    <div class="form-group" ng-show="testCtrl.questionFormFocus">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 Vraagtype <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="#" ng-click="test.newQuestionType='open'">Openvraag</a></li>
-                                <li><a href="#" ng-click="test.newQuestionType='multipleChoice'">Meerkeuzevraag</a></li>
+                                <li><a href="#" ng-click="testCtrl.newQuestionType='open'">Openvraag</a></li>
+                                <li><a href="#" ng-click="testCtrl.newQuestionType='multipleChoice'">Meerkeuzevraag</a></li>
                             </ul>
                         </div>
-                        <input type="submit" value="Opslaan" class="btn btn-success pull-right" ng-show="test.questionFormFocus">
+                        <input type="submit" value="Opslaan" class="btn btn-success pull-right" ng-show="testCtrl.questionFormFocus">
                         <div class="clearfix"></div>
                     </div>
                 </form>
-                <div class="well" ng-click="test.questionFormFocus=false">
+                <div class="well" ng-click="testCtrl.questionFormFocus=false">
                     <div>
                         <h4>
                             <div class="row">
                                 <div class="col-xs-9 col-md-10">
-                                    {{ test.getCurrentTest().object.name }}
+                                    {{ testCtrl.getCurrentTest().object.name }}
                                 </div>
                                 <div class="col-xs-3 col-md-2">
                                     <div class="pull-right">
@@ -60,7 +60,7 @@
 
                     <div>
                         <div id="listWithHandle" class="list-group">
-                            <div class="list-group-item" ng-repeat="question in test.getQuestions()">
+                            <div class="list-group-item" ng-repeat="question in testCtrl.getQuestions()">
                                 <div class="row">
                                     <div class="col-xs-9 col-md-10">
                                         <strong>{{ $index + 1 }}:</strong>
@@ -71,7 +71,7 @@
                                             <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
                                                 <span class="glyphicon glyphicon-edit"></span>
                                             </button>
-                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="test.removeQuestion(question.id)">
+                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="testCtrl.removeQuestion(question.id)">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </div>

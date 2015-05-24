@@ -1,50 +1,50 @@
 angular.module('ph').controller('TestController', function($modal, $http, Question, Test){
-    var test = this;
-    test.newQuestionType = 'open';
-    test.questionFormFocus = false;
+    var testCtrl = this;
+    testCtrl.newQuestionType = 'open';
+    testCtrl.questionFormFocus = false;
 
-    test.getCurrentTest = function() {
+    testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();
     };
 
-    test.getQuestions = function() {
+    testCtrl.getQuestions = function() {
         return Test.getCurrentTestQuestions();
     };
 
-    test.removeQuestion = function(questionId) {
+    testCtrl.removeQuestion = function(questionId) {
         Test.removeQuestionFromCurrentTest(questionId);
     };
 
-    test.getNewQuestionRows = function(){
-        return !test.questionFormFocus ? 2 : 5;
+    testCtrl.getNewQuestionRows = function(){
+        return !testCtrl.questionFormFocus ? 2 : 5;
     };
 
-    test.submitNewQuestion = function(){
-        if (test.newQuestionType == 'open'){
-            var answer = {open: test.newOpenAnswer};
+    testCtrl.submitNewQuestion = function(){
+        if (testCtrl.newQuestionType == 'open'){
+            var answer = {open: testCtrl.newOpenAnswer};
         }else{
             var answer = {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}};
         }
 
         var newQuestion = {
-            question: test.newQuestion,
+            question: testCtrl.newQuestion,
             answer: answer
         };
 
         Question.create(newQuestion).then(function() {
-            test.resetNewQuestion();
+            testCtrl.resetNewQuestion();
             // var questionId = 'Question-gqimwjlw';
             // Test.addQuestion(Test.getCurrentTest().id, questionId);
         });
     };
 
-    test.resetNewQuestion = function(){
-        test.newQuestion = '';
-        test.newOpenAnswer = '';
-        test.newQuestionType = 'open';
+    testCtrl.resetNewQuestion = function(){
+        testCtrl.newQuestion = '';
+        testCtrl.newOpenAnswer = '';
+        testCtrl.newQuestionType = 'open';
     };
 
-    test.openNewTestModal = function(){
+    testCtrl.openNewTestModal = function(){
         var modalInstance = $modal.open({
             templateUrl: 'new_test_modal.html',
             controller: 'NewTestController as nt',
@@ -63,10 +63,10 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
     };
 
     Test.load().then(function(tests) {
-        if (!test.getCurrentTest() && tests.length) {
+        if (!testCtrl.getCurrentTest() && tests.length) {
             Test.setCurrentTest(tests[0].id);
-        }else if(!test.getCurrentTest()) {
-            test.openNewTestModal();
+        }else if(!testCtrl.getCurrentTest()) {
+            testCtrl.openNewTestModal();
         }
     });
 });
