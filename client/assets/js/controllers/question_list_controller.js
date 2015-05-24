@@ -1,4 +1,4 @@
-angular.module('ph').controller('QuestionListController', function($http, Question, $filter){
+angular.module('ph').controller('QuestionListController', function($http, Question, Test, $filter){
     var questionList = this;
 
     questionList.pageNumber = 1;
@@ -11,6 +11,22 @@ angular.module('ph').controller('QuestionListController', function($http, Questi
     };
 
     questionList.getQuestions = Question.getList;
+
+    questionList.addToCurrentTest = function(questionId) {
+        Test.addQuestionToCurrentTest(questionId);
+    };
+
+    questionList.isQuestionInCurrentTest = function(questionId) {
+        return Test.isQuestionInCurrentTest(questionId);
+    };
+
+    questionList.getQuestionClass = function(questionId) {
+        if (Test.isQuestionInCurrentTest(questionId)) {
+            return 'text-muted';
+        }else{
+            return '';
+        }
+    };
 
     Question.load();
 });

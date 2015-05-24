@@ -1,15 +1,18 @@
 angular.module('ph').controller('TestController', function($modal, $http, Question, Test){
     var test = this;
-    test.currentTestId = null;
     test.newQuestionType = 'open';
     test.questionFormFocus = false;
 
     test.getCurrentTest = function() {
-        return Test.getTestById(test.currentTestId);
+        return Test.getCurrentTest();
     };
 
-    test.getTests = function() {
-        return Test.getList();
+    test.getQuestions = function() {
+        return Test.getCurrentTestQuestions();
+    };
+
+    test.removeQuestion = function(questionId) {
+        Test.removeQuestionFromCurrentTest(questionId);
     };
 
     test.getNewQuestionRows = function(){
@@ -29,8 +32,9 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
         };
 
         Question.create(newQuestion).then(function() {
-            var questionId = 'Question-gqimwjlw';
-            Test.addQuestion(test.currentTestId, questionId);
+            test.resetNewQuestion();
+            // var questionId = 'Question-gqimwjlw';
+            // Test.addQuestion(Test.getCurrentTest().id, questionId);
         });
     };
 
@@ -54,16 +58,15 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
                 'name': newTestName,
                 'questions': []
             }
-            tests.post(newTest).then(function(newTest){
-                test.currentTest = newTest;
-                test.reloadCurrentTest();
-            });
+            Test.createTest(newTest);
         });
     };
 
-    Test.load().then(function() {
-        if (!test.currentTestId && test.getTests().length) {
-            test.currentTestId = test.getTests()[0].id;
+    Test.load().then(function(tests) {
+        if (!test.getCurrentTest() && tests.length) {
+            Test.setCurrentTest(tests[0].id);
+        }else if(!test.getCurrentTest()) {
+            test.openNewTestModal();
         }
     });
 });

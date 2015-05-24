@@ -60,18 +60,18 @@
 
                     <div>
                         <div id="listWithHandle" class="list-group">
-                            <div class="list-group-item" ng-repeat="question in test.getCurrentTest().object.questions">
+                            <div class="list-group-item" ng-repeat="question in test.getQuestions()">
                                 <div class="row">
                                     <div class="col-xs-9 col-md-10">
                                         <strong>{{ $index + 1 }}:</strong>
-                                        {{ question.question }}
+                                        {{ question.object.question }}
                                     </div>
                                     <div class="col-xs-3 col-md-2">
                                         <div class="pull-right">
                                             <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
                                                 <span class="glyphicon glyphicon-edit"></span>
                                             </button>
-                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets">
+                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="test.removeQuestion(question.id)">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </div>
@@ -128,11 +128,11 @@
                                 </td>
                             </tr> -->
                             <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: 'object.question' | itemsPerPage: questionList.itemsPerPage">
-                                <td>
+                                <td ng-class="questionList.getQuestionClass(question.id)">
                                     {{ question.object.question }}
                                 </td>
                                 <td style="width:100px;" class="text-right">
-                                    <button class="btn btn-success btn-xs" data-toggle="tooltip" title="Voeg toe aan toets">
+                                    <button class="btn btn-success btn-xs" ng-hide="questionList.isQuestionInCurrentTest(question.id)" data-toggle="tooltip" title="Voeg toe aan toets" ng-click="questionList.addToCurrentTest(question.id)">
                                         <span class="glyphicon glyphicon-plus"></span>
                                     </button>
                                     <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
