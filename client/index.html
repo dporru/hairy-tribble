@@ -46,10 +46,7 @@
                                 </div>
                                 <div class="col-xs-3 col-md-2">
                                     <div class="pull-right">
-                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
-                                            <span class="glyphicon glyphicon-edit"></span>
-                                        </button>
-                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Kies andere toets">
+                                        <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Kies andere toets" ng-click="testCtrl.openTestListModal()">
                                             <span class="glyphicon glyphicon-list-alt"></span>
                                         </button>
                                     </div>
@@ -117,16 +114,6 @@
                     <table class="table table-striped">
                         <caption class="text-right">Totaal {{ questionList.getNumberOfQuestions() }} resultaten</caption>
                         <tbody>
-                            <!-- <tr>
-                                <td class="text-muted">
-                                    What is the ultimate answer to live the universe and everything?
-                                </td>
-                                <td style="width:100px;" class="text-right">
-                                    <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                    </button>
-                                </td>
-                            </tr> -->
                             <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: 'object.question' | itemsPerPage: questionList.itemsPerPage">
                                 <td ng-class="questionList.getQuestionClass(question.id)">
                                     {{ question.object.question }}
@@ -160,7 +147,7 @@
     <script type="text/javascript" src="assets/js/services/question_service.js"></script>
     <script type="text/javascript" src="assets/js/services/test_service.js"></script>
     <script type="text/javascript" src="assets/js/controllers/test_controller.js"></script>
-    <script type="text/javascript" src="assets/js/controllers/new_test_controller.js"></script>
+    <script type="text/javascript" src="assets/js/controllers/test_list_controller.js"></script>
     <script type="text/javascript" src="assets/js/controllers/question_list_controller.js"></script>
 </body>
 </html>

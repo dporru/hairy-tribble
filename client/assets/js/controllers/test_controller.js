@@ -33,8 +33,6 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
 
         Question.create(newQuestion).then(function() {
             testCtrl.resetNewQuestion();
-            // var questionId = 'Question-gqimwjlw';
-            // Test.addQuestion(Test.getCurrentTest().id, questionId);
         });
     };
 
@@ -44,21 +42,12 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
         testCtrl.newQuestionType = 'open';
     };
 
-    testCtrl.openNewTestModal = function(){
+    testCtrl.openTestListModal = function(){
         var modalInstance = $modal.open({
-            templateUrl: 'new_test_modal.html',
-            controller: 'NewTestController as nt',
+            templateUrl: 'test_list.html',
+            controller: 'TestListController as test_list',
             resolve: {context: function(){return 'Mijn context'}},
             keyboard: false
-        });
-
-        modalInstance.result.then(function (newTestName) {
-
-            newTest = {
-                'name': newTestName,
-                'questions': []
-            }
-            Test.createTest(newTest);
         });
     };
 
@@ -66,7 +55,7 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
         if (!testCtrl.getCurrentTest() && tests.length) {
             Test.setCurrentTest(tests[0].id);
         }else if(!testCtrl.getCurrentTest()) {
-            testCtrl.openNewTestModal();
+            testCtrl.openTestListModal();
         }
     });
 });

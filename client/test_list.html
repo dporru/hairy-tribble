@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <button type="button" class="close" aria-label="Close" ng-click="test_list.cancel()"><span aria-hidden="true">&times;</span></button>
+    <h3 class="modal-title">Toetsten</h3>
+</div>
+
+<form ng-submit="test_list.save()">
+    <div class="modal-body">
+        <div class="form-group">
+            <div class="input-group">
+                <input type="text" placeholder="Nieuwe toetst" class="form-control" ng-model="test_list.newTestName" required>
+                <span class="input-group-btn">
+                    <input class="btn btn-primary" type="submit" value="Opslaan">
+                </span>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <tr ng-repeat="test in test_list.getTests() | orderBy: 'object.name'">
+                <td>
+                    {{ test.object.name }}
+                    <span class="label label-success" ng-show="test_list.isCurrentTest(test.id)">Huidige toets</span>
+                </td>
+                <td class="text-right">
+                    <button type="button" class="btn btn-success btn-xs" ng-hide="test_list.isCurrentTest(test.id)" data-toggle="tooltip" title="Maak huidige toets" ng-click="test_list.setCurrentTest(test.id)">
+                        <span class="glyphicon glyphicon-check"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
