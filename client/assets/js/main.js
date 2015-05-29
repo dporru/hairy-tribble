@@ -1,1 +1,1 @@
-angular.module('ph', ['ui.bootstrap','angularUtils.directives.dirPagination']);
+angular.module('ph', ['ui.bootstrap','angularUtils.directives.dirPagination', 'dndLists']);

@@ -2,14 +2,19 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
     var testCtrl = this;
     testCtrl.newQuestionType = 'open';
     testCtrl.questionFormFocus = false;
+    testCtrl.questions = [];
 
     testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();
     };
 
-    testCtrl.getQuestions = function() {
-        return Test.getCurrentTestQuestions();
-    };
+    Test.changed(function() {
+        testCtrl.questions = Test.getCurrentTestQuestions();
+    });
+
+    Question.changed(function() {
+        testCtrl.questions = Test.getCurrentTestQuestions();
+    });
 
     testCtrl.removeQuestion = function(questionId) {
         Test.removeQuestionFromCurrentTest(questionId);
@@ -50,6 +55,11 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
             keyboard: false
         });
     };
+
+    testCtrl.questionMoved = function($index) {
+        testCtrl.questions.splice($index, 1);
+        Test.saveCurrentQuestionList(testCtrl.questions);
+    }
 
     Test.load().then(function(tests) {
         if (!testCtrl.getCurrentTest() && tests.length) {

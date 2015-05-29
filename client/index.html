@@ -56,8 +56,14 @@
                     </div>
 
                     <div>
-                        <div id="listWithHandle" class="list-group">
-                            <div class="list-group-item" ng-repeat="question in testCtrl.getQuestions()">
+                        <div class="list-group" dnd-list="testCtrl.questions">
+                            <div class="list-group-item"
+                                ng-repeat="question in testCtrl.questions"
+                                dnd-draggable="question"
+                                dnd-moved="testCtrl.questionMoved($index)"
+                                dnd-effect-allowed="move"
+                                dnd-selected="models.selected = question"
+                                ng-class="{'selected': models.selected === question}">
                                 <div class="row">
                                     <div class="col-xs-9 col-md-10">
                                         <strong>{{ $index + 1 }}:</strong>
@@ -144,6 +150,7 @@
     <script type="text/javascript" src="assets/js/ui-bootstrap-tpls-0.9.0.min.js"></script>
     <script type="text/javascript" src="assets/js/main.js"></script>
     <script type="text/javascript" src="assets/js/dirPagination.js"></script>
+    <script type="text/javascript" src="assets/js/angular-drag-and-drop-lists.min.js"></script>
     <script type="text/javascript" src="assets/js/services/question_service.js"></script>
     <script type="text/javascript" src="assets/js/services/test_service.js"></script>
     <script type="text/javascript" src="assets/js/controllers/test_controller.js"></script>
