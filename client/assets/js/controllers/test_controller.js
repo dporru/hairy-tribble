@@ -1,4 +1,4 @@
-angular.module('ph').controller('TestController', function($modal, $http, Question, Test){
+angular.module('ph').controller('TestController', function($modal, $http, Question, Test, Alert){
     var testCtrl = this;
     testCtrl.newQuestionType = 'open';
     testCtrl.questionFormFocus = false;
@@ -38,6 +38,7 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
 
         Question.create(newQuestion).then(function() {
             testCtrl.resetNewQuestion();
+            Alert.add('Nieuwe vraag toegevoegd.', 'success');
         });
     };
 
