@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <button type="button" class="close" aria-label="Close" ng-click="removeCtrl.cancel()"><span aria-hidden="true">&times;</span></button>
+    <h3 class="modal-title">{{ removeCtrl.title }}</h3>
+</div>
+
+<div class="modal-body">
+    {{ removeCtrl.content }}
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-danger" ng-click="removeCtrl.remove()">Verwijder</button>
+    <button class="btn btn-default" ng-click="removeCtrl.cancel()">Annuleer</button>
+</div>

@@ -1,4 +1,4 @@
-angular.module('ph').controller('TestListController', function ($modalInstance, Test, context) {
+angular.module('ph').controller('TestListController', function ($modalInstance, $modal, Test, context) {
 
     test_list = this;
 
@@ -34,5 +34,23 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
 
     test_list.cancel = function () {
         $modalInstance.dismiss('cancel');
+    };
+
+    test_list.removeTest = function(test){
+        var modalInstance = $modal.open({
+            templateUrl: 'remove_confirmation.html',
+            controller: 'RemoveConfirmationController as removeCtrl',
+            resolve: {
+                title: function(){return 'Verwijder ' + test.object.name + '?'},
+                content: function(){return 'Weet je zeker dat je ' + test.object.name + ' wilt verwijderen?'}
+            },
+            keyboard: true
+        });
+
+        modalInstance.result.then(function (remove) {
+            if (remove) {
+                Test.removeTest(test.id);
+            }
+        });
     };
 });

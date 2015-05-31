@@ -4,6 +4,11 @@
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
 
+/* test-list */
+.test-list td.test-name {
+    cursor: pointer;
+}
+
 /* dnd-lists */
 /**
  * For the correct positioning of the placeholder element, the dnd-list and

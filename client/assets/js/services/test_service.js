@@ -114,6 +114,11 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
             methods.saveQuestionIdList(currentTestId, questions);
 
         },
+        removeTest: function(testId) {
+            return $http.delete('/api/v0.0.0/test/id/' + testId).then(function(){
+                methods.load();
+            });
+        },
         changed: function(callback) {
             changedCallbacks.push(callback);
         }
