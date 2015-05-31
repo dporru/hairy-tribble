@@ -15,7 +15,7 @@
         </div>
 
         <!-- Alert Controler -->
-        <div ng-controller="AlertCtrl">
+        <div ng-controller="AlertCtrl" class="alert-container">
             <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert(alert.id)">{{ alert.msg }}</alert>
         </div>
 
