@@ -9,6 +9,13 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
         }
         Test.createTest(newTest).then(function() {
             test_list.newTestName = '';
+
+            // If this is the first test, close the modal
+            // and set this test as current.
+            if (test_list.getTests().length === 1) {
+                test_list.setCurrentTest(test_list.getTests()[0].id);
+                test_list.cancel();
+            }
         });
     };
 
