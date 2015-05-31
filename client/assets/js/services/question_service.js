@@ -1,4 +1,4 @@
-angular.module('ph').factory('Question', ['$http', function($http){
+angular.module('ph').factory('Question', ['$http', 'Alert', function($http, Alert){
     var questions = [];
     var questionsById = {};
     var changedCallbacks = [];
@@ -19,18 +19,26 @@ angular.module('ph').factory('Question', ['$http', function($http){
             }
         },
         load: function() {
-            $http.get('/api/v0.0.0/question').then(function(result){
-                questions = result.data.items;
-                for (var i in questions) {
-                    questionsById[questions[i].id] = questions[i];
-                }
-                changedExecute();
-            });
+            $http.get('/api/v0.0.0/question')
+                .then(function(result){
+                    questions = result.data.items;
+                    for (var i in questions) {
+                        questionsById[questions[i].id] = questions[i];
+                    }
+                    changedExecute();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het ophalen van de vragen.', 'danger');
+                });
         },
         create: function(newQuestion) {
-            return $http.post('/api/v0.0.0/question', newQuestion).then(function() {
-                methods.load();
-            });
+            return $http.post('/api/v0.0.0/question', newQuestion)
+                .then(function() {
+                    methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het aanmaken van de vraag.', 'danger');
+                });
         },
         changed: function(callback) {
             changedCallbacks.push(callback);

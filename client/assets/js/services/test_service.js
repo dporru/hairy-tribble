@@ -1,4 +1,4 @@
-angular.module('ph').factory('Test', ['$http', 'Question', function($http, Question){
+angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($http, Question, Alert){
     var currentTestId = null;
     var tests = [];
     var testsById = {};
@@ -23,9 +23,13 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
             return tests;
         },
         createTest: function(newTest) {
-            return $http.post('/api/v0.0.0/test', newTest).then(function() {
-                return methods.load();
-            });
+            return $http.post('/api/v0.0.0/test', newTest)
+                .then(function() {
+                    return methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het aanmaken van de toets.', 'danger');
+                });
         },
         getTestById: function(id) {
             return testsById[id];
@@ -53,14 +57,18 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
             return questions;
         },
         load: function() {
-            return $http.get('/api/v0.0.0/test').then(function(result){
-                tests = result.data.items;
-                for (var i in tests) {
-                    testsById[tests[i].id] = tests[i];
-                }
-                changedExecute();
-                return tests;
-            });
+            return $http.get('/api/v0.0.0/test')
+                .then(function(result){
+                    tests = result.data.items;
+                    for (var i in tests) {
+                        testsById[tests[i].id] = tests[i];
+                    }
+                    changedExecute();
+                    return tests;
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het ophalen van de toetsen.', 'danger');
+                });
         },
         addQuestion: function(testId, questionId) {
             var questionIdList = getTestQuestionIds(testId);
@@ -74,9 +82,13 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
                 questions: questionIdList
             };
 
-            return $http.put('/api/v0.0.0/test/id/' + testId, updatedTest).then(function(){
-                methods.load();
-            });
+            return $http.put('/api/v0.0.0/test/id/' + testId, updatedTest)
+                .then(function(){
+                    methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het opslaan van de vragenlijst.', 'danger');
+                })
         },
         saveQuestionList: function(testId, questionList) {
             var questionIdList = [];
@@ -115,9 +127,13 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
 
         },
         removeTest: function(testId) {
-            return $http.delete('/api/v0.0.0/test/id/' + testId).then(function(){
-                methods.load();
-            });
+            return $http.delete('/api/v0.0.0/test/id/' + testId)
+                .then(function(){
+                    methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het verwijderen van de toets.', 'danger');
+                })
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
