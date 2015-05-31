@@ -111,7 +111,8 @@ angular.module('ph').factory('Test', ['$http', 'Question', function($http, Quest
                     questions.push(testsById[currentTestId].object.questions[i]);
                 }
             }
-            testsById[currentTestId].object.questions = questions;
+            methods.saveQuestionIdList(currentTestId, questions);
+
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
