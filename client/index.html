@@ -104,10 +104,10 @@
                                     Exporteer <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">PDF</a></li>
-                                    <li><a href="#">Microsoft Word</a></li>
-                                    <li><a href="#">ODF</a></li>
-                                    <li><a href="#">Platte tekst</a></li>
+                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('pdf') }}" target="_blank">PDF</a></li>
+                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('word') }}" target="_blank">Microsoft Word</a></li>
+                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('odf') }}" target="_blank">ODF</a></li>
+                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('text') }}" target="_blank">Platte tekst</a></li>
                                 </ul>
                             </div>
                         </div>

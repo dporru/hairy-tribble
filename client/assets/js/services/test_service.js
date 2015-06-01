@@ -137,6 +137,9 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
+        },
+        getCurrentTestExportUrl: function(type) {
+            return '/api/v0.0.0/test/id/' + currentTestId + '/export/' + type;
         }
     };
 
