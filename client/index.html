@@ -72,7 +72,7 @@
                                 <div class="row">
                                     <div class="col-xs-9 col-md-10">
                                         <strong>{{ $index + 1 }}:</strong>
-                                        {{ question.object.question }}
+                                        {{ testCtrl.getQuestionTitle(question) | cut : true : 100 }}
                                     </div>
                                     <div class="col-xs-3 col-md-2">
                                         <div class="pull-right">
@@ -127,7 +127,7 @@
                         <tbody>
                             <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: 'object.question' | itemsPerPage: questionList.itemsPerPage">
                                 <td ng-class="questionList.getQuestionClass(question.id)">
-                                    {{ question.object.question }}
+                                    {{ questionList.getQuestionTitle(question) | cut : true : 50 }}
                                 </td>
                                 <td style="width:100px;" class="text-right">
                                     <button class="btn btn-success btn-xs" ng-hide="questionList.isQuestionInCurrentTest(question.id)" data-toggle="tooltip" title="Voeg toe aan toets" ng-click="questionList.addToCurrentTest(question.id)">
@@ -156,6 +156,7 @@
     <script type="text/javascript" src="assets/js/dirPagination.js"></script>
     <script type="text/javascript" src="assets/js/angular-drag-and-drop-lists.min.js"></script>
     <script type="text/javascript" src="assets/js/services/question_service.js"></script>
+    <script type="text/javascript" src="assets/js/filters/cut_filter.js"></script>
     <script type="text/javascript" src="assets/js/services/test_service.js"></script>
     <script type="text/javascript" src="assets/js/services/alert_service.js"></script>
     <script type="text/javascript" src="assets/js/controllers/test_controller.js"></script>

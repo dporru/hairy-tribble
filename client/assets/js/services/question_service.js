@@ -42,6 +42,15 @@ angular.module('ph').factory('Question', ['$http', 'Alert', function($http, Aler
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
+        },
+        getQuestionTitle: function(question) {
+            var title = question.object.question;
+
+            if (title.indexOf('\n') !== -1) {
+                title = title.substring(0, title.indexOf('\n'));
+            }
+
+            return title;
         }
     };
 

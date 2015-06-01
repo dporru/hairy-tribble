@@ -28,5 +28,9 @@ angular.module('ph').controller('QuestionListController', function($http, Questi
         }
     };
 
+    questionList.getQuestionTitle = function(question) {
+        return Question.getQuestionTitle(question);
+    };
+
     Question.load();
 });

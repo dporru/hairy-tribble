@@ -62,6 +62,10 @@ angular.module('ph').controller('TestController', function($modal, $http, Questi
         Test.saveCurrentQuestionList(testCtrl.questions);
     }
 
+    testCtrl.getQuestionTitle = function(question) {
+        return Question.getQuestionTitle(question);
+    };
+
     Test.load().then(function(tests) {
         if (!testCtrl.getCurrentTest() && tests.length) {
             Test.setCurrentTest(tests[0].id);
