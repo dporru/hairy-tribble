@@ -53,4 +53,8 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
             }
         });
     };
+
+    test_list.updateTestName = function(testId, name) {
+        Test.updateTestName(testId, name);
+    };
 });

@@ -3,24 +3,38 @@
     <h3 class="modal-title">Toetsen</h3>
 </div>
 
-<form ng-submit="test_list.save()">
+
     <div class="modal-body">
-        <div class="form-group">
-            <div class="input-group">
-                <input type="text" placeholder="Nieuwe toetst" class="form-control" ng-model="test_list.newTestName" required>
-                <span class="input-group-btn">
-                    <input class="btn btn-primary" type="submit" value="Opslaan">
-                </span>
+        <form ng-submit="test_list.save()">
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" placeholder="Nieuwe toetst" class="form-control" ng-model="test_list.newTestName" required>
+                    <span class="input-group-btn">
+                        <input class="btn btn-primary" type="submit" value="Opslaan">
+                    </span>
+                </div>
             </div>
-        </div>
+        </form>
         <table class="table table-striped test-list">
             <tr ng-repeat="test in test_list.getTests() | orderBy: 'object.name'">
-                <td ng-click="test_list.setCurrentTest(test.id)" class="test-name">
+                <td ng-click="test_list.setCurrentTest(test.id)" 
+                    class="test-name"
+                    ng-hide="test.isEditing">
                     {{ test.object.name }}
                     <span class="label label-success" ng-show="test_list.isCurrentTest(test.id)">Huidige toets</span>
                 </td>
+                <td ng-show="test.isEditing">
+                    <form ng-submit="test_list.updateTestName(test.id, test.newName)">
+                        <div class="input-group">
+                            <input type="text" placeholder="Toetsnaam" class="form-control" ng-model="test.newName" required>
+                        <span class="input-group-btn">
+                            <input class="btn btn-primary" type="submit" value="Opslaan">
+                        </span>
+                    </div>
+                    </form>
+                </td>
                 <td class="text-right">
-                    <button type="button" class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen">
+                    <button type="button" class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen" ng-click="test.isEditing=!test.isEditing; test.newName=test.object.name">
                         <span class="glyphicon glyphicon-edit"></span>
                     </button>
                     <button type="button" class="btn btn-danger btn-xs" data-toggle="tooltip" title="Verwijder" ng-click="test_list.removeTest(test)">
@@ -30,4 +44,3 @@
             </tr>
         </table>
     </div>
-</form>

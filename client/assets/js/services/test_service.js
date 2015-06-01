@@ -88,7 +88,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het opslaan van de vragenlijst.', 'danger');
-                })
+                });
         },
         saveQuestionList: function(testId, questionList) {
             var questionIdList = [];
@@ -140,6 +140,20 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
         },
         getCurrentTestExportUrl: function(type) {
             return '/api/v0.0.0/test/id/' + currentTestId + '/export/' + type;
+        },
+        updateTestName: function(testId, newName) {
+            var updatedTest = {
+                name: newName,
+                questions: testsById[testId].object.questions
+            };
+
+            return $http.put('/api/v0.0.0/test/id/' + testId, updatedTest)
+                .then(function(){
+                    methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het opslaan van de nieuwe toetsnaam.', 'danger');
+                });
         }
     };
 
