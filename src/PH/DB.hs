@@ -14,8 +14,8 @@ initialiseIndices = do
   T.index (ID.selector :: ID.WithID Question -> ID.ID Question)
   T.index (ID.selector :: ID.WithID Test     -> ID.ID Test    )
 
-run :: STM a -> IO a
-run = T.atomicallySync
+run :: (MonadIO m) => STM a -> m a
+run = liftIO . T.atomicallySync
 
 flush :: STM ()
 flush = T.flushAll

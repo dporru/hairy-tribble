@@ -3,7 +3,7 @@
 module Common
   (
     (<$>),msum,(<<<),(>>>),void
-  , liftIO,lift
+  , MonadIO,liftIO,lift
   , throwError,ExceptT(ExceptT)
   , ReaderT(ReaderT)
   , for
@@ -25,7 +25,7 @@ import           Control.Arrow              ((<<<),(>>>))
 import           Control.Concurrent.STM     (STM,atomically)
 import           Control.Monad              (msum)
 import           Control.Monad.Except       (throwError,ExceptT(ExceptT))
-import           Control.Monad.IO.Class     (liftIO)
+import           Control.Monad.IO.Class     (MonadIO,liftIO)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Reader (ReaderT(ReaderT))
 import           Data.Aeson                 (ToJSON,toJSON,FromJSON,parseJSON)
