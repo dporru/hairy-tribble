@@ -36,7 +36,7 @@ list = R.mkListing R.jsonO $ \ range -> lift $
   takeRange range <$> DB.run (ID.listWithID :: STM [ID.WithID Question])
 
 create :: R.Handler IO
-create = R.mkInputHandler R.jsonI $ void . liftIO . DB.run . (ID.newRef :: Question -> STM (ID.Ref Question))
+create = R.mkInputHandler (R.jsonI . R.jsonO) $ liftIO . DB.run . (ID.newRef :: Question -> STM (ID.Ref Question))
 
 remove :: R.Handler (ReaderT (ID.Ref Question) IO)
 remove = R.mkIdHandler id $ \ () -> liftIO . DB.run . ID.delete
