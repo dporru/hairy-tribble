@@ -20,7 +20,7 @@ resource :: R.Resource IO (ReaderT (ID.Ref Test) IO) (ID.Ref Test) () Void
 resource = R.mkResourceReader
   {
     R.name   = "test"
-  , R.schema = R.withListing () $ R.named [("id",R.singleBy T.getDBRef)]
+  , R.schema = R.withListing () $ R.unnamedSingle T.getDBRef
   , R.list   = const list
   , R.get    = Just get
   , R.update = Just update

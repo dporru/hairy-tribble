@@ -20,7 +20,7 @@ resource :: R.Resource IO (ReaderT (ID.Ref Question) IO) (ID.Ref Question) () Vo
 resource = R.mkResourceReader
   {
     R.name   = "question"
-  , R.schema = R.withListing () $ R.named [("id",R.singleBy T.getDBRef)]
+  , R.schema = R.withListing () $ R.unnamedSingle T.getDBRef
   , R.list   = const list
   , R.get    = Just get
   , R.update = Just update
