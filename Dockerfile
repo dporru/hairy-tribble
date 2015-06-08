@@ -17,7 +17,7 @@ RUN wget https://www.haskell.org/ghc/dist/7.8.4/ghc-7.8.4-x86_64-unknown-linux-d
 
 # Install app-specific requirements.
 RUN apt-get update -y &&\
-    apt-get install -y git libtinfo-dev texlive-xetex
+    apt-get install -y git libtinfo-dev texlive-xetex darcs
 
 # Add user ph.
 RUN groupadd -g 9000 ph &&\
@@ -52,13 +52,20 @@ VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout 78d307ef2a243428948e5bc39c2f6b20288c8fd5
+    git checkout 12576295ccaf01491d9ffe20fc6c29742a1b6763
+
+# Download enhanced version of full-text-search. Change echo date to
+# force redownload when the repository has changed.
+RUN cd /home/ph &&\
+    echo "Get full-text-search - Fri Jun 5 11:07:25 UTC 2015" &&\
+    darcs get http://hub.darcs.net/AriePeterson/full-text-search
 
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
 RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
+    cabal sandbox add-source /home/ph/full-text-search &&\
     cabal sandbox add-source /hairy-tribble &&\
     cabal update &&\
     touch /hairy-tribble/LICENSE &&\
