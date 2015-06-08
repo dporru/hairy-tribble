@@ -133,7 +133,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het verwijderen van de toets.', 'danger');
-                })
+                });
         },
         changed: function(callback) {
             changedCallbacks.push(callback);

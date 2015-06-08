@@ -1,4 +1,4 @@
-angular.module('ph').filter('cut', function () {
+angular.module('ph').filter('cut', [function () {
     return function (value, wordwise, max, tail) {
         if (!value) return '';
 
@@ -16,4 +16,4 @@ angular.module('ph').filter('cut', function () {
 
         return value + (tail || ' …');
     };
-});
+}]);

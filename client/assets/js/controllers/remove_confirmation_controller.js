@@ -1,4 +1,4 @@
-angular.module('ph').controller('RemoveConfirmationController', function ($modalInstance, title, content) {
+angular.module('ph').controller('RemoveConfirmationController', ['$modalInstance', 'title', 'content', function ($modalInstance, title, content) {
 
     removeCtrl = this;
 
@@ -12,4 +12,4 @@ angular.module('ph').controller('RemoveConfirmationController', function ($modal
     removeCtrl.remove = function(){
         $modalInstance.close(true);
     };
-});
+}]);

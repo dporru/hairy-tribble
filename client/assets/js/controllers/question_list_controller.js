@@ -1,4 +1,4 @@
-angular.module('ph').controller('QuestionListController', function($http, Question, Test, $filter){
+angular.module('ph').controller('QuestionListController', ['$http', 'Question', 'Test', '$filter', function($http, Question, Test, $filter){
     var questionList = this;
 
     questionList.pageNumber = 1;
@@ -33,4 +33,4 @@ angular.module('ph').controller('QuestionListController', function($http, Questi
     };
 
     Question.load();
-});
+}]);

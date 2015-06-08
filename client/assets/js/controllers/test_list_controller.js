@@ -1,4 +1,4 @@
-angular.module('ph').controller('TestListController', function ($modalInstance, $modal, Test, context) {
+angular.module('ph').controller('TestListController', ['$modalInstance', '$modal', 'Test', 'context', function ($modalInstance, $modal, Test, context) {
 
     test_list = this;
 
@@ -6,7 +6,8 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
         newTest = {
             'name': test_list.newTestName,
             'questions': []
-        }
+        };
+
         Test.createTest(newTest).then(function() {
             test_list.newTestName = '';
 
@@ -41,8 +42,8 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
             templateUrl: 'remove_confirmation.html',
             controller: 'RemoveConfirmationController as removeCtrl',
             resolve: {
-                title: function(){return 'Verwijder ' + test.object.name + '?'},
-                content: function(){return 'Weet je zeker dat je ' + test.object.name + ' wilt verwijderen?'}
+                title: function(){return 'Verwijder ' + test.object.name + '?';},
+                content: function(){return 'Weet je zeker dat je ' + test.object.name + ' wilt verwijderen?';}
             },
             keyboard: true
         });
@@ -57,4 +58,4 @@ angular.module('ph').controller('TestListController', function ($modalInstance, 
     test_list.updateTestName = function(testId, name) {
         Test.updateTestName(testId, name);
     };
-});
+}]);
