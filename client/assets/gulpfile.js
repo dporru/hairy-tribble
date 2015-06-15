@@ -5,11 +5,16 @@ var uglify = require('gulp-uglify');
 var jshint = require('gulp-jshint');
 
 var javascript_libs = [
+    'bower_components/jquery/dist/jquery.js',
     'bower_components/angular/angular.js',
     'bower_components/angular-bootstrap/ui-bootstrap.js',
     'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
     'bower_components/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js',
     'bower_components/angular-utils-pagination/dirPagination.js',
+    'bower_components/trumbowyg/dist/trumbowyg.js',
+    'bower_components/trumbowyg/dist/langs/nl.min.js',
+    'bower_components/trumbowyg/dist/plugins/upload/trumbowyg.upload.js',
+    'bower_components/trumbowyg-ng/dist/trumbowyg-ng.js',
     'js/main.js',
     'js/controllers/*.js',
     'js/services/*.js',

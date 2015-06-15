@@ -105,3 +105,16 @@ h1 {
     background-color: #dff0d8;
     color: #3c763d;
 }
+
+/**
+ * Rich text editor
+ */
+
+.trumbowyg-box {
+    width: 100%;
+    margin: 0;
+}
+
+.trumbowyg-box .ng-hide {
+    display: none;
+}

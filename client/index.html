@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/bower_components/trumbowyg/dist/ui/trumbowyg.min.css">
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
 </head>
 <body>
@@ -15,18 +16,24 @@
 
     <div class="container">
         <!-- Alert Controler -->
-        <div ng-controller="AlertCtrl" class="alert-container">
+<!--         <div ng-controller="AlertCtrl" class="alert-container">
             <alert ng-repeat="alert in alerts" type="{{ alert.type }}" close="closeAlert(alert.id)">{{ alert.msg }}</alert>
         </div>
-
+ -->
         <div class="row">
             <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl">
                 <form ng-submit="testCtrl.submitNewQuestion()">
                     <div class="form-group">
-                        <textarea placeholder="Nieuwe vraag" class="form-control" ng-model="testCtrl.newQuestion" ng-focus="testCtrl.questionFormFocus=true" rows="{{ testCtrl.getNewQuestionRows() }}" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <textarea placeholder="Antwoord" class="form-control" ng-show="testCtrl.questionFormFocus" ng-model="testCtrl.newOpenAnswer" rows="5"></textarea>
+                        <input type="text" placeholder="Nieuwe vraag" class="form-control" ng-focus="testCtrl.questionFormFocus=true" required ng-hide="testCtrl.questionFormFocus">
+                        <div ng-show="testCtrl.questionFormFocus">
+                            <trumbowyg-ng
+                                 placeholder="Nieuwe vraag"
+                                 class="form-control"
+                                 ng-model="testCtrl.newQuestion"
+                                 ng-focus="testCtrl.questionFormFocus=true"
+                                 editor-config="{btns: ['bold','italic','|','upload'], lang: 'nl'}">
+                            </trumbowyg-ng>
+                        </div>
                     </div>
                     <div class="form-group" ng-show="testCtrl.questionFormFocus">
                         <div class="btn-group">

@@ -20,10 +20,6 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         Test.removeQuestionFromCurrentTest(questionId);
     };
 
-    testCtrl.getNewQuestionRows = function(){
-        return !testCtrl.questionFormFocus ? 2 : 5;
-    };
-
     testCtrl.submitNewQuestion = function(){
         var answer;
         if (testCtrl.newQuestionType == 'open'){
@@ -71,11 +67,11 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         return Test.getCurrentTestExportUrl(type);
     };
 
-    Test.load().then(function(tests) {
-        if (!testCtrl.getCurrentTest() && typeof tests != 'undefined' && tests.length) {
-            Test.setCurrentTest(tests[0].id);
-        }else if(!testCtrl.getCurrentTest()) {
-            testCtrl.openTestListModal();
-        }
-    });
+    // Test.load().then(function(tests) {
+    //     if (!testCtrl.getCurrentTest() && typeof tests != 'undefined' && tests.length) {
+    //         Test.setCurrentTest(tests[0].id);
+    //     }else if(!testCtrl.getCurrentTest()) {
+    //         testCtrl.openTestListModal();
+    //     }
+    // });
 }]);
