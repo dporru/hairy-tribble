@@ -1,0 +1,32 @@
+<form class="horizontal-form" ng-submit="save()">
+    <div class="form-group">
+        <div class="btn-group" role="group">
+            <button type="button" ng-class="typeClass('open')" ng-click="questionType='open'">Openvraag</button>
+            <button type="button" ng-class="typeClass('multipleChoice')" ng-click="questionType='multipleChoice'">Meerkeuzevraag</button>
+        </div>
+    </div>
+    <div class="form-group question-holder">
+        <textarea name="question" placeholder="{{ placeholder }}"></textarea>
+    </div>
+    <div class="form-group open-answer-holder" ng-show="questionType == 'open'">
+        <textarea name="open_answer" placeholder="Antwoord"></textarea>
+    </div>
+    <div class="form-group multiple-choice-answers-holder" ng-show="questionType == 'multipleChoice'">
+        <div class="input-group">
+            <span class="input-group-addon">
+                <i class="glyphicon glyphicon-ok text-success"></i>
+            </span>
+            <input type="text" class="form-control" ng-model="multipleChoice.correct" ng-change="updateMultipleAnswers()">
+        </div>
+        <div class="input-group" ng-repeat="answer in multipleChoice.incorrect">
+            <span class="input-group-addon">
+                <i ng-class="multipleChoiceAnswerClass(answer)"></i>
+            </span>
+            <input type="text" class="form-control" ng-model="answer.value" ng-change="updateMultipleAnswers()">
+        </div>
+    </div>
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary pull-right" value="Opslaan">
+    </div>
+    <div class="clearfix"></div>
+</form>

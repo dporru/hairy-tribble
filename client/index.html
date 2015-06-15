@@ -22,33 +22,7 @@
  -->
         <div class="row">
             <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl">
-                <form ng-submit="testCtrl.submitNewQuestion()">
-                    <div class="form-group">
-                        <input type="text" placeholder="Nieuwe vraag" class="form-control" ng-focus="testCtrl.questionFormFocus=true" required ng-hide="testCtrl.questionFormFocus">
-                        <div ng-show="testCtrl.questionFormFocus">
-                            <trumbowyg-ng
-                                 placeholder="Nieuwe vraag"
-                                 class="form-control"
-                                 ng-model="testCtrl.newQuestion"
-                                 ng-focus="testCtrl.questionFormFocus=true"
-                                 editor-config="{btns: ['bold','italic','|','upload'], lang: 'nl'}">
-                            </trumbowyg-ng>
-                        </div>
-                    </div>
-                    <div class="form-group" ng-show="testCtrl.questionFormFocus">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                Vraagtype <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" role="menu">
-                                <li><a href="#" ng-click="testCtrl.newQuestionType='open'">Openvraag</a></li>
-                                <li><a href="#" ng-click="testCtrl.newQuestionType='multipleChoice'">Meerkeuzevraag</a></li>
-                            </ul>
-                        </div>
-                        <input type="submit" value="Opslaan" class="btn btn-success pull-right" ng-show="testCtrl.questionFormFocus">
-                        <div class="clearfix"></div>
-                    </div>
-                </form>
+                <question question="testCtrl.newQuestion" placeholder="Nieuwe vraag" ng-submit="testCtrl.submitNewQuestion"></question>
                 <div class="well" ng-click="testCtrl.questionFormFocus=false">
                     <div>
                         <h4>

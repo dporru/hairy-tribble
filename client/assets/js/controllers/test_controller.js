@@ -1,8 +1,11 @@
 angular.module('ph').controller('TestController', ['$modal', '$http', 'Question', 'Test', 'Alert', function($modal, $http, Question, Test, Alert){
     var testCtrl = this;
-    testCtrl.newQuestionType = 'open';
     testCtrl.questionFormFocus = false;
     testCtrl.questions = [];
+    testCtrl.newQuestion = {};
+
+    // testCtrl.newQuestion = {object:{question: "de vraag", answer: {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}}}};
+    // testCtrl.newQuestion = {object:{question: "de vraag", answer: {open: 'Open antwoord'}}};
 
     testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();
@@ -21,28 +24,17 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     testCtrl.submitNewQuestion = function(){
-        var answer;
-        if (testCtrl.newQuestionType == 'open'){
-            answer = {open: testCtrl.newOpenAnswer};
-        }else{
-            answer = {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}};
-        }
+        // if (testCtrl.newQuestionType == 'open'){
+        //     answer = {open: testCtrl.newOpenAnswer};
+        // }else{   
+        //     answer = {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}};
+        // }
 
-        var newQuestion = {
-            question: testCtrl.newQuestion,
-            answer: answer
-        };
-
-        Question.create(newQuestion).then(function() {
-            testCtrl.resetNewQuestion();
+        // Question.create(testCtrl.newQuestion).then(function() {
+        // });
+            console.log(testCtrl.newQuestion);
+            testCtrl.newQuestion = {};
             Alert.add('Nieuwe vraag toegevoegd.', 'success');
-        });
-    };
-
-    testCtrl.resetNewQuestion = function(){
-        testCtrl.newQuestion = '';
-        testCtrl.newOpenAnswer = '';
-        testCtrl.newQuestionType = 'open';
     };
 
     testCtrl.openTestListModal = function(){

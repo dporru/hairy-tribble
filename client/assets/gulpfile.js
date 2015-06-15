@@ -14,10 +14,10 @@ var javascript_libs = [
     'bower_components/trumbowyg/dist/trumbowyg.js',
     'bower_components/trumbowyg/dist/langs/nl.min.js',
     'bower_components/trumbowyg/dist/plugins/upload/trumbowyg.upload.js',
-    'bower_components/trumbowyg-ng/dist/trumbowyg-ng.js',
     'js/main.js',
     'js/controllers/*.js',
     'js/services/*.js',
+    'js/directives/*.js',
     'js/filters/*.js'
 ];
 
@@ -29,7 +29,7 @@ gulp.task('uglify', function() {
     return gulp.src(javascript_libs)
         .pipe(sourcemaps.init())
             .pipe(concat('all.min.js'))
-            .pipe(uglify())
+            // .pipe(uglify())
         .pipe(sourcemaps.write('../maps'))
         .pipe(gulp.dest('dist'));
 });
