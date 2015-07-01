@@ -1,4 +1,4 @@
-angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($http, Question, Alert){
+angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', function($http, Question, Alert, API_PATH){
     var currentTestId = null;
     var tests = [];
     var testsById = {};
@@ -23,7 +23,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
             return tests;
         },
         createTest: function(newTest) {
-            return $http.post('/api/v0.0.0/test', newTest)
+            return $http.post(API_PATH + 'test', newTest)
                 .then(function() {
                     return methods.load();
                 })
@@ -57,7 +57,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
             return questions;
         },
         load: function() {
-            return $http.get('/api/v0.0.0/test')
+            return $http.get(API_PATH + 'test')
                 .then(function(result){
                     tests = result.data.items;
                     for (var i in tests) {
@@ -82,7 +82,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
                 questions: questionIdList
             };
 
-            return $http.put('/api/v0.0.0/test/id/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })
@@ -127,7 +127,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
 
         },
         removeTest: function(testId) {
-            return $http.delete('/api/v0.0.0/test/id/' + testId)
+            return $http.delete(API_PATH + 'test/id/' + testId)
                 .then(function(){
                     methods.load();
                 })
@@ -139,7 +139,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
             changedCallbacks.push(callback);
         },
         getCurrentTestExportUrl: function(type) {
-            return '/api/v0.0.0/test/id/' + currentTestId + '/export/' + type;
+            return API_PATH + 'test/id/' + currentTestId + '/export/' + type;
         },
         updateTestName: function(testId, newName) {
             var updatedTest = {
@@ -147,7 +147,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', function($ht
                 questions: testsById[testId].object.questions
             };
 
-            return $http.put('/api/v0.0.0/test/id/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })

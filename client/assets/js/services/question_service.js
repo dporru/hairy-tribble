@@ -1,4 +1,4 @@
-angular.module('ph').factory('Question', ['$http', 'Alert', function($http, Alert){
+angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , function($http, Alert, API_PATH) {
     var questions = [];
     var questionsById = {};
     var changedCallbacks = [];
@@ -19,7 +19,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', function($http, Aler
             }
         },
         load: function() {
-            $http.get('/api/v0.0.0/question')
+            $http.get(API_PATH + 'question')
                 .then(function(result){
                     questions = result.data.items;
                     for (var i in questions) {
@@ -32,7 +32,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', function($http, Aler
                 });
         },
         create: function(newQuestion) {
-            return $http.post('/api/v0.0.0/question', newQuestion)
+            return $http.post(API_PATH + 'question', newQuestion)
                 .then(function() {
                     methods.load();
                 })
