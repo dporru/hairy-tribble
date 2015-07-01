@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html ng-app="ph">
 <head>
-    <title>Hairy Tibble</title>
+    <title>Tribble</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="assets/bower_components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
 </head>
 <body>
+    <div class="page-header">
+        <img src="/assets/img/logo_klein.png">
+        <h1>Tribble</h1>
+    </div>
 
     <div class="container">
-        <div class="page-header">
-            <h1>Hairy Tibble</h1>
-        </div>
-
         <!-- Alert Controler -->
         <div ng-controller="AlertCtrl" class="alert-container">
             <alert ng-repeat="alert in alerts" type="{{ alert.type }}" close="closeAlert(alert.id)">{{ alert.msg }}</alert>

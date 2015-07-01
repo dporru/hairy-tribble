@@ -1,3 +1,22 @@
+.page-header {
+    border-bottom: 1px solid #EEE;
+    background-color: #0D0D0D;
+    padding: 10px 20px;
+    margin: 0 0 20px 0;
+}
+
+h1 {
+    font-size: 25px;
+    color: #DDD;
+    margin: 10px 0;
+}
+
+.page-header img {
+    float:left;
+    height: 50px;
+    margin-right: 10px;
+}
+
 .list-group-item {
     cursor:grab;
 }
