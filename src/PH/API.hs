@@ -7,8 +7,9 @@ import           Common
 import qualified PH.API.Test.Export as Export
 import qualified PH.DB              as DB
 import           PH.Types
+import           PH.Types.JSON ()
 
-import           Rest.Api (Api,mkVersion,Some1(Some1),Router,root,route,(-/),(--/))
+import           Rest.Api      (Api,mkVersion,Some1(Some1),Router,root,route,(-/),(--/))
 import           Rest.Dictionary.Combinators
 import qualified Rest.Handler       as R
 import qualified Rest.Resource      as R

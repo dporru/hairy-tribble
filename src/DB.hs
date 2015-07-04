@@ -70,17 +70,18 @@ instance Input Question where
     a <- ask "Answer:"
     putStrLn "Enter more answers for multiple choice, empty line when done:"
     others <- askMany
+    t <- newDates
     if null others
-      then return . Question q $ Open a
+      then return $ Question q (Open a) t
       else do
         randomOrder <- shuffleM [0 .. length others]
-        return $ Question q $ MultipleChoice a others randomOrder
+        return $ Question q (MultipleChoice a others randomOrder) t
 
 instance Input Test where
   input = do
     name <- ask "Name:"
     qs <- map (ID.lookup . ID.ID . pack) <$> askF read "Questions:"
-    return $ Test name qs
+    Test name qs <$> newDates
 
 ask :: String -> IO Text
 ask = askF pack

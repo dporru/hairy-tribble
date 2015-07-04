@@ -15,6 +15,7 @@ module Common
   , Generic
   , Typeable
   , mempty,(<>),mconcat
+  , UTCTime,getCurrentTime
   , Range,takeRange
   , ExportMode(OnlyQuestions,WithAnswers)
   ) where
@@ -33,6 +34,7 @@ import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Builder as B
 import qualified Data.Text               as Text
 import qualified Data.Text.Encoding      as Text
+import           Data.Time.Clock
 import           Data.Functor               (void)
 import           Data.JSON.Schema           (JSONSchema,schema,gSchema)
 import           Data.Monoid                (mempty,(<>),mconcat)
@@ -46,10 +48,6 @@ import           Data.Aeson       (encode,eitherDecode)
 import           Data.TCache.DefaultPersistence ()
 import qualified Data.TCache.Defs as T
 import           Rest             (Range(..))
-
-instance (FromJSON a,ToJSON a) => T.Serializable a where
-  serialize   = encode
-  deserialize = either error id . eitherDecode
 
 takeRange :: Range -> [a] -> [a]
 takeRange r = take (count r) . drop (offset r)

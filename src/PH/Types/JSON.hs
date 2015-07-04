@@ -2,15 +2,14 @@
 module PH.Types.JSON where
 
 import           Common
-import qualified Data.TCache.ID as ID
-import           PH.Types
-
-import           Data.Aeson.Types (typeMismatch,Value(String))
-import           Data.JSON.Schema (Proxy(Proxy))
 import qualified Data.TCache      as T
-import qualified Data.TCache.Defs as T
+import qualified Data.TCache.ID   as ID
 import qualified Data.Text        as Text
 import           Data.Typeable    (typeRep,Proxy(Proxy))
+import           PH.Types
+import           PH.Types.Storage () -- Needed for instance Indexable (WithID a).
+
+import           Data.Aeson.Types (typeMismatch,Value(String))
 
 
 instance ToJSON (T.DBRef a) where
@@ -41,6 +40,13 @@ instance FromJSON Test where
 instance JSONSchema Test where
   schema = gSchema
 
+instance ToJSON Dates where
+  toJSON = gtoJson
+instance FromJSON Dates where
+  parseJSON = gparseJson
+instance JSONSchema Dates where
+  schema = gSchema
+
 
 instance (Typeable a,FromJSON a) => FromJSON (ID.ID a) where
   parseJSON s = do
@@ -67,7 +73,3 @@ instance (Typeable a,ToJSON a) => ToJSON (ID.WithID a) where
   toJSON = gtoJson
 instance (JSONSchema a) => JSONSchema (ID.WithID a) where
   schema = gSchema
-
-instance forall a. (Typeable a) => T.Indexable (ID.WithID a) where
-  key (ID.WithID (ID.ID t) _) = show (typeRep (Proxy :: Proxy a)) ++ "-" ++ Text.unpack t
---   defPath _ = "TCache/"

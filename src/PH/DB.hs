@@ -2,7 +2,8 @@ module PH.DB where
 
 import           Common
 import           PH.Types
-import           PH.Types.JSON ()
+-- import           PH.Types.JSON ()
+import           PH.Types.Storage
 
 import qualified Data.TCache             as T
 import qualified Data.TCache.ID          as ID

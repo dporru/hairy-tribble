@@ -15,21 +15,25 @@ cabal-version:       >= 1.10
 library
   exposed-modules:
     PH.Types,
-    PH.Types.JSON
+    PH.Types.JSON,
+    PH.Types.Storage
   other-modules:
     Common
   build-depends:
     aeson >= 0.8 && < 0.9,
     base >= 4.7 && < 4.8,
     bytestring >= 0.10 && < 0.11,
+    cereal >= 0.4 && < 0.5,
     generic-aeson >= 0.2 && < 0.3,
     happstack-server >= 7.4 && < 7.5,
     json-schema >= 0.7 && < 0.8,
     mtl >= 2.2 && < 2.3,
     rest-core >= 0.35 && < 0.36,
+    safecopy >= 0.8 && < 0.9,
     stm >= 2.4 && < 2.5,
     TCache >= 0.13 && < 0.14,
     text >= 1.2 && < 1.3,
+    time >= 1.4 && < 1.6,
     transformers >= 0.4 && < 0.5
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -47,6 +51,7 @@ executable rest
     aeson >= 0.8 && < 0.9,
     base >= 4.7 && < 4.8,
     bytestring >= 0.10 && < 0.11,
+    cereal >= 0.4 && < 0.5,
     generic-aeson >= 0.2 && < 0.3,
     happstack-server >= 7.4 && < 7.5,
     heredoc >= 0.2 && < 0.3,
@@ -57,9 +62,11 @@ executable rest
     ph,
     rest-core >= 0.35 && < 0.36,
     rest-happstack >= 0.2 && < 0.3,
+    safecopy >= 0.8 && < 0.9,
     stm >= 2.4 && < 2.5,
     TCache >= 0.13 && < 0.14,
     text >= 1.2 && < 1.3,
+    time >= 1.4 && < 1.6,
     transformers >= 0.4 && < 0.5
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -78,6 +85,7 @@ executable generate
     aeson >= 0.8 && < 0.9,
     base >= 4.7 && < 4.8,
     bytestring >= 0.10 && < 0.11,
+    cereal >= 0.4 && < 0.5,
     generic-aeson >= 0.2 && < 0.3,
     heredoc >= 0.2 && < 0.3,
     json-schema >= 0.7 && < 0.8,
@@ -87,9 +95,11 @@ executable generate
     ph,
     rest-core >= 0.35 && < 0.36,
     rest-gen >= 0.17 && < 0.18,
+    safecopy >= 0.8 && < 0.9,
     stm >= 2.4 && < 2.5,
     TCache >= 0.13 && < 0.14,
     text >= 1.2 && < 1.3,
+    time >= 1.4 && < 1.6,
     transformers >= 0.4 && < 0.5
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -108,6 +118,7 @@ executable db
     aeson >= 0.8 && < 0.9,
     base >= 4.7 && < 4.8,
     bytestring >= 0.10 && < 0.11,
+    cereal >= 0.4 && < 0.5,
     console-program >= 0.3.2 && < 0.4,
     containers >= 0.5 && < 0.6,
     generic-aeson >= 0.2 && < 0.3,
@@ -117,9 +128,11 @@ executable db
     random-shuffle >= 0.0 && < 0.1,
     rest-core >= 0.35 && < 0.36,
     rest-gen >= 0.17 && < 0.18,
+    safecopy >= 0.8 && < 0.9,
     stm >= 2.4 && < 2.5,
     TCache >= 0.13 && < 0.14,
     text >= 1.2 && < 1.3,
+    time >= 1.4 && < 1.6,
     transformers >= 0.4 && < 0.5
   hs-source-dirs:      src
   default-language:    Haskell2010

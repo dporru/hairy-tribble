@@ -7,13 +7,18 @@ import qualified Data.TCache.ID as ID
 data Question
   = Question
     {
-      question :: Text
-    , answer   :: Answer
+      question      :: Text
+    , answer        :: Answer
+    , questionDates :: Dates
     }
   deriving (Generic,Typeable,Show)
-
-testVraag :: Question
-testVraag = Question { question = "Is dit een testvraag?", answer = Open "Ja!" }
+data Question_v0
+  = Question_v0
+    {
+      question_v0 :: Text
+    , answer_v0   :: Answer
+    }
+  deriving (Generic,Typeable,Show)
 
 data Answer
   = Open Text
@@ -33,8 +38,27 @@ data Test
     {
       name      :: Text
     , questions :: [ID.Ref Question]
+    , testDates :: Dates
+    }
+  deriving (Generic,Typeable,Show)
+data Test_v0
+  = Test_v0
+    {
+      name_v0      :: Text
+    , questions_v0 :: [ID.Ref Question]
     }
   deriving (Generic,Typeable,Show)
 
-testToets :: Test
-testToets = Test { name = "Testtoets", questions = [] }
+data Dates
+  = Dates
+    {
+      creationDate     :: UTCTime
+    , modificationDate :: UTCTime
+    , deletionDate     :: Maybe UTCTime
+    }
+  deriving (Generic,Typeable,Show)
+
+newDates :: (MonadIO m) => m Dates
+newDates = do
+  t <- liftIO getCurrentTime
+  return $ Dates t t Nothing

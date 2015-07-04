@@ -28,7 +28,8 @@ type Resource o
   = R.Resource IO (ReaderT (ID.Ref o) IO) (ID.Ref o) () Void
 
 resource :: forall o.
-  (T.Indexable (ID.WithID o),T.Serializable (ID.WithID o)
+  (T.Indexable (ID.WithID o),T.PersistIndex (ID.WithID o)
+  ,T.Serializable (ID.WithID o),T.IResource (ID.WithID o)
   ,JSONSchema (ID.Ref o),JSONSchema (ID.WithID o),JSONSchema o
   ,ToJSON (ID.Ref o),ToJSON (ID.WithID o),ToJSON o,FromJSON o
   ,Typeable o)
