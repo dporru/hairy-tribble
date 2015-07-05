@@ -20,7 +20,9 @@ import           Control.Monad.Except       (throwError)
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
 import           Control.Monad.Trans.Reader (ReaderT)
 import           Data.Aeson                 (ToJSON,FromJSON)
+import qualified Data.Map         as Map
 import           Data.JSON.Schema           (JSONSchema)
+import qualified Data.Set         as Set
 import           Data.Typeable              (Typeable)
 
 
@@ -28,12 +30,14 @@ type Resource o
   = R.Resource IO (ReaderT (ID.Ref o) IO) (ID.Ref o) () Void
 
 resource :: forall o.
-  (T.Indexable (ID.WithID o),T.PersistIndex (ID.WithID o)
-  ,T.Serializable (ID.WithID o),T.IResource (ID.WithID o)
-  ,JSONSchema (ID.Ref o),JSONSchema (ID.WithID o),JSONSchema o
-  ,ToJSON (ID.Ref o),ToJSON (ID.WithID o),ToJSON o,FromJSON o
-  ,Typeable o)
-  => String -> Resource o
+  ( T.Indexable (ID.WithID o),T.PersistIndex (ID.WithID o)
+  , T.Serializable (ID.WithID o),T.IResource (ID.WithID o)
+  , JSONSchema (ID.Ref o),JSONSchema (ID.WithID o),JSONSchema o
+  , ToJSON (ID.Ref o),ToJSON (ID.WithID o),ToJSON o,FromJSON o
+  , Typeable o
+  , T.Serializable (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
+  , T.Indexable    (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
+  ) => String -> Resource o
 resource name = R.mkResourceReader
   {
     R.name   = name
@@ -55,3 +59,4 @@ resource name = R.mkResourceReader
   
   run :: (MonadIO m) => STM a -> m a
   run = liftIO . T.atomicallySync
+

@@ -7,7 +7,7 @@ import           PH.Types.JSON ()
 
 import qualified Data.TCache             as T
 import qualified Data.TCache.ID          as ID
-import qualified Data.TCache.IndexQuery  as T
+-- import qualified Data.TCache.IndexQuery  as T
 import           Data.Text (pack)
 import           Data.Tree (Tree(Node))
 import qualified System.Console.Argument as CP
@@ -39,12 +39,12 @@ commands = Node
         Node (CP.Command "question" "Show a specific question." $
           CP.withNonOption idArg $ \ i -> CP.io
             . (>>= maybe (putStrLn "Question not found.") (print :: Question -> IO ()))
-            . DB.run $ ID.maybeDeref (ID.lookup i)
+            . DB.run $ ID.maybeDeref (ID.ref i)
         ) []
       , Node (CP.Command "test" "Show a specific test." $
           CP.withNonOption idArg $ \ i -> CP.io
             . (>>= maybe (putStrLn "Test not found.") (print :: Test -> IO ()))
-            . DB.run $ ID.maybeDeref (ID.lookup i)
+            . DB.run $ ID.maybeDeref (ID.ref i)
         ) []
       ]
   , Node (CP.Command "new" "" $ CP.io $ CP.showUsage commands)
@@ -80,7 +80,7 @@ instance Input Question where
 instance Input Test where
   input = do
     name <- ask "Name:"
-    qs <- map (ID.lookup . ID.ID . pack) <$> askF read "Questions:"
+    qs <- map (ID.ref . ID.ID . pack) <$> askF read "Questions:"
     Test name qs <$> newDates
 
 ask :: String -> IO Text

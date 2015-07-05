@@ -23,8 +23,8 @@ instance (SC.SafeCopy a) => T.Serializable a where
   serialize   = C.runPutLazy . SC.safePut
   deserialize = either error id . C.runGetLazy SC.safeGet
 
-instance (Typeable a) => T.Indexable (ID.WithID a) where
-  key (ID.WithID (ID.ID t) _) = show (typeRep (Proxy :: Proxy a)) ++ "-" ++ Text.unpack t
+-- instance (Typeable a) => T.Indexable (ID.WithID a) where
+--   key (ID.WithID (ID.ID t) _) = show (typeRep (Proxy :: Proxy a)) ++ "-" ++ Text.unpack t
 --   defPath _ = "TCache/"
 
 SC.deriveSafeCopy 1 'SC.extension ''Question
