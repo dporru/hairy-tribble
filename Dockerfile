@@ -56,7 +56,7 @@ VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout 12576295ccaf01491d9ffe20fc6c29742a1b6763
+    git checkout a7ad964e515a7c5da51031beca7764064fbd5327 
 
 # Download enhanced version of full-text-search. Change echo date to
 # force redownload when the repository has changed.
@@ -66,6 +66,7 @@ RUN cd /home/ph &&\
 
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
+COPY ./install_cabal_dependencies.sh /hairy-tribble/install_cabal_dependencies.sh
 RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
@@ -74,7 +75,7 @@ RUN cd /home/ph &&\
     cabal update &&\
     touch /hairy-tribble/LICENSE &&\
     cabal install happy &&\
-    cabal install --only-dependencies ph &&\
+    sh /hairy-tribble/install_cabal_dependencies.sh &&\
     rm /hairy-tribble/LICENSE
 
 # Now do actual build.
