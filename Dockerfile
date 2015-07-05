@@ -62,7 +62,7 @@ RUN cd /home/ph &&\
 # force redownload when the repository has changed.
 RUN cd /home/ph &&\
     echo "Get full-text-search - Fri Jun 5 11:07:25 UTC 2015" &&\
-    darcs get http://hub.darcs.net/AriePeterson/full-text-search
+    darcs get http://hub.darcs.net/AriePeterson/full-text-search --tag 2015-07-05
 
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
