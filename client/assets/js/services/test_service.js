@@ -82,7 +82,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 questions: questionIdList
             };
 
-            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })
@@ -127,7 +127,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
 
         },
         removeTest: function(testId) {
-            return $http.delete(API_PATH + 'test/id/' + testId)
+            return $http.delete(API_PATH + 'test/' + testId)
                 .then(function(){
                     methods.load();
                 })
@@ -139,7 +139,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             changedCallbacks.push(callback);
         },
         getCurrentTestExportUrl: function(type) {
-            return API_PATH + 'test/id/' + currentTestId + '/export/' + type;
+            return API_PATH + 'test/' + currentTestId + '/export/' + type;
         },
         updateTestName: function(testId, newName) {
             var updatedTest = {
@@ -147,7 +147,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 questions: testsById[testId].object.questions
             };
 
-            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })
