@@ -35,6 +35,7 @@ resource :: forall o.
   , JSONSchema (ID.Ref o),JSONSchema (ID.WithID o),JSONSchema o
   , ToJSON (ID.Ref o),ToJSON (ID.WithID o),ToJSON o,FromJSON o
   , Typeable o
+  , T.IResource (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
   , T.Serializable (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
   , T.Indexable    (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
   ) => String -> Resource o
@@ -59,4 +60,3 @@ resource name = R.mkResourceReader
   
   run :: (MonadIO m) => STM a -> m a
   run = liftIO . T.atomicallySync
-
