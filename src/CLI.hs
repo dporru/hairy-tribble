@@ -1,4 +1,4 @@
-module DB where
+module CLI where
 
 import           Common
 import qualified PH.DB as DB
@@ -7,7 +7,6 @@ import           PH.Types.JSON ()
 
 import qualified Data.TCache             as T
 import qualified Data.TCache.ID          as ID
--- import qualified Data.TCache.IndexQuery  as T
 import           Data.Text (pack)
 import           Data.Tree (Tree(Node))
 import qualified System.Console.Argument as CP
