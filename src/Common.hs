@@ -16,6 +16,7 @@ module Common
   , Typeable
   , mempty,(<>),mconcat
   , UTCTime,getCurrentTime
+  , Lens,Lens',view,over,makeLenses
   , Range,takeRange
   , ExportMode(OnlyQuestions,WithAnswers)
   ) where
@@ -24,6 +25,8 @@ module Common
 import           Control.Applicative        ((<$>))
 import           Control.Arrow              ((<<<),(>>>))
 import           Control.Concurrent.STM     (STM,atomically)
+import           Control.Lens               (Lens,Lens',view,over)
+import           Control.Lens.TH            (makeLenses)
 import           Control.Monad              (msum,(<=<))
 import           Control.Monad.Except       (throwError,ExceptT(ExceptT))
 import           Control.Monad.IO.Class     (MonadIO,liftIO)

@@ -1,32 +1,43 @@
+{-# LANGUAGE TemplateHaskell #-}
 module PH.Types.Dated
   (
-    Dated(Dated)
-  , Dates(..)
+    Dated(..),dates,withoutDates
+  , Dates(..),creationDate,modificationDate,deletionDate
   , date
-  , deleted
+  , isDeleted
   , deleteDated
   , updateDated
   , getCurrentTime
   ) where
 
+import           Control.Lens           (view,over)
+import           Control.Lens.TH        (makeLenses)
 import           Control.Monad.IO.Class (MonadIO,liftIO)
+import           Data.Maybe             (isJust)
 import           Data.Time              (UTCTime,getCurrentTime)
 import           Data.Typeable          (Typeable)
 import           GHC.Generics           (Generic)
 
 
 data Dated x
-  = Dated Dates x
+  = Dated
+    {
+      _dates        :: Dates
+    , _withoutDates :: x
+    }
   deriving (Generic,Typeable,Show)
 
 data Dates
   = Dates
     {
-      creationDate     :: UTCTime
-    , modificationDate :: UTCTime
-    , deletionDate     :: Maybe UTCTime
+      _creationDate     :: UTCTime
+    , _modificationDate :: UTCTime
+    , _deletionDate     :: Maybe UTCTime
     }
   deriving (Generic,Typeable,Show)
+
+makeLenses ''Dated
+makeLenses ''Dates
 
 date :: (MonadIO m) => x -> m (Dated x)
 date x = do
@@ -34,18 +45,11 @@ date x = do
   let d = Dates t t Nothing
   return $ Dated d x
 
-deleted :: Dated x -> Bool
-deleted (Dated d _) = case deletionDate d of
-  Nothing -> False 
-  Just _  -> True
+isDeleted :: Dated x -> Bool
+isDeleted = isJust . view (dates . deletionDate)
 
 deleteDated :: UTCTime -> Dated x -> Dated x
-deleteDated t (Dated d x) = Dated d' x where
-  d' = d { deletionDate = case deletionDate d of
-    Nothing -> Just t
-    Just t' -> Just t'
-    }
+deleteDated t = over (dates . deletionDate) $ maybe (Just t) Just
 
 updateDated :: UTCTime -> Dated x -> Dated x
-updateDated t (Dated d x) = Dated d' x where
-  d' = d { modificationDate = t }
+updateDated = over (dates . modificationDate) . const

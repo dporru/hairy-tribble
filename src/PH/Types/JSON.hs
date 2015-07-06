@@ -80,3 +80,10 @@ instance (Typeable a,ToJSON a) => ToJSON (Dated a) where
   toJSON = gtoJson
 instance (JSONSchema a) => JSONSchema (Dated a) where
   schema = gSchema
+
+instance (Typeable a,FromJSON a) => FromJSON (Labelled a) where
+  parseJSON = gparseJson
+instance (Typeable a,ToJSON a) => ToJSON (Labelled a) where
+  toJSON = gtoJson
+instance (JSONSchema a) => JSONSchema (Labelled a) where
+  schema = gSchema

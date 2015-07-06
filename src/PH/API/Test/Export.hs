@@ -21,8 +21,8 @@ import qualified Rest.Resource              as R
 
 
 resource :: R.Resource
-  (ReaderT (ID.Ref (Dated Test)) IO)
-  (ReaderT Format (ReaderT (ID.Ref (Dated Test)) IO))
+  (ReaderT (ID.Ref (Decorated Test)) IO)
+  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
   Format
   Void
   Void
@@ -33,12 +33,12 @@ resource = R.mkResourceReader
   , R.get    = Just get
   }
 
-get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Dated Test)) IO))
+get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
     dtest <- DB.run $ ID.deref testRef
-    let Dated dates test = dtest
+    let test = view undecorated dtest
     let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
@@ -73,8 +73,8 @@ readFormat "show"     = Show
 readFormat s          = Unknown s
 
 suggestedFileName :: Test -> Format -> String
-suggestedFileName test PDF         = Text.unpack (name test) ++ ".pdf"
-suggestedFileName test LaTeX       = Text.unpack (name test) ++ ".latex"
-suggestedFileName test Markdown    = Text.unpack (name test) ++ ".md"
-suggestedFileName test Show        = Text.unpack (name test) ++ ".text"
+suggestedFileName test PDF         = Text.unpack (view name test) ++ ".pdf"
+suggestedFileName test LaTeX       = Text.unpack (view name test) ++ ".latex"
+suggestedFileName test Markdown    = Text.unpack (view name test) ++ ".md"
+suggestedFileName test Show        = Text.unpack (view name test) ++ ".text"
 suggestedFileName _    (Unknown s) = ""
