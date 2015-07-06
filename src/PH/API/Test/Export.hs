@@ -21,8 +21,8 @@ import qualified Rest.Resource              as R
 
 
 resource :: R.Resource
-  (ReaderT (ID.Ref Test) IO)
-  (ReaderT Format (ReaderT (ID.Ref Test) IO))
+  (ReaderT (ID.Ref (Dated Test)) IO)
+  (ReaderT Format (ReaderT (ID.Ref (Dated Test)) IO))
   Format
   Void
   Void
@@ -33,15 +33,16 @@ resource = R.mkResourceReader
   , R.get    = Just get
   }
 
-get :: R.Handler (ReaderT Format (ReaderT (ID.Ref Test) IO))
+get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Dated Test)) IO))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
-    test <- DB.run $ ID.deref testRef
+    dtest <- DB.run $ ID.deref testRef
+    let Dated dates test = dtest
     let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
-      _         -> Pandoc.build mode test >>= export >>= \case
+      _         -> Pandoc.build mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
         Right b -> return $ Right (b,suggestedFileName test format)
        where

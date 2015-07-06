@@ -19,10 +19,10 @@ import qualified Text.Pandoc.Builder     as P
 export:: P.Pandoc -> IO (Either ByteString ByteString)
 export = return . Right . utf8ByteString . P.writeNative P.def
 
-build :: ExportMode -> Test -> IO P.Pandoc
-build mode test = do
+build :: ExportMode -> Dated Test -> IO P.Pandoc
+build mode (Dated _ test) = do
   qs <- DB.run $ mapM ID.deref (questions test)
-  return $ renderTest mode (name test) qs
+  return $ renderTest mode (name test) $ map (\ (Dated _ x) -> x) qs
 
 renderTest :: ExportMode -> Text -> [Question] -> P.Pandoc
 renderTest mode name qs = P.setTitle (textP name) . P.doc $

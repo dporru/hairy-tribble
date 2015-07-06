@@ -15,6 +15,7 @@ cabal-version:       >= 1.10
 library
   exposed-modules:
     PH.Types,
+    PH.Types.Dated,
     PH.Types.JSON,
     PH.Types.Storage
   other-modules:

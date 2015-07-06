@@ -5,6 +5,8 @@ module Rest.TCache.ID
   , resource
   ) where
 
+import           PH.Types.Dated
+
 import qualified Data.TCache      as T
 import qualified Data.TCache.Defs as T
 import qualified Data.TCache.ID   as ID
@@ -27,17 +29,18 @@ import           Data.Typeable              (Typeable)
 
 
 type Resource o
-  = R.Resource IO (ReaderT (ID.Ref o) IO) (ID.Ref o) () Void
+  = R.Resource IO (ReaderT (ID.Ref (Dated o)) IO) (ID.Ref (Dated o)) () Void
 
 resource :: forall o.
   ( T.Indexable (ID.WithID o),T.PersistIndex (ID.WithID o)
-  , T.Serializable (ID.WithID o),T.IResource (ID.WithID o)
-  , JSONSchema (ID.Ref o),JSONSchema (ID.WithID o),JSONSchema o
-  , ToJSON (ID.Ref o),ToJSON (ID.WithID o),ToJSON o,FromJSON o
+  , T.Serializable (ID.WithID (Dated o)),T.IResource (ID.WithID o)
+  , JSONSchema (ID.Ref (Dated o)),JSONSchema (ID.WithID (Dated o)),JSONSchema (Dated o)
+  , JSONSchema o
+  , ToJSON (ID.Ref (Dated o)),ToJSON (ID.WithID (Dated o)),ToJSON (Dated o),FromJSON o
   , Typeable o
-  , T.IResource (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
-  , T.Serializable (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
-  , T.Indexable    (Map.Map (ID.ID o) (Set.Set (ID.Ref o)))
+  , T.IResource (Map.Map (ID.ID (Dated o)) (Set.Set (ID.Ref (Dated o))))
+  , T.Serializable (Map.Map (ID.ID (Dated o)) (Set.Set (ID.Ref (Dated o))))
+  , T.Indexable    (Map.Map (ID.ID (Dated o)) (Set.Set (ID.Ref (Dated o))))
   ) => String -> Resource o
 resource name = R.mkResourceReader
   {
@@ -51,12 +54,20 @@ resource name = R.mkResourceReader
   }
  where
   get = R.mkIdHandler R.jsonO $ \ () -> run . ID.maybeDeref
-  list = R.mkListing R.jsonO $ \ range -> take (R.count range) . drop (R.offset range)
-    <$> run (ID.listWithID :: STM [ID.WithID o])
-  create = R.mkInputHandler (R.jsonI . R.jsonO) $ run . (ID.newRef :: o -> STM (ID.Ref o))
-  remove = R.mkIdHandler id $ \ () -> run . ID.delete
+  list = R.mkListing R.jsonO $ \ range ->
+    take (R.count range) . drop (R.offset range)
+     . filter (not . deleted . ID.object)
+    <$> run (ID.listWithID :: STM [ID.WithID (Dated o)])
+  create = R.mkInputHandler (R.jsonI . R.jsonO) $ \ (o :: o) -> do
+    run . ID.newRef =<< date o
+  remove = R.mkIdHandler id $ \ () i -> do
+    c <- liftIO getCurrentTime
+    run $ ID.update i . deleteDated c =<< ID.deref i
+    return ()
   update = R.mkIdHandler R.jsonI $ \ (x :: o) i -> do
-    maybe (throwError R.NotFound) return =<< run (ID.update i x)
+    c <- liftIO getCurrentTime
+    Dated oldDates _ <- run $ ID.deref i
+    maybe (throwError R.NotFound) return =<< run (ID.update i $ updateDated c $ Dated oldDates x)
   
   run :: (MonadIO m) => STM a -> m a
   run = liftIO . T.atomicallySync
