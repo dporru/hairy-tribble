@@ -1,6 +1,7 @@
 module PH.DB where
 
 import           Common
+import           PH.API.ID (idIndex,labelsIndex)
 import           PH.Types
 import           PH.Types.Storage
 
@@ -21,14 +22,13 @@ initialiseIndices = do
   T.index testLabels
 
 questionID :: IndexMap.Field (ID.WithID (Decorated Question)) Identity (ID.ID (Decorated Question))
-questionID = IndexMap.field ID.__ID
+questionID = idIndex
 testID :: IndexMap.Field (ID.WithID (Decorated Test)) Identity (ID.ID (Decorated Test))
-testID = IndexMap.field ID.__ID
+testID = idIndex
 questionLabels :: IndexMap.Field (ID.WithID (Decorated Question)) Set.Set Text
 questionLabels = labelsIndex
 testLabels :: IndexMap.Field (ID.WithID (Decorated Test)) Set.Set Text
 testLabels = labelsIndex
-labelsIndex = IndexMap.namedFields (view labels . ID._object) "labels"
 
 run :: (MonadIO m) => STM a -> m a
 run = liftIO . T.atomicallySync

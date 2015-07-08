@@ -3,6 +3,9 @@ module PH.API.ID
   (
     Resource
   , resource
+  
+  , idIndex
+  , labelsIndex
   ) where
 
 import           Common
@@ -36,7 +39,7 @@ resource :: forall o.
   , FromJSON (Decorated o),FromJSON (Labelled o)
   , Typeable o
   -- Indices:
-  , T.IResource (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
+  , T.IResource    (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
   , T.Serializable (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
   , T.Indexable    (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
   , T.Serializable (Map.Map Text.Text             (Set.Set (ID.Ref (Decorated o))))
@@ -58,9 +61,11 @@ resource name = R.mkResourceReader
  where
   get = R.mkIdHandler R.jsonO $ \ () -> run . T.readDBRef
   list ls = R.mkListing R.jsonO $ \ range -> do
-    xs :: [ID.WithID (Decorated o)] <- run $ mapM ID.deref =<< IndexMap.lookupAll labelsIndex ls
+    xs :: [ID.WithID (Decorated o)] <- run . (mapM ID.deref =<<) $ case ls of
+      [] -> concatMap (Set.toList . snd) <$> IndexMap.listAll idIndex
+      _  -> IndexMap.lookupAll labelsIndex ls
     let current = filter (not . isDeleted . view (ID.object . withoutLabels)) $ xs
-    return $ take (R.count range) . drop (R.offset range) $ current
+    return . takeRange range $ current
   create = R.mkInputHandler (R.jsonI . R.jsonO) $ \ (o :: Labelled o) -> do
     run . ID.newRef =<< withoutLabels date o
   remove = R.mkIdHandler id $ \ () i -> do
@@ -84,3 +89,6 @@ maybeNotFound = maybe (throwError R.NotFound) return
 
 labelsIndex :: IndexMap.Field (ID.WithID (Decorated o)) Set.Set Text.Text
 labelsIndex = IndexMap.namedFields (view labels . ID._object) "labels"
+
+idIndex :: IndexMap.Field (ID.WithID (Decorated o)) Identity (ID.ID (Decorated o))
+idIndex = IndexMap.field ID.__ID
