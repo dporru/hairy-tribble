@@ -6,6 +6,7 @@ import qualified PH.API.Test.Export.LaTeX    as LaTeX
 import qualified PH.API.Test.Export.Markdown as Markdown
 import qualified PH.API.Test.Export.Pandoc   as Pandoc
 import qualified PH.API.Test.Export.PDF      as PDF
+import qualified PH.API.Test.Export.Word     as Word
 import qualified PH.DB                       as DB
 import           PH.Types
 
@@ -51,6 +52,7 @@ get = R.mkHandler dict $ \ env -> ExceptT $
           LaTeX    -> LaTeX.export
           Markdown -> Markdown.export
           Show     -> Pandoc.export
+          Word     -> Word.export
  where
   dict = R.mkPar modePar . R.fileO
   modePar = R.Param ["withAnswers"] p where
@@ -63,6 +65,7 @@ data Format
   | LaTeX
   | Markdown
   | Show
+  | Word
   | Unknown String
 
 readFormat :: String -> Format
@@ -70,6 +73,7 @@ readFormat "pdf"      = PDF
 readFormat "latex"    = LaTeX
 readFormat "markdown" = Markdown
 readFormat "show"     = Show
+readFormat "word"     = Word
 readFormat s          = Unknown s
 
 suggestedFileName :: Test -> Format -> String
@@ -77,4 +81,5 @@ suggestedFileName test PDF         = Text.unpack (view name test) ++ ".pdf"
 suggestedFileName test LaTeX       = Text.unpack (view name test) ++ ".latex"
 suggestedFileName test Markdown    = Text.unpack (view name test) ++ ".md"
 suggestedFileName test Show        = Text.unpack (view name test) ++ ".text"
+suggestedFileName test Word        = Text.unpack (view name test) ++ ".docx"
 suggestedFileName _    (Unknown s) = ""
