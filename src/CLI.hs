@@ -79,7 +79,7 @@ instance Input Question where
 instance Input Test where
   input = do
     name <- ask "Name:"
-    qs <- map (ID.ref . ID.ID . pack) <$> askF read "Questions:"
+    qs <- map (TestQuestion . ID.ref . ID.ID . pack) <$> askF read "Questions:"
     return $ Test name qs
 
 instance (Input x) => Input (Dated x) where

@@ -27,6 +27,7 @@ instance (SC.SafeCopy a) => T.Serializable a where
 SC.deriveSafeCopy 0 'SC.base ''Question
 SC.deriveSafeCopy 0 'SC.base ''Answer
 SC.deriveSafeCopy 0 'SC.base ''Test
+SC.deriveSafeCopy 0 'SC.base ''TestElement
 SC.deriveSafeCopy 0 'SC.base ''Dated
 SC.deriveSafeCopy 0 'SC.base ''Labelled
 SC.deriveSafeCopy 0 'SC.base ''Dates

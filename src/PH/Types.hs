@@ -4,7 +4,8 @@ module PH.Types
     Question(..),question,answer
   , Answer(..),correct,incorrect,order
   , AnswerOrder
-  , Test(..),name,questions
+  , Test(..),name,elements
+  , TestElement(..)
   , module PH.Types.Dated
   , module PH.Types.Labelled
   , Decorated
@@ -41,9 +42,14 @@ type AnswerOrder
 data Test
   = Test
     {
-      _name      :: Text
-    , _questions :: [ID.Ref (Decorated Question)]
+      _name     :: Text
+    , _elements :: [TestElement]
     }
+  deriving (Generic,Typeable,Show)
+
+data TestElement
+  = TestQuestion (ID.Ref (Decorated Question))
+  | TestText Text
   deriving (Generic,Typeable,Show)
 
 type Decorated x
@@ -52,6 +58,7 @@ type Decorated x
 makeLenses ''Question
 makeLenses ''Answer
 makeLenses ''Test
+makeLenses ''TestElement
 
 undecorated :: Lens' (Decorated x) x
 undecorated = withoutLabels . withoutDates

@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE LambdaCase #-}
 module PH.API.Test.Export.Pandoc
   (
     build
@@ -21,15 +21,17 @@ export = return . Right . utf8ByteString . P.writeNative P.def
 
 build :: ExportMode -> Decorated Test -> IO P.Pandoc
 build mode test = do
-  qs <- DB.run $ mapM ID.deref (view (undecorated . questions) test)
-  return $ renderTest mode (view (undecorated . name) test)
-    $ map (view $ ID.object . undecorated) qs
+  qts <- DB.run $ for (view (undecorated . elements) test) $ \case
+    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref i
+    TestText t     -> return $ Left t
+  return $ renderTest mode (view (undecorated . name) test) qts
 
-renderTest :: ExportMode -> Text -> [Question] -> P.Pandoc
+renderTest :: ExportMode -> Text -> [Either Text Question] -> P.Pandoc
 renderTest mode name qs = P.setTitle (textP name) . P.doc $
   P.orderedList (map renderQuestion qs)
  where
-  renderQuestion q = P.para (textP $ view question q) <> case view answer q of
+  renderQuestion (Left t ) = P.para $ textP t
+  renderQuestion (Right q) = P.para (textP $ view question q) <> case view answer q of
     Open a                -> case mode of
       OnlyQuestions       -> mempty
       WithAnswers         -> P.para $ P.strong (textP a)

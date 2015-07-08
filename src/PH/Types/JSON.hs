@@ -40,6 +40,13 @@ instance FromJSON Test where
 instance JSONSchema Test where
   schema = gSchema
 
+instance ToJSON TestElement where
+  toJSON = gtoJson
+instance FromJSON TestElement where
+  parseJSON = gparseJson
+instance JSONSchema TestElement where
+  schema = gSchema
+
 instance ToJSON Dates where
   toJSON = gtoJson
 instance FromJSON Dates where
