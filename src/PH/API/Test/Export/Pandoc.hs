@@ -22,7 +22,8 @@ export = return . Right . utf8ByteString . P.writeNative P.def
 build :: ExportMode -> Decorated Test -> IO P.Pandoc
 build mode test = do
   qs <- DB.run $ mapM ID.deref (view (undecorated . questions) test)
-  return $ renderTest mode (view (undecorated . name) test) $ map (view undecorated) qs
+  return $ renderTest mode (view (undecorated . name) test)
+    $ map (view $ ID.object . undecorated) qs
 
 renderTest :: ExportMode -> Text -> [Question] -> P.Pandoc
 renderTest mode name qs = P.setTitle (textP name) . P.doc $

@@ -5,6 +5,7 @@ import qualified PH.DB as DB
 import           PH.Types
 import           PH.Types.JSON ()
 
+import qualified Data.Set                as Set
 import qualified Data.TCache             as T
 import qualified Data.TCache.ID          as ID
 import           Data.Text (pack)
@@ -27,32 +28,32 @@ commands = Node
     Node (CP.Command "list" "" $ CP.io $ CP.showUsage commands)
       [
         Node (CP.Command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID Question])
+          $ (ID.listWithID :: STM [ID.WithID (Decorated Question)])
         ) []
        ,Node (CP.Command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID Test])
+          $ (ID.listWithID :: STM [ID.WithID (Decorated Test)])
         ) []
       ]
   , Node (CP.Command "show" "" $ CP.io $ CP.showUsage commands)
       [
         Node (CP.Command "question" "Show a specific question." $
-          CP.withNonOption idArg $ \ i -> CP.io
-            . (>>= maybe (putStrLn "Question not found.") (print :: Question -> IO ()))
-            . DB.run $ ID.maybeDeref (ID.ref i)
+          CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io
+            . (>>= maybe (putStrLn "Question not found.") print)
+            . DB.run $ T.readDBRef (ID.ref i)
         ) []
       , Node (CP.Command "test" "Show a specific test." $
-          CP.withNonOption idArg $ \ i -> CP.io
-            . (>>= maybe (putStrLn "Test not found.") (print :: Test -> IO ()))
-            . DB.run $ ID.maybeDeref (ID.ref i)
+          CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io
+            . (>>= maybe (putStrLn "Test not found.") print)
+            . DB.run $ T.readDBRef (ID.ref i)
         ) []
       ]
   , Node (CP.Command "new" "" $ CP.io $ CP.showUsage commands)
       [
         Node (CP.Command "question" "Add a new question." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO Question)) >> putStrLn "Question added."
+          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
           ) []
       , Node (CP.Command "test" "Add a new test." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO Test)) >> putStrLn "Test added."
+          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
           ) []
       ]
   ]
@@ -83,6 +84,13 @@ instance Input Test where
 
 instance (Input x) => Input (Dated x) where
   input = date =<< input
+
+instance (Input x) => Input (Labelled x) where
+  input = do
+    x <- input
+    putStrLn "Labels:"
+    ls <- Set.fromList <$> askMany
+    return $ Labelled ls x
 
 ask :: String -> IO Text
 ask = askF pack

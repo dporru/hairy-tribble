@@ -4,6 +4,7 @@ module PH.API
   ) where
 
 import           Common
+import qualified PH.API.ID          as ID
 import qualified PH.API.Test.Export as Export
 import qualified PH.DB              as DB
 import           PH.Types
@@ -14,7 +15,6 @@ import           Rest.Dictionary.Combinators
 import qualified Rest.Handler       as R
 import qualified Rest.Resource      as R
 import qualified Rest.Schema        as R
-import qualified Rest.TCache.ID     as ID
 
 api :: Api IO
 api = [(mkVersion 0 0 0,Some1 ph)]

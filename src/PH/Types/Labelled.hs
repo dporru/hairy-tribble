@@ -2,6 +2,7 @@
 module PH.Types.Labelled
   (
     Labelled(..),labels,withoutLabels
+  , Label
   ) where
 
 import           Control.Lens.TH (makeLenses)

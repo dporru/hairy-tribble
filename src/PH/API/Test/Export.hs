@@ -37,7 +37,7 @@ get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
-    dtest <- DB.run $ ID.deref testRef
+    ID.WithID _ dtest <- DB.run $ ID.deref testRef
     let test = view undecorated dtest
     let mode = R.param env
     case format of

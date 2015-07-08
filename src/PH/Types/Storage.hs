@@ -12,6 +12,7 @@ import qualified Data.Serialize.Get as C
 import qualified Data.Serialize.Put as C
 import           Data.JSON.Schema (Proxy(Proxy))
 import qualified Data.TCache      as T
+import           Data.TCache.DefaultPersistence ()
 import qualified Data.Text        as Text
 import           Data.Typeable    (typeRep,Proxy(Proxy))
 import qualified Data.TCache.Defs   as T
