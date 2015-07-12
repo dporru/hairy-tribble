@@ -1,11 +1,7 @@
 angular.module('ph').controller('TestController', ['$modal', '$http', 'Question', 'Test', 'Alert', function($modal, $http, Question, Test, Alert){
     var testCtrl = this;
-    testCtrl.questionFormFocus = false;
     testCtrl.questions = [];
     testCtrl.newQuestion = {};
-
-    // testCtrl.newQuestion = {object:{question: "de vraag", answer: {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}}}};
-    // testCtrl.newQuestion = {object:{question: "de vraag", answer: {open: 'Open antwoord'}}};
 
     testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();
@@ -24,17 +20,12 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     testCtrl.submitNewQuestion = function(){
-        // if (testCtrl.newQuestionType == 'open'){
-        //     answer = {open: testCtrl.newOpenAnswer};
-        // }else{   
-        //     answer = {multipleChoice: {correct: 'correct', incorrect: ['incorrect1', 'incorrect2']}};
-        // }
-
-        // Question.create(testCtrl.newQuestion).then(function() {
-        // });
-            console.log(testCtrl.newQuestion);
+        Question.create(testCtrl.newQuestion.object).then(function(newQuestionId) {
             testCtrl.newQuestion = {};
-            Alert.add('Nieuwe vraag toegevoegd.', 'success');
+            return Test.addQuestionToCurrentTest(newQuestionId).then(function(){
+                Alert.add('Nieuwe vraag toegevoegd.', 'success');
+            });
+        });
     };
 
     testCtrl.openTestListModal = function(){
@@ -59,11 +50,11 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         return Test.getCurrentTestExportUrl(type);
     };
 
-    // Test.load().then(function(tests) {
-    //     if (!testCtrl.getCurrentTest() && typeof tests != 'undefined' && tests.length) {
-    //         Test.setCurrentTest(tests[0].id);
-    //     }else if(!testCtrl.getCurrentTest()) {
-    //         testCtrl.openTestListModal();
-    //     }
-    // });
+    Test.load().then(function(tests) {
+        if (!testCtrl.getCurrentTest() && typeof tests != 'undefined' && tests.length) {
+            Test.setCurrentTest(tests[0].id);
+        }else if(!testCtrl.getCurrentTest()) {
+            testCtrl.openTestListModal();
+        }
+    });
 }]);

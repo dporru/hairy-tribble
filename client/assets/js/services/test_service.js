@@ -23,6 +23,10 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             return tests;
         },
         createTest: function(newTest) {
+            newTest.testDates = { 
+                "modificationDate": "2015-07-12T10:17:25.726622000000Z",
+                "creationDate": "2015-07-12T10:17:25.726622000000Z"
+            };
             return $http.post(API_PATH + 'test', newTest)
                 .then(function() {
                     return methods.load();
@@ -79,7 +83,11 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         saveQuestionIdList: function(testId, questionIdList) {
             var updatedTest = {
                 name: testsById[testId].object.name,
-                questions: questionIdList
+                questions: questionIdList,
+                testDates: { 
+                    "modificationDate": "2015-07-12T10:17:25.726622000000Z",
+                    "creationDate": "2015-07-12T10:17:25.726622000000Z"
+                }
             };
 
             return $http.put(API_PATH + 'test/' + testId, updatedTest)
@@ -102,7 +110,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         },
         addQuestionToCurrentTest: function(questionId) {
             if (currentTestId) {
-                methods.addQuestion(currentTestId, questionId);
+                return methods.addQuestion(currentTestId, questionId);
             }
         },
         isQuestionInCurrentTest: function(questionId) {

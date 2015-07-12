@@ -33,8 +33,10 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
         },
         create: function(newQuestion) {
             return $http.post(API_PATH + 'question', newQuestion)
-                .then(function() {
+                .then(function(result) {
+                    console.log(result.data);
                     methods.load();
+                    return 'Question-'+result.data;
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het aanmaken van de vraag.', 'danger');
