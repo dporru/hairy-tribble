@@ -88,7 +88,7 @@ h1 {
  * half of the element we are dragging over. In other
  * browsers we can use event.offsetY for this.
  */
-.list-group[dnd-list] li {
+.list-group[dnd-list] > li {
     background-color: #fff;
     border: 1px solid #ddd;
     border-top-right-radius: 4px;
@@ -115,6 +115,14 @@ h1 {
     margin: 0;
 }
 
+.trumbowyg-editor {
+    cursor: text;
+}
+
 .trumbowyg-box .ng-hide {
     display: none;
+}
+
+question {
+    cursor: default;
 }

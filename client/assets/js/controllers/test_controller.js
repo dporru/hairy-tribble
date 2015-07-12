@@ -2,6 +2,8 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     var testCtrl = this;
     testCtrl.questions = [];
     testCtrl.newQuestion = {};
+    testCtrl.editingNewQuestion = false;
+    testCtrl.editingQuestionId = null;
 
     testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();
@@ -20,11 +22,18 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     testCtrl.submitNewQuestion = function(){
-        Question.create(testCtrl.newQuestion.object).then(function(newQuestionId) {
+        Question.create(testCtrl.newQuestion).then(function(newQuestionId) {
             testCtrl.newQuestion = {};
+            testCtrl.closeEditing();
             return Test.addQuestionToCurrentTest(newQuestionId).then(function(){
                 Alert.add('Nieuwe vraag toegevoegd.', 'success');
             });
+        });
+    };
+
+    testCtrl.saveQuestion = function(question) {
+        Question.save(question).then(function(){
+            testCtrl.closeEditing();
         });
     };
 
@@ -48,6 +57,11 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
 
     testCtrl.getCurrentTestExportUrl = function(type) {
         return Test.getCurrentTestExportUrl(type);
+    };
+
+    testCtrl.closeEditing = function() {
+        testCtrl.editingQuestionId = null;
+        testCtrl.editingNewQuestion = false;
     };
 
     Test.load().then(function(tests) {

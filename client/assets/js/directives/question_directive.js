@@ -6,6 +6,7 @@ angular.module('ph').directive('question', function(){
             question: '=',
             placeholder: '@',
             ngSubmit: '=',
+            ngCancel: '=',
             reset: '='
         },
         link: function(scope, element, attrs) {
@@ -73,7 +74,7 @@ angular.module('ph').directive('question', function(){
                 }else{
                     delete(scope.question.object.answer.open);
                 }
-                scope.ngSubmit();
+                scope.ngSubmit(scope.question);
             };
 
             scope.updateMultipleAnswers = function() {
@@ -94,6 +95,8 @@ angular.module('ph').directive('question', function(){
                     }
                 }
             };
+
+            scope.cancelEditing = scope.ngCancel;
 
             element.find('textarea[name=question]').on('tbwchange', function () {
                 if ($(this).trumbowyg('html')) {

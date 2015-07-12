@@ -32,14 +32,22 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
                 });
         },
         create: function(newQuestion) {
-            return $http.post(API_PATH + 'question', newQuestion)
+            return $http.post(API_PATH + 'question', newQuestion.object)
                 .then(function(result) {
-                    console.log(result.data);
                     methods.load();
                     return 'Question-'+result.data;
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het aanmaken van de vraag.', 'danger');
+                });
+        },
+        save: function(question) {
+            return $http.put(API_PATH + 'question/' + question.id, question.object)
+                .then(function(result) {
+                    methods.load();
+                })
+                .catch(function(){
+                    Alert.add('Er trad een fout op bij het opslaan van de vraag.', 'danger');
                 });
         },
         changed: function(callback) {
