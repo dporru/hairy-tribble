@@ -37,11 +37,10 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         });
     };
 
-    testCtrl.openTestListModal = function(){
+    testCtrl.openTestListModal = function() {
         var modalInstance = $modal.open({
-            templateUrl: 'test_list.html',
+            templateUrl: 'test_list_modal.html',
             controller: 'TestListController as test_list',
-            resolve: {context: function(){return 'Mijn context';}},
             keyboard: false
         });
     };

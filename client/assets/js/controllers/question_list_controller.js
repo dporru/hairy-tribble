@@ -1,4 +1,4 @@
-angular.module('ph').controller('QuestionListController', ['$http', 'Question', 'Test', '$filter', function($http, Question, Test, $filter){
+angular.module('ph').controller('QuestionListController', ['$http', 'Question', 'Test', '$filter', '$modal', function($http, Question, Test, $filter, $modal){
     var questionList = this;
 
     questionList.pageNumber = 1;
@@ -26,6 +26,14 @@ angular.module('ph').controller('QuestionListController', ['$http', 'Question', 
         }else{
             return '';
         }
+    };
+
+    questionList.openQuestionModal = function(question) {
+        var modalInstance = $modal.open({
+            templateUrl: 'question_modal.html',
+            controller: 'QuestionController as questionCtrl',
+            resolve: {question: function(){return question;}}
+        });
     };
 
     questionList.getQuestionTitle = function(question) {

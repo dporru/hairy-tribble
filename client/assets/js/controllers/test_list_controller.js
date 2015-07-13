@@ -1,4 +1,4 @@
-angular.module('ph').controller('TestListController', ['$modalInstance', '$modal', 'Test', 'context', function ($modalInstance, $modal, Test, context) {
+angular.module('ph').controller('TestListController', ['$modalInstance', '$modal', 'Test', function ($modalInstance, $modal, Test) {
 
     test_list = this;
 
@@ -30,7 +30,7 @@ angular.module('ph').controller('TestListController', ['$modalInstance', '$modal
 
     test_list.setCurrentTest = function(testId) {
         Test.setCurrentTest(testId);
-        test_list.cancel();
+        test_list.close();
     };
 
     test_list.cancel = function () {

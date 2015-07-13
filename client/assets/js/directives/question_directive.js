@@ -1,7 +1,7 @@
 angular.module('ph').directive('question', function(){
     return {
         restrict: 'E',
-        templateUrl: 'question.html',
+        templateUrl: 'question_directive.html',
         scope: {
             question: '=',
             placeholder: '@',
