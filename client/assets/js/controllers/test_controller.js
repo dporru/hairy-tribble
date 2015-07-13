@@ -59,6 +59,8 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     testCtrl.closeEditing = function() {
+        // Reload to dismiss changes.
+        Question.load();
         testCtrl.editingQuestionId = null;
         testCtrl.editingNewQuestion = false;
     };

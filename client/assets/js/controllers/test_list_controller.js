@@ -30,7 +30,7 @@ angular.module('ph').controller('TestListController', ['$modalInstance', '$modal
 
     test_list.setCurrentTest = function(testId) {
         Test.setCurrentTest(testId);
-        test_list.close();
+        test_list.cancel();
     };
 
     test_list.cancel = function () {
