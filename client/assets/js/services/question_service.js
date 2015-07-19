@@ -18,11 +18,17 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
                 return questionsById[questionId];
             }
         },
+        parseQuestion: function(question) {
+            question.object.questionDates.modificationDate = new Date(question.object.questionDates.modificationDate);
+            question.object.questionDates.creationDate = new Date(question.object.questionDates.creationDate);
+            return question;
+        },
         load: function() {
             $http.get(API_PATH + 'question')
                 .then(function(result){
                     questions = result.data.items;
                     for (var i in questions) {
+                        questions[i] = methods.parseQuestion(questions[i]);
                         questionsById[questions[i].id] = questions[i];
                     }
                     changedExecute();

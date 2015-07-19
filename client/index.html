@@ -111,7 +111,7 @@
                     <table class="table table-striped">
                         <caption class="text-right">Totaal {{ questionList.getNumberOfQuestions() }} resultaten</caption>
                         <tbody>
-                            <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: 'object.question' | itemsPerPage: questionList.itemsPerPage">
+                            <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: '-object.questionDates.creationDate' | itemsPerPage: questionList.itemsPerPage">
                                 <td ng-class="questionList.getQuestionClass(question.id)">
                                     {{ questionList.getQuestionTitle(question) | stripHTML | cut : true : 50 }}
                                 </td>
