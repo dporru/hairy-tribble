@@ -40,6 +40,13 @@ instance FromJSON Test where
 instance JSONSchema Test where
   schema = gSchema
 
+instance ToJSON TestElement where
+  toJSON = gtoJson
+instance FromJSON TestElement where
+  parseJSON = gparseJson
+instance JSONSchema TestElement where
+  schema = gSchema
+
 instance ToJSON Dates where
   toJSON = gtoJson
 instance FromJSON Dates where
@@ -72,4 +79,18 @@ instance (Typeable a,FromJSON a) => FromJSON (ID.WithID a) where
 instance (Typeable a,ToJSON a) => ToJSON (ID.WithID a) where
   toJSON = gtoJson
 instance (JSONSchema a) => JSONSchema (ID.WithID a) where
+  schema = gSchema
+
+instance (Typeable a,FromJSON a) => FromJSON (Dated a) where
+  parseJSON = gparseJson
+instance (Typeable a,ToJSON a) => ToJSON (Dated a) where
+  toJSON = gtoJson
+instance (JSONSchema a) => JSONSchema (Dated a) where
+  schema = gSchema
+
+instance (Typeable a,FromJSON a) => FromJSON (Labelled a) where
+  parseJSON = gparseJson
+instance (Typeable a,ToJSON a) => ToJSON (Labelled a) where
+  toJSON = gtoJson
+instance (JSONSchema a) => JSONSchema (Labelled a) where
   schema = gSchema

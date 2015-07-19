@@ -8,10 +8,12 @@ import qualified PH.DB            as DB
 import qualified Happstack.Server as H
 import           Rest.Driver.Happstack      (apiToHandler')
 import           Rest.Driver.Happstack.Docs (apiDocsHandler)
+import           System.Directory           (createDirectoryIfMissing)
 
 
 main :: IO ()
 main = do
+  createDirectoryIfMissing False "./.tcachedata"
   DB.initialiseIndices
   H.simpleHTTP H.nullConf . msum $
     [
