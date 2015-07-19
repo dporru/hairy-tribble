@@ -56,7 +56,7 @@ VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout a7ad964e515a7c5da51031beca7764064fbd5327 
+    git checkout 79aa884a350307259b625cf304c725c3ec22fed5
 
 # Download enhanced version of full-text-search. Change echo date to
 # force redownload when the repository has changed.
