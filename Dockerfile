@@ -17,7 +17,7 @@ RUN wget https://www.haskell.org/ghc/dist/7.8.4/ghc-7.8.4-x86_64-unknown-linux-d
 
 # Install app-specific requirements.
 RUN apt-get update -y &&\
-    apt-get install -y git libtinfo-dev texlive-xetex darcs npm
+    apt-get install -y git libtinfo-dev texlive-xetex darcs npm nodejs-legacy
 
 # Install Bower and Gulp sytem wide.
 RUN npm install -g bower &&\
@@ -48,9 +48,6 @@ ENV LANG C.UTF-8
 # Expose port 8000 and set workdir for CMD command.
 EXPOSE 8000
 WORKDIR /hairy-tribble
-
-# Expose /hairy-tribble as a volume for development.
-VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 
 # Download enhanced version of TCache.
 RUN cd /home/ph &&\
@@ -92,13 +89,17 @@ ENV PATH /home/ph/.cabal-sandbox/bin:$PATH
 ADD ./rest-gen-files/ /hairy-tribble/rest-gen-files/
 
 # Add web-client files.
-ADD ./client/ /hairy-tribble/client/
+ADD ./client/ /home/ph/client/
 
 # Install Bower and npm dependecies and minify js files.
-RUN cd /hairy-tribble/client/assets &&\
+RUN cp -r /home/ph/client /hairy-tribble/client &&\
+    cd /hairy-tribble/client/assets &&\
     npm install &&\
     bower install &&\
     gulp uglify
+
+# Expose /hairy-tribble as a volume for development.
+VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 
 # Run rest when this container is started.
 CMD ["rest"]
