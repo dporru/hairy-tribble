@@ -55,20 +55,11 @@ instance JSONSchema Dates where
   schema = gSchema
 
 
-instance (Typeable a,FromJSON a) => FromJSON (ID.ID a) where
-  parseJSON s = do
-    t :: Text <- parseJSON s
-    case Text.split (== '-') t of
-      [ts,rest]
-        | ts == typeString -> return $ ID.ID rest
-      _                    -> typeMismatch "PH.Types.JSON: ID.ID" (String t)
-   where
-    typeString = Text.pack . show $ typeRep (Proxy :: Proxy a)
+instance (FromJSON a) => FromJSON (ID.ID a) where
+  parseJSON = (ID.ID <$>) . parseJSON
 
-instance (Typeable a,ToJSON a) => ToJSON (ID.ID a) where
-  toJSON (ID.ID t) = toJSON $ typeString <> "-" <> t
-   where
-    typeString = Text.pack . show $ typeRep (Proxy :: Proxy a)
+instance (ToJSON a) => ToJSON (ID.ID a) where
+  toJSON (ID.ID t) = toJSON t
 
 instance (JSONSchema a) => JSONSchema (ID.ID a) where
   schema _ = schema (Proxy :: Proxy Text)
