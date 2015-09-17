@@ -55,6 +55,12 @@ RUN cd /home/ph &&\
     cd TCache &&\
     git checkout 79aa884a350307259b625cf304c725c3ec22fed5
 
+# Download enhanced version of tst.
+RUN cd /home/ph &&\
+    git clone https://github.com/ariep/language-spelling &&\
+    cd language-spelling &&\
+    git checkout 98936c01f0fc0baf35b24e9ae975a5d808123aa3
+
 # Download enhanced version of psqueues.
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/psqueues &&\
@@ -80,6 +86,7 @@ RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
     cabal sandbox add-source /home/ph/full-text-search &&\
+    cabal sandbox add-source /home/ph/language-spelling/tst &&\
     cabal sandbox add-source /home/ph/psqueues &&\
     cabal sandbox add-source /home/ph/text-index &&\
     cabal sandbox add-source /hairy-tribble &&\
