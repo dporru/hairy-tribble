@@ -55,6 +55,12 @@ RUN cd /home/ph &&\
     cd TCache &&\
     git checkout 79aa884a350307259b625cf304c725c3ec22fed5
 
+# Download text-index.
+RUN cd /home/ph &&\
+    git clone https://github.com/ariep/text-index.git &&\
+    cd text-index &&\
+    git checkout 5d8fa412f2a4478d515932bba372a26c433208a4
+
 # Download enhanced version of full-text-search. Change echo date to
 # force redownload when the repository has changed.
 RUN cd /home/ph &&\
@@ -68,6 +74,7 @@ RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
     cabal sandbox add-source /home/ph/full-text-search &&\
+    cabal sandbox add-source /home/ph/text-index &&\
     cabal sandbox add-source /hairy-tribble &&\
     cabal update &&\
     touch /hairy-tribble/LICENSE &&\
@@ -91,7 +98,7 @@ ADD ./rest-gen-files/ /hairy-tribble/rest-gen-files/
 # Add web-client files.
 ADD ./client/ /home/ph/client/
 
-# Install Bower and npm dependecies and minify js files.
+# Install Bower and npm dependencies and minify js files.
 RUN cp -r /home/ph/client /hairy-tribble/client &&\
     cd /hairy-tribble/client/assets &&\
     npm install &&\
