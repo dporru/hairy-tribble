@@ -55,6 +55,12 @@ RUN cd /home/ph &&\
     cd TCache &&\
     git checkout 79aa884a350307259b625cf304c725c3ec22fed5
 
+# Download enhanced version of psqueues.
+RUN cd /home/ph &&\
+    git clone https://github.com/ariep/psqueues &&\
+    cd psqueues &&\
+    git checkout 1b9d87511bce9f5a3e4db6fa46a43dc03a965308
+
 # Download text-index.
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/text-index.git &&\
@@ -74,6 +80,7 @@ RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
     cabal sandbox add-source /home/ph/full-text-search &&\
+    cabal sandbox add-source /home/ph/psqueues &&\
     cabal sandbox add-source /home/ph/text-index &&\
     cabal sandbox add-source /hairy-tribble &&\
     cabal update &&\
