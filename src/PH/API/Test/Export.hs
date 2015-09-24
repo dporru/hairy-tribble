@@ -45,7 +45,7 @@ get = R.mkHandler dict $ \ env -> ExceptT $
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
       _         -> Pandoc.build mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
-        Right b -> return $ Right (b,suggestedFileName test format)
+        Right b -> return $ Right (b,suggestedFileName test format,False)
        where
         export = case format of
           PDF      -> PDF.export
