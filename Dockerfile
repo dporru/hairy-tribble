@@ -53,7 +53,7 @@ WORKDIR /hairy-tribble
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout 79aa884a350307259b625cf304c725c3ec22fed5
+    git checkout cf0c7a06c0c57cc8a8eabf6bcab6d34348d4e39b
 
 # Download enhanced version of tst.
 RUN cd /home/ph &&\
