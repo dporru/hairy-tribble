@@ -1,6 +1,6 @@
 angular.module('ph').controller('TestController', ['$modal', '$http', 'Question', 'Test', 'Alert', function($modal, $http, Question, Test, Alert){
     var testCtrl = this;
-    testCtrl.questions = [];
+    testCtrl.elements = [];
     testCtrl.newQuestion = {};
     testCtrl.editingNewQuestion = false;
     testCtrl.editingQuestionId = null;
@@ -10,11 +10,11 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     Test.changed(function() {
-        testCtrl.questions = Test.getCurrentTestQuestions();
+        testCtrl.elements = Test.getCurrentTestElements();
     });
 
     Question.changed(function() {
-        testCtrl.questions = Test.getCurrentTestQuestions();
+        testCtrl.elements = Test.getCurrentTestElements();
     });
 
     testCtrl.removeQuestion = function(questionId) {
@@ -45,17 +45,17 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         });
     };
 
-    testCtrl.questionMoved = function($index) {
-        testCtrl.questions.splice($index, 1);
-        Test.saveCurrentQuestionList(testCtrl.questions);
+    testCtrl.elementMoved = function($index) {
+        testCtrl.elements.splice($index, 1);
+        Test.saveCurrentElementList(testCtrl.elements);
     };
 
     testCtrl.getQuestionTitle = function(question) {
         return Question.getQuestionTitle(question);
     };
 
-    testCtrl.getCurrentTestExportUrl = function(type) {
-        return Test.getCurrentTestExportUrl(type);
+    testCtrl.getCurrentTestExportUrl = function(type, showAnswers) {
+        return Test.getCurrentTestExportUrl(type, showAnswers);
     };
 
     testCtrl.closeEditing = function() {

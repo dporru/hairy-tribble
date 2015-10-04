@@ -5,7 +5,7 @@ angular.module('ph').controller('TestListController', ['$modalInstance', '$modal
     test_list.save = function () {
         newTest = {
             'name': test_list.newTestName,
-            'questions': []
+            'elements': []
         };
 
         Test.createTest(newTest).then(function() {

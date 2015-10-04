@@ -15,11 +15,13 @@ angular.module('ph').directive('question', function(){
                 if (typeof scope.question.object == 'undefined') {
                     scope.questionType = 'open';
                     scope.question.object = {answer: {}, question: ''};
-                    scope.multipleChoice = {correct: '', incorrect: []};
+                    scope.question.labels = [];
+                    scope.multipleChoice = {correct: '', incorrect: [], order: []};
                 }else{
                     if (typeof scope.question.object.answer.multipleChoice !== 'undefined'){
                         scope.questionType = 'multipleChoice';
                         scope.multipleChoice.correct = scope.question.object.answer.multipleChoice.correct;
+                        scope.multipleChoice.order = scope.question.object.answer.multipleChoice.order;
                         if (scope.question.object.answer.multipleChoice.incorrect.length) {
                             for (var i=0;i<scope.question.object.answer.multipleChoice.incorrect.length;i++) {
                                 scope.multipleChoice.incorrect.push({value: scope.question.object.answer.multipleChoice.incorrect[i]});
@@ -73,6 +75,7 @@ angular.module('ph').directive('question', function(){
                     delete(scope.question.object.answer.multipleChoice);
                 }else{
                     delete(scope.question.object.answer.open);
+                    scope.question.object.answer.multipleChoice.order = [];
                 }
                 scope.ngSubmit(scope.question);
             };

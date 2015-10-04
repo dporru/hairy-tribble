@@ -4,14 +4,6 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
     var testsById = {};
     var changedCallbacks = [];
 
-    function getTestQuestionIds(testId) {
-        var questionIds = [];
-        for (var i in testsById[testId].object.questions) {
-            questionIds.push(testsById[testId].object.questions[i]);
-        }
-        return questionIds;
-    }
-
     function changedExecute() {
         for (var i in changedCallbacks) {
             changedCallbacks[i]();
@@ -22,17 +14,21 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         getList: function() {
             return tests;
         },
-        createTest: function(newTest) {
-            newTest.testDates = { 
-                "modificationDate": "2015-07-12T10:17:25.726622000000Z",
-                "creationDate": "2015-07-12T10:17:25.726622000000Z"
+        createTest: function(newTest, labels) {
+            if (typeof labels == 'undefined') {
+                labels = [];
+            }
+            var object = {
+                object_: newTest,
+                labels_: labels
             };
-            return $http.post(API_PATH + 'test', newTest)
+            return $http.post(API_PATH + 'test', object)
                 .then(function() {
                     return methods.load();
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het aanmaken van de toets.', 'danger');
+                    throw e;
                 });
         },
         getTestById: function(id) {
@@ -47,18 +43,23 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             currentTestId = testId;
             changedExecute();
         },
-        getCurrentTestQuestions: function() {
-            var questions = [];
+        getCurrentTestElements: function() {
+            var elements = [];
             if (testsById && currentTestId) {            
-                for (var i in testsById[currentTestId].object.questions) {
-                    var questionId =  testsById[currentTestId].object.questions[i];
-                    var question = Question.getQuestionById(questionId);
-                    if (question) {
-                        questions.push(question);
+                for (var i in testsById[currentTestId].object.elements) {
+                    var element = testsById[currentTestId].object.elements[i];
+                    if (typeof element.testQuestion != 'undefined') {
+                        var questionId =  element.testQuestion;
+                        var question = Question.getQuestionById(questionId);
+                        if (question) {
+                            elements.push({'testQuestion': question});
+                        }
+                    } else {
+                        elements.push(element);
                     }
                 }
             }
-            return questions;
+            return elements;
         },
         load: function() {
             return $http.get(API_PATH + 'test')
@@ -72,41 +73,47 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het ophalen van de toetsen.', 'danger');
+                    throw e;
                 });
         },
         addQuestion: function(testId, questionId) {
-            var questionIdList = getTestQuestionIds(testId);
-            questionIdList.push(questionId);
+            var test = testsById[testId];
+            var questionIdList = test.object.elements;
+            questionIdList.push({'testQuestion': questionId});
 
-            return methods.saveQuestionIdList(testId, questionIdList);
+            return methods.saveElementIdList(testId, questionIdList);
         },
-        saveQuestionIdList: function(testId, questionIdList) {
+        saveElementIdList: function(testId, elementIdList) {
+            var test = testsById[testId];
             var updatedTest = {
-                name: testsById[testId].object.name,
-                questions: questionIdList,
-                testDates: { 
-                    "modificationDate": "2015-07-12T10:17:25.726622000000Z",
-                    "creationDate": "2015-07-12T10:17:25.726622000000Z"
-                }
+                object_: test.object,
+                labels_: test.labels
             };
+            updatedTest.object_.elements = elementIdList;
 
-            return $http.put(API_PATH + 'test/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het opslaan van de vragenlijst.', 'danger');
+                    throw e;
                 });
         },
-        saveQuestionList: function(testId, questionList) {
-            var questionIdList = [];
-            for (var i in questionList) {
-                questionIdList.push(questionList[i].id);
+        saveElementList: function(testId, elementList) {
+            var elementIdList = [];
+            for (var i in elementList) {
+                var element = elementList[i];
+                if (typeof element.testQuestion != 'undefined') {
+                    elementIdList.push({'testQuestion': element.testQuestion.id});
+                } else {
+                    elementIdList.push(element);
+                }
             }
-            return methods.saveQuestionIdList(testId, questionIdList);
+            return methods.saveElementIdList(testId, elementIdList);
         },
-        saveCurrentQuestionList: function(questionList) {
-            return methods.saveQuestionList(currentTestId, questionList);
+        saveCurrentElementList: function(elementList) {
+            return methods.saveElementList(currentTestId, elementList);
         },
         addQuestionToCurrentTest: function(questionId) {
             if (currentTestId) {
@@ -115,8 +122,9 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         },
         isQuestionInCurrentTest: function(questionId) {
             if (currentTestId) {
-                for (var i in testsById[currentTestId].object.questions) {
-                    if (testsById[currentTestId].object.questions[i] === questionId) {
+                for (var i in testsById[currentTestId].object.elements) {
+                    var element = testsById[currentTestId].object.elements[i];
+                    if (element.testQuestion === questionId) {
                         return true;
                     }
                 }
@@ -125,13 +133,14 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             return false;
         },
         removeQuestionFromCurrentTest: function(questionId) {
-            var questions = [];
-            for (var i in testsById[currentTestId].object.questions) {
-                if (testsById[currentTestId].object.questions[i] !== questionId) {
-                    questions.push(testsById[currentTestId].object.questions[i]);
+            var elements = [];
+            for (var i in testsById[currentTestId].object.elements) {
+                var element = testsById[currentTestId].object.elements[i];
+                if (element.testQuestion !== questionId) {
+                    elements.push(element);
                 }
             }
-            methods.saveQuestionIdList(currentTestId, questions);
+            methods.saveElementIdList(currentTestId, elements);
 
         },
         removeTest: function(testId) {
@@ -141,13 +150,18 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het verwijderen van de toets.', 'danger');
+                    throw e;
                 });
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
         },
-        getCurrentTestExportUrl: function(type) {
-            return API_PATH + 'test/' + currentTestId + '/export/' + type;
+        getCurrentTestExportUrl: function(type, showAnswers) {
+            var parameters = '';
+            if (showAnswers) {
+                parameters = '?withAnswers';
+            }
+            return API_PATH + 'test/id/' + currentTestId + '/export/' + type + parameters;
         },
         updateTestName: function(testId, newName) {
             var updatedTest = {
@@ -161,6 +175,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het opslaan van de nieuwe toetsnaam.', 'danger');
+                    throw e;
                 });
         }
     };

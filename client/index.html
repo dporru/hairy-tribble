@@ -45,55 +45,51 @@
                     </div>
 
                     <div>
-                        <div class="list-group" dnd-list="testCtrl.questions">
+                        <div class="list-group" dnd-list="testCtrl.elements">
                             <div class="list-group-item"
-                                ng-repeat="question in testCtrl.questions"
-                                dnd-draggable="question"
-                                dnd-moved="testCtrl.questionMoved($index)"
+                                ng-repeat="element in testCtrl.elements"
+                                dnd-draggable="element"
+                                dnd-moved="testCtrl.elementMoved($index)"
                                 dnd-effect-allowed="move"
-                                dnd-selected="models.selected = question"
-                                ng-class="{'selected': models.selected === question}"
+                                dnd-selected="models.selected = element"
+                                ng-class="{'selected': models.selected === element}"
                                 dnd-disable-if="testCtrl.editingQuestionId!=null">
-                                <div class="row" ng-hide="testCtrl.editingQuestionId==question.id">
+                                <div class="row" ng-hide="testCtrl.editingQuestionId==element.testQuestion.id">
                                     <div class="col-xs-9 col-md-10">
                                         <strong>{{ $index + 1 }}:</strong>
-                                        {{ testCtrl.getQuestionTitle(question) | stripHTML | cut : true : 100 }}
+                                        {{ testCtrl.getQuestionTitle(element.testQuestion) | stripHTML | cut : true : 100 }}
                                     </div>
                                     <div class="col-xs-3 col-md-2">
                                         <div class="pull-right">
-                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen" ng-click="testCtrl.editingQuestionId=question.id">
+                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen" ng-click="testCtrl.editingQuestionId=element.testQuestion.id">
                                                 <span class="glyphicon glyphicon-edit"></span>
                                             </button>
-                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="testCtrl.removeQuestion(question.id)">
+                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="testCtrl.removeQuestion(element.testQuestion.id)">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <question ng-show="testCtrl.editingQuestionId==question.id" question="question" ng-submit="testCtrl.saveQuestion" ng-cancel="testCtrl.closeEditing">
+                                <question ng-show="testCtrl.editingQuestionId==element.testQuestion.id" question="element.testQuestion" ng-submit="testCtrl.saveQuestion" ng-cancel="testCtrl.closeEditing">
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <div class="btn-group" dropdown>
+                                <button type="button" dropdown-toggle class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     Exporteer antwoordblad <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#">PDF</a></li>
-                                    <li><a href="#">Microsoft Word</a></li>
-                                    <li><a href="#">ODF</a></li>
-                                    <li><a href="#">Platte tekst</a></li>
+                                    <li><a href="{{ testCtrl.getCurrentTestExportUrl('pdf', true) }}" target="_blank">PDF</a></li>
+                                    <li><a href="{{ testCtrl.getCurrentTestExportUrl('word', true) }}" target="_blank">Microsoft Word</a></li>
                                 </ul>
                             </div>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <div class="btn-group" dropdown>
+                                <button type="button" dropdown-toggle class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                     Exporteer <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
                                     <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('pdf') }}" target="_blank">PDF</a></li>
                                     <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('word') }}" target="_blank">Microsoft Word</a></li>
-                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('odf') }}" target="_blank">ODF</a></li>
-                                    <li><a ng-href="{{ testCtrl.getCurrentTestExportUrl('text') }}" target="_blank">Platte tekst</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -111,7 +107,7 @@
                     <table class="table table-striped">
                         <caption class="text-right">Totaal {{ questionList.getNumberOfQuestions() }} resultaten</caption>
                         <tbody>
-                            <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: '-object.questionDates.creationDate' | itemsPerPage: questionList.itemsPerPage">
+                            <tr dir-paginate="question in questionList.getQuestions() | filter: questionList.query | orderBy: '-creationDate' | itemsPerPage: questionList.itemsPerPage">
                                 <td ng-class="questionList.getQuestionClass(question.id)">
                                     {{ questionList.getQuestionTitle(question) | stripHTML | cut : true : 50 }}
                                 </td>

@@ -19,8 +19,8 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
             }
         },
         parseQuestion: function(question) {
-            question.object.questionDates.modificationDate = new Date(question.object.questionDates.modificationDate);
-            question.object.questionDates.creationDate = new Date(question.object.questionDates.creationDate);
+            question.modificationDate = new Date(question.modificationDate);
+            question.creationDate = new Date(question.creationDate);
             return question;
         },
         load: function() {
@@ -35,25 +35,36 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het ophalen van de vragen.', 'danger');
+                    throw e;
                 });
         },
-        create: function(newQuestion) {
-            return $http.post(API_PATH + 'question', newQuestion.object)
+        create: function(question) {
+            var newQuestion = {
+                'object_': question.object,
+                'labels_': question.labels
+            };
+            return $http.post(API_PATH + 'question', newQuestion)
                 .then(function(result) {
                     methods.load();
-                    return 'Question-'+result.data;
+                    return result.data;
                 })
                 .catch(function(){
                     Alert.add('Er trad een fout op bij het aanmaken van de vraag.', 'danger');
+                    throw e;
                 });
         },
         save: function(question) {
-            return $http.put(API_PATH + 'question/' + question.id, question.object)
+            var updateQuestion = {
+                'object_': question.object,
+                'labels_': question.labels
+            };
+            return $http.put(API_PATH + 'question/id/' + question.id, updateQuestion)
                 .then(function(result) {
                     methods.load();
                 })
-                .catch(function(){
+                .catch(function(e){
                     Alert.add('Er trad een fout op bij het opslaan van de vraag.', 'danger');
+                    throw e;
                 });
         },
         changed: function(callback) {
