@@ -42,7 +42,7 @@ renderTest mode name qs = P.setTitle (textP name) . P.doc $
         `orderBy` view order m
       renderChoice (corr,t) = P.para $ case mode of
         OnlyQuestions -> textP t
-        WithAnswers   -> (if corr then P.strikeout else P.strong) $ textP t
+        WithAnswers   -> (if corr then P.strong else P.strikeout) $ textP t
 
 orderBy :: [a] -> [Int] -> [a]
 orderBy = map . (!!)
