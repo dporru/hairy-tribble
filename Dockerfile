@@ -67,6 +67,12 @@ RUN cd /home/ph &&\
     cd psqueues &&\
     git checkout 1b9d87511bce9f5a3e4db6fa46a43dc03a965308
 
+# Download enhanced version of rest.
+RUN cd /home/ph &&\
+    git clone https://github.com/ariep/rest &&\
+    cd rest &&\
+    git checkout 7e13c54be578f6b0da8245745ecc715689689b0f
+
 # Download text-index.
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/text-index.git &&\
@@ -88,6 +94,7 @@ RUN cd /home/ph &&\
     cabal sandbox add-source /home/ph/full-text-search &&\
     cabal sandbox add-source /home/ph/language-spelling/tst &&\
     cabal sandbox add-source /home/ph/psqueues &&\
+    cabal sandbox add-source /home/ph/rest &&\
     cabal sandbox add-source /home/ph/text-index &&\
     cabal sandbox add-source /hairy-tribble &&\
     cabal update &&\
