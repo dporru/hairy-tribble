@@ -21,9 +21,9 @@ import qualified Rest.Handler               as R
 import qualified Rest.Resource              as R
 
 
-resource :: R.Resource
-  (ReaderT (ID.Ref (Decorated Test)) IO)
-  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
+resource :: forall m. (MonadIO m) => R.Resource
+  (ReaderT (ID.Ref (Decorated Test)) m)
+  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
   Format
   Void
   Void
@@ -34,7 +34,7 @@ resource = R.mkResourceReader
   , R.get    = Just get
   }
 
-get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
+get :: forall m. (MonadIO m) => R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
@@ -43,7 +43,7 @@ get = R.mkHandler dict $ \ env -> ExceptT $
     let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
-      _         -> Pandoc.build mode dtest >>= export >>= \case
+      _         -> liftIO $ Pandoc.build mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
         Right b -> return $ Right (b,suggestedFileName test format,False)
        where

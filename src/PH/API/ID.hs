@@ -30,11 +30,12 @@ import qualified Data.Map         as Map
 import qualified Data.Set         as Set
 import qualified Data.Text        as Text
 
-type Resource o
-  = R.Resource IO (ReaderT (ID.Ref (Decorated o)) IO) (ID.Ref (Decorated o)) [Label] Void
+type Resource m o
+  = R.Resource m (ReaderT (ID.Ref (Decorated o)) m) (ID.Ref (Decorated o)) [Label] Void
 
-resource :: forall o.
-  ( T.Serializable (ID.WithID (Decorated o)),T.IResource (ID.WithID (Decorated o))
+resource :: forall m o.
+  ( MonadIO m
+  , T.Serializable (ID.WithID (Decorated o)),T.IResource (ID.WithID (Decorated o))
   , JSONSchema o,JSONSchema (ID.ID (Decorated o)),JSONSchema (ID.Ref (Decorated o))
   , ToJSON (ID.Ref (Decorated o)),ToJSON (ID.ID (Decorated o))
   , ToJSON o
@@ -48,7 +49,7 @@ resource :: forall o.
   , T.Serializable (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
   , T.Indexable    (Map.Map (ID.ID (Decorated o)) (Set.Set (ID.Ref (Decorated o))))
   , T.Serializable (Map.Map Text.Text             (Set.Set (ID.Ref (Decorated o))))
-  ) => String -> Resource o
+  ) => String -> Resource m o
 resource name = R.mkResourceReader
   {
     R.name   = name
@@ -93,7 +94,7 @@ resource name = R.mkResourceReader
     f ';' = True
     f _   = False
   
-  run :: (MonadIO m) => STM a -> m a
+  run :: (MonadIO n) => STM a -> n a
   run = liftIO . T.atomicallySync
 
 maybeNotFound :: (MonadError (R.Reason e) m) => Maybe () -> m ()
