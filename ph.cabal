@@ -74,7 +74,7 @@ executable rest
     path-pieces == 0.2.0,
     ph,
     rest-core >= 0.35 && < 0.37,
-    rest-happstack >= 0.3 && < 0.4,
+    rest-happstack >= 0.3.1 && < 0.4,
     safecopy >= 0.8 && < 0.9,
     serversession == 1.0.1,
     serversession-backend-acid-state == 1.0.2,
