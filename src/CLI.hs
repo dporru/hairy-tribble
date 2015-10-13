@@ -66,10 +66,10 @@ class Input x where
 
 instance Input Question where
   input = do
-    q <- ask "Question:"
-    a <- ask "Answer:"
+    q <- putStrLn "Question:" >> input
+    a <- putStrLn "Answer:" >> input
     putStrLn "Enter more answers for multiple choice, empty line when done:"
-    others <- askMany
+    others <- map plainText <$> askMany
     if null others
       then return $ Question q (Open a)
       else do
@@ -91,6 +91,12 @@ instance (Input x) => Input (Labelled x) where
     putStrLn "Labels:"
     ls <- Set.fromList <$> askMany
     return $ Labelled ls x
+
+instance Input RichText where
+  input = plainText <$> input
+
+instance Input Text where
+  input = pack <$> getLine
 
 ask :: String -> IO Text
 ask = askF pack
