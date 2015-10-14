@@ -14,6 +14,7 @@ var javascript_libs = [
     'bower_components/trumbowyg/dist/trumbowyg.js',
     'bower_components/trumbowyg/dist/langs/nl.min.js',
     'bower_components/trumbowyg/dist/plugins/upload/trumbowyg.upload.js',
+    'bower_components/angular-local-storage/dist/angular-local-storage.js',
     'js/main.js',
     'js/controllers/*.js',
     'js/services/*.js',

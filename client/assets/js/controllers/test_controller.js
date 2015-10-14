@@ -89,9 +89,7 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
     };
 
     Test.load().then(function(tests) {
-        if (!testCtrl.getCurrentTest() && typeof tests != 'undefined' && tests.length) {
-            Test.setCurrentTest(tests[0].id);
-        }else if(!testCtrl.getCurrentTest()) {
+        if(!testCtrl.getCurrentTest()) {
             testCtrl.openTestListModal();
         }
     });

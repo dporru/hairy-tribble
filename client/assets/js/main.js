@@ -1,10 +1,13 @@
-angular.module('ph', ['ui.bootstrap', 'angularUtils.directives.dirPagination', 'dndLists']);
+angular.module('ph', ['ui.bootstrap', 'angularUtils.directives.dirPagination', 'dndLists', 'LocalStorageModule']);
 
 angular.module('ph').value('API_PATH', '/api/v0.0.0/');
 
-angular.module('ph').config(['paginationTemplateProvider', function(paginationTemplateProvider) {
+angular.module('ph').config(['paginationTemplateProvider', 'localStorageServiceProvider', function(paginationTemplateProvider, localStorageServiceProvider) {
     paginationTemplateProvider.setPath('assets/bower_components/angular-utils-pagination/dirPagination.tpl.html');
 
     // Trumbowyg settings.
     $.trumbowyg.upload = {serverPath: '/api/v0.0.0/image'};
+
+    // Localstorage settings.
+    localStorageServiceProvider.setPrefix('ph');
 }]);
