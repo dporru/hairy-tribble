@@ -126,3 +126,22 @@ h1 {
 question {
     cursor: default;
 }
+
+/**
+ * Search questions
+ */
+.panel-heading form .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/**
+ * Question list
+ */
+
+.question-list .panel-body {
+    padding: 0;
+}
+
+.question-list .pagination {
+    margin: 0;
+}
