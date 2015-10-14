@@ -18,7 +18,7 @@ import           System.Random.Shuffle (shuffleM)
 
 main :: IO ()
 main = do
-  DB.initialiseIndices
+  DB.initialise
   CP.interactive commands
 
 commands :: CP.Commands IO

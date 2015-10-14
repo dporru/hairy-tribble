@@ -1,4 +1,9 @@
-module PH.DB where
+module PH.DB
+  (
+    initialise
+  , run
+  , flush
+  ) where
 
 import           Common
 import           PH.API.ID (idIndex,labelsIndex)
@@ -12,7 +17,13 @@ import qualified Data.TCache.Defs        as T
 import qualified Data.TCache.ID          as ID
 import qualified Data.TCache.Index       as T
 import qualified Data.TCache.Index.Map   as IndexMap
+import           System.Directory      (createDirectoryIfMissing)
 
+
+initialise :: IO ()
+initialise = do
+  createDirectoryIfMissing False "./.tcachedata"
+  initialiseIndices
 
 initialiseIndices :: IO ()
 initialiseIndices = do

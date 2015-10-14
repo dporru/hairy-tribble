@@ -13,13 +13,11 @@ import qualified Happstack.Server as H
 import           Rest.Driver.Happstack      (apiToHandler)
 import           Rest.Driver.Happstack.Docs (apiDocsHandler)
 import           Rest.Driver.Perform        (Rest)
-import           System.Directory           (createDirectoryIfMissing)
 
 
 main :: IO ()
 main = do
-  createDirectoryIfMissing False "./.tcachedata"
-  DB.initialiseIndices
+  DB.initialise
   Session.withServerSession $ \ oauth2 state -> H.simpleHTTP H.nullConf . Session.runServerSessionT oauth2 state . msum $
     [
       H.dir "api" apiHandle
