@@ -144,7 +144,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
 
         },
         removeTest: function(testId) {
-            return $http.delete(API_PATH + 'test/' + testId)
+            return $http.delete(API_PATH + 'test/id/' + testId)
                 .then(function(){
                     methods.load();
                 })
