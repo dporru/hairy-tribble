@@ -17,7 +17,7 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
         testCtrl.elements = Test.getCurrentTestElements();
     });
 
-    testCtrl.removeQuestion = function(questionId) {
+    testCtrl.removeQuestionFromTest = function(questionId) {
         Test.removeQuestionFromCurrentTest(questionId);
     };
 
@@ -33,6 +33,29 @@ angular.module('ph').controller('TestController', ['$modal', '$http', 'Question'
 
     testCtrl.saveQuestion = function(question) {
         Question.save(question).then(function(){
+            testCtrl.closeEditing();
+        });
+    };
+
+    testCtrl.removeQuestion = function(question) {
+        var modalInstance = $modal.open({
+            templateUrl: 'remove_confirmation.html',
+            controller: 'RemoveConfirmationController as removeCtrl',
+            resolve: {
+                title: function(){return 'Verwijder ' + question.object.question + '?';},
+                content: function(){return 'Weet je zeker dat je ' + question.object.question + ' wilt verwijderen?';}
+            },
+            keyboard: true
+        });
+
+        modalInstance.result.then(function (remove) {
+            if (remove) {
+                Question.remove(question.id).then(function(){
+                    testCtrl.closeEditing();
+                });
+            }
+        });
+        Question.remove(question_id).then(function(){
             testCtrl.closeEditing();
         });
     };

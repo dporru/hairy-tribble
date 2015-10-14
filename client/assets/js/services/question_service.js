@@ -1,7 +1,8 @@
-angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , function($http, Alert, API_PATH) {
+angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function($http, Alert, API_PATH) {
     var questions = [];
     var questionsById = {};
     var changedCallbacks = [];
+    var testMethods;
 
     function changedExecute() {
         for (var i in changedCallbacks) {
@@ -67,6 +68,21 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
                     throw e;
                 });
         },
+        remove: function(question_id) {
+            return $http.delete(API_PATH + 'question/id/' + question_id)
+                .then(function(result) {
+                    methods.load();
+                    if (testMethods) {
+                        if (testMethods.isQuestionInCurrentTest(question_id)) {
+                            testMethods.removeQuestionFromCurrentTest(question_id);
+                        }
+                    }
+                })
+                .catch(function(e){
+                    Alert.add('Er trad een fout op bij het verwijderen van de vraag.', 'danger');
+                    throw e;
+                });
+        },
         changed: function(callback) {
             changedCallbacks.push(callback);
         },
@@ -78,6 +94,9 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH' , functio
             }
 
             return title;
+        },
+        setTestMethods: function(methods) {
+            testMethods = methods;
         }
     };
 

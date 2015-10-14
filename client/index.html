@@ -62,13 +62,13 @@
                                             <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Aanpassen" ng-click="testCtrl.editingQuestionId=element.testQuestion.id">
                                                 <span class="glyphicon glyphicon-edit"></span>
                                             </button>
-                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="testCtrl.removeQuestion(element.testQuestion.id)">
+                                            <button class="btn btn-default btn-xs" data-toggle="tooltip" title="Verwijder uit toets" ng-click="testCtrl.removeQuestionFromTest(element.testQuestion.id)">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <question ng-show="testCtrl.editingQuestionId==element.testQuestion.id" question="element.testQuestion" ng-submit="testCtrl.saveQuestion" ng-cancel="testCtrl.closeEditing">
+                                <question ng-show="testCtrl.editingQuestionId==element.testQuestion.id" question="element.testQuestion" ng-submit="testCtrl.saveQuestion" ng-remove="testCtrl.removeQuestion" ng-cancel="testCtrl.closeEditing">
                             </div>
                         </div>
                     </div>

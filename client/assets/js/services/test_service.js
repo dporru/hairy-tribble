@@ -180,5 +180,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         }
     };
 
+    Question.setTestMethods(methods);
+
     return methods;
 }]);

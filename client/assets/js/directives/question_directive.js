@@ -7,6 +7,7 @@ angular.module('ph').directive('question', function(){
             placeholder: '@',
             ngSubmit: '=',
             ngCancel: '=',
+            ngRemove: '=',
             reset: '='
         },
         link: function(scope, element, attrs) {
@@ -100,6 +101,7 @@ angular.module('ph').directive('question', function(){
             };
 
             scope.cancelEditing = scope.ngCancel;
+            scope.remove = scope.ngRemove;
 
             element.find('textarea[name=question]').on('tbwchange', function () {
                 if ($(this).trumbowyg('html')) {
