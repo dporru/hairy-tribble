@@ -6,5 +6,5 @@ angular.module('ph').config(['paginationTemplateProvider', function(paginationTe
     paginationTemplateProvider.setPath('assets/bower_components/angular-utils-pagination/dirPagination.tpl.html');
 
     // Trumbowyg settings.
-    $.trumbowyg.upload = {serverPath: '/api/v0.0.0/image'};
+    $.trumbowyg.upload = {serverPath: '/uploaded'};
 }]);
