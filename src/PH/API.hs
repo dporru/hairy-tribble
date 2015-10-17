@@ -20,7 +20,10 @@ import qualified Rest.Resource      as R
 import qualified Rest.Schema        as R
 
 type M
-  = Session.ServerSessionT Integer (H.ServerPartT IO)
+  = ReaderT ServerHost (Session.ServerSessionT Integer (H.ServerPartT IO))
+
+type ServerHost
+  = String
 
 api :: Api M
 api = [(mkVersion 0 0 0,Some1 ph)]

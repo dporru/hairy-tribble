@@ -129,12 +129,11 @@ withServerSession ::
   , Eq sessionData
   , Show sessionData
   , Typeable sessionData
-  ) => (OAuth2.ClientKey -> S.State (AcidStorage (SD sessionData)) -> m ()) -> m ()
+  ) => (S.State (AcidStorage (SD sessionData)) -> m ()) -> m ()
 withServerSession h = do
-  oauth2 <- liftIO OAuth2.promptGoogleKey
   storage <- liftIO $ AcidStorage <$> Acid.openLocalState emptyState
   state <- S.createState storage
-  h oauth2 state
+  h state
   liftIO . Acid.createCheckpointAndClose . acidState $ storage
 
 data SD s

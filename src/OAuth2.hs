@@ -4,6 +4,7 @@ module OAuth2
     loginRedirect
   , login
   , promptGoogleKey
+  , specifyGoogleKey
   , User(..)
   , ClientKey
   ) where
@@ -29,16 +30,21 @@ type ClientKey
 promptGoogleKey :: IO ClientKey
 promptGoogleKey = do
   putStrLn "OAuth2 client id:"
-  clientId <- fmap BS8.pack getLine
+  clientID <- getLine
   putStrLn "OAuth2 client secret:"
-  clientSecret <- fmap BS8.pack getLine
-  return $ O.OAuth2
-    { O.oauthClientId = clientId
-    , O.oauthClientSecret = clientSecret
-    , O.oauthCallback = Just "http://localhost:8000/"
-    , O.oauthOAuthorizeEndpoint = "https://accounts.google.com/o/oauth2/auth"
-    , O.oauthAccessTokenEndpoint = "https://www.googleapis.com/oauth2/v3/token"
-    }
+  clientSecret <- getLine
+  putStrLn "host:"
+  host <- getLine
+  return $ specifyGoogleKey clientID clientSecret host
+
+specifyGoogleKey :: String -> String -> String -> ClientKey
+specifyGoogleKey clientID clientSecret host = O.OAuth2
+  { O.oauthClientId = BS8.pack clientID
+  , O.oauthClientSecret = BS8.pack clientSecret
+  , O.oauthCallback = Just $ BS8.pack host
+  , O.oauthOAuthorizeEndpoint = "https://accounts.google.com/o/oauth2/auth"
+  , O.oauthAccessTokenEndpoint = "https://www.googleapis.com/oauth2/v3/token"
+  }
 
 data Token = Token
   { issued_to      :: Text

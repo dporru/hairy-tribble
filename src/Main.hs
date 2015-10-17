@@ -1,56 +1,35 @@
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-module Main where
+module Main
+  (
+    main
+  ) where
 
 
 import           Common
-import           PH.API                     (M,api)
-import qualified PH.DB            as DB
+import           PH.API (M,api)
+import qualified PH.DB                   as DB
+import           Server (serve)
 
-import qualified Session
-
-import qualified Happstack.Server as H
-import           Rest.Driver.Happstack      (apiToHandler)
-import           Rest.Driver.Happstack.Docs (apiDocsHandler)
-import           Rest.Driver.Perform        (Rest)
-import           System.Directory           (createDirectoryIfMissing)
-
+import qualified System.Console.Argument as CP
+import qualified System.Console.Command  as CP
+import qualified System.Console.Program  as CP
 
 main :: IO ()
 main = do
-  createDirectoryIfMissing False "./.tcachedata"
-  DB.initialiseIndices
-  Session.withServerSession $ \ oauth2 state -> H.simpleHTTP H.nullConf . Session.runServerSessionT oauth2 state . msum $
-    [
-      H.dir "api" apiHandle
-    , H.dir "docs" docsHandle
-    , H.serveDirectory H.DisableBrowsing ["index.html"] "./client/"
-    , H.serveDirectory H.DisableBrowsing [] "./rest-gen-files/Docs/"
-    , H.dir "logout" logoutTest
-    , loginTest
-    ]
+  DB.initialise
+  CP.single commands
 
-apiHandle :: M H.Response
-apiHandle = do
-  (user,maybeCounter) <- Session.getSession
-  H.decodeBody $ H.defaultBodyPolicy "/tmp/" 1048576 1048576 4096
-  response <- apiToHandler api
-  Session.putSession . Just $ maybe 0 succ maybeCounter
-  return response
+commands :: CP.Commands IO
+commands = flip CP.Node [] . CP.command "serve" "" $
+  CP.withOption serverHostOption   $ \ serverHost   ->
+  CP.withOption googleIDOption     $ \ googleID     ->
+  CP.withOption googleSecretOption $ \ googleSecret ->
+    CP.io $ serve googleID googleSecret serverHost
 
-docsHandle :: M H.Response
-docsHandle = apiDocsHandler "/docs/" "rest-gen-files/Docs/" api
+serverHostOption :: CP.Option String
+serverHostOption = CP.option [] ["serverBase"] CP.string "http://localhost:8000/" ""
 
-deriving instance (Rest m) => Rest (Session.ServerSessionT s m)
+googleIDOption :: CP.Option String
+googleIDOption = CP.option [] ["googleID"] CP.string (error "google ID not specified") ""
 
-logoutTest :: M H.Response
-logoutTest = do
-  Session.putSession $ Nothing
-  Session.expireSession
-  return . H.toResponse $ ("Logged out" :: String)
-
-loginTest :: M H.Response
-loginTest = do
-  (user,mi) <- Session.getSession
-  Session.putSession . Just $ maybe 0 succ mi
-  return . H.toResponse $ show user ++ "\nCounter: " ++ show mi
+googleSecretOption :: CP.Option String
+googleSecretOption = CP.option [] ["googleSecret"] CP.string (error "google secret not specified") ""

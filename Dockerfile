@@ -119,6 +119,10 @@ RUN cp -r /home/ph/client /hairy-tribble/client &&\
     bower install &&\
     gulp uglify
 
+# Copy the configuration file to the container.
+RUN mkdir /home/ph/.serve
+COPY ./config /home/ph/.serve/config
+
 # Expose /hairy-tribble as a volume for development.
 VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
 
