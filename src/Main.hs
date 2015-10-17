@@ -13,6 +13,9 @@ import qualified System.Console.Argument as CP
 import qualified System.Console.Command  as CP
 import qualified System.Console.Program  as CP
 
+serverBaseURI :: String
+serverBaseURI = "http://localhost:8000/"
+
 main :: IO ()
 main = do
   DB.initialise

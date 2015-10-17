@@ -18,7 +18,7 @@ import           System.Random.Shuffle (shuffleM)
 
 main :: IO ()
 main = do
-  DB.initialiseIndices
+  DB.initialise
   CP.interactive commands
 
 commands :: CP.Commands IO
@@ -66,10 +66,10 @@ class Input x where
 
 instance Input Question where
   input = do
-    q <- prompt "Question:"
-    a <- prompt "Answer:"
+    q <- putStrLn "Question:" >> input
+    a <- putStrLn "Answer:" >> input
     putStrLn "Enter more answers for multiple choice, empty line when done:"
-    others <- askMany
+    others <- map plainText <$> askMany
     if null others
       then return $ Question q (Open a)
       else do
@@ -91,7 +91,6 @@ instance (Input x) => Input (Labelled x) where
     putStrLn "Labels:"
     ls <- Set.fromList <$> askMany
     return $ Labelled ls x
-
 
 instance Input RichText where
   input = plainText <$> input
