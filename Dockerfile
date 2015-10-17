@@ -73,19 +73,12 @@ RUN cd /home/ph &&\
     cd text-index &&\
     git checkout 5d8fa412f2a4478d515932bba372a26c433208a4
 
-# Download enhanced version of full-text-search. Change echo date to
-# force redownload when the repository has changed.
-RUN cd /home/ph &&\
-    echo "Get full-text-search - Fri Jun 5 11:07:25 UTC 2015" &&\
-    darcs get http://hub.darcs.net/AriePeterson/full-text-search --tag 2015-07-05
-
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
 COPY ./install_cabal_dependencies.sh /hairy-tribble/install_cabal_dependencies.sh
 RUN cd /home/ph &&\
     cabal sandbox init &&\
     cabal sandbox add-source /home/ph/TCache &&\
-    cabal sandbox add-source /home/ph/full-text-search &&\
     cabal sandbox add-source /home/ph/language-spelling/tst &&\
     cabal sandbox add-source /home/ph/psqueues &&\
     cabal sandbox add-source /home/ph/text-index &&\
