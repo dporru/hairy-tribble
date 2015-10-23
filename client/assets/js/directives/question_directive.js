@@ -55,6 +55,7 @@ angular.module('ph').directive('question', function(){
                     $(this).trumbowyg('destroy');
                     $(this).trumbowyg({
                         fullscreenable: true,
+                        removeformatPasted: true,
                         btns: ['bold','italic','|','btnGrp-lists','|','upload'],
                         lang: 'nl'
                     });
