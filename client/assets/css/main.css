@@ -119,6 +119,10 @@ h1 {
     cursor: text;
 }
 
+.trumbowyg-box, .trumbowyg-editor {
+    min-height: 100px;
+}
+
 .trumbowyg-box .ng-hide {
     display: none;
 }

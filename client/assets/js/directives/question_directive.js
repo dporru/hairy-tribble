@@ -56,6 +56,7 @@ angular.module('ph').directive('question', function(){
                     $(this).trumbowyg({
                         fullscreenable: true,
                         removeformatPasted: true,
+                        autogrow: true,
                         btns: ['bold','italic','|','btnGrp-lists','|','upload'],
                         lang: 'nl'
                     });
