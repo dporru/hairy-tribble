@@ -22,10 +22,6 @@
 
         <div class="row">
             <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl">
-                <div class="form-group question-placeholder" ng-hide="testCtrl.editingNewQuestion">
-                    <button type="button" class="btn btn-info" ng-click="testCtrl.editingNewQuestion=true">Nieuwe vraag</button>
-                </div>
-                <question question="testCtrl.newQuestion" placeholder="Nieuwe vraag" ng-submit="testCtrl.submitNewQuestion" ng-cancel="testCtrl.closeEditing" ng-show="testCtrl.editingNewQuestion"></question>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <div class="row">
@@ -70,6 +66,14 @@
                                 </div>
                                 <question ng-show="testCtrl.editingQuestionId==element.testQuestion.id" question="element.testQuestion" ng-submit="testCtrl.saveQuestion" ng-remove="testCtrl.removeQuestion" ng-cancel="testCtrl.closeEditing">
                             </div>
+                        </div>
+
+                        <!-- New question -->
+                        <div class="form-group question-placeholder" ng-hide="testCtrl.editingNewQuestion">
+                            <button type="button" class="btn btn-info" ng-click="testCtrl.editingNewQuestion=true">Nieuwe vraag</button>
+                        </div>
+                        <div class="list-group-item" ng-show="testCtrl.editingNewQuestion">
+                            <question question="testCtrl.newQuestion" placeholder="Nieuwe vraag" ng-submit="testCtrl.submitNewQuestion" ng-cancel="testCtrl.closeEditing"></question>
                         </div>
                     </div>
                     <div class="panel-footer text-right">
