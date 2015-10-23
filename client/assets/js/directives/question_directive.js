@@ -14,7 +14,9 @@ angular.module('ph').directive('question', function(){
             scope.multipleChoice = {correct: '', incorrect: []};
             scope.$watch('question', function(){
                 if (typeof scope.question.object == 'undefined') {
-                    scope.questionType = 'open';
+                    if (typeof scope.questionType == 'undefined') {
+                        scope.questionType = 'open';
+                    }
                     scope.question.object = {answer: {}, question: ''};
                     scope.question.labels = [];
                     scope.multipleChoice = {answers: []};
