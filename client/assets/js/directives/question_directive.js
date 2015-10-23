@@ -57,7 +57,7 @@ angular.module('ph').directive('question', function(){
                         fullscreenable: true,
                         removeformatPasted: true,
                         autogrow: true,
-                        btns: ['bold','italic','|','btnGrp-lists','|','upload'],
+                        btns: ['bold','italic','underline','|','btnGrp-lists','|','upload'],
                         lang: 'nl'
                     });
                 });
