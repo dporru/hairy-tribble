@@ -30,7 +30,7 @@ gulp.task('uglify', function() {
     return gulp.src(javascript_libs)
         .pipe(sourcemaps.init())
             .pipe(concat('all.min.js'))
-            // .pipe(uglify())
+            .pipe(uglify())
         .pipe(sourcemaps.write('../maps'))
         .pipe(gulp.dest('dist'));
 });
