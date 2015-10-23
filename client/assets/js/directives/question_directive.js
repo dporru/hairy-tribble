@@ -127,6 +127,14 @@ angular.module('ph').directive('question', function(){
                 }
             };
 
+            scope.switchCorrectAnswer = function(answer) {
+                for (var i in scope.multipleChoice.answers) {
+                    scope.multipleChoice.answers[i].correct = false;
+                }
+                answer.correct = true;
+                scope.updateMultipleAnswers();
+            };
+
             scope.cancelEditing = scope.ngCancel;
             scope.remove = scope.ngRemove;
 
