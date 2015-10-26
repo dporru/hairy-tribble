@@ -16,10 +16,10 @@ import           System.Directory           (renameFile)
 import           System.Random              (newStdGen,randomRs)
 
 
-
 serve :: String -> String -> String -> IO ()
 serve clientID clientSecret serverHost = Session.withServerSession $ \ state -> do
-  let oauth2 = OAuth2.specifyGoogleKey clientID clientSecret serverHost
+  let redirect = serverHost ++ "login"
+      oauth2 = OAuth2.specifyGoogleKey clientID clientSecret redirect
   H.simpleHTTP H.nullConf .
     Session.runServerSessionT oauth2 state .
     flip runReaderT serverHost .
@@ -30,8 +30,8 @@ serve clientID clientSecret serverHost = Session.withServerSession $ \ state -> 
       , H.dir "uploaded" imageHandle
       , H.serveDirectory H.DisableBrowsing ["index.html"] "./client/"
       , H.serveDirectory H.DisableBrowsing [] "./rest-gen-files/Docs/"
-      , H.dir "logout" logoutTest
-      , loginTest
+      , H.dir "logout" logout
+      , H.dir "login" login
       ]
 
 apiHandle :: M H.Response
@@ -63,14 +63,15 @@ imageHandle = do
 
 deriving instance (Rest m) => Rest (Session.ServerSessionT s m)
 
-logoutTest :: M H.Response
-logoutTest = do
+logout :: M H.Response
+logout = do
   lift . Session.putSession $ Nothing
   lift Session.expireSession
   return . H.toResponse $ ("Logged out" :: String)
 
-loginTest :: M H.Response
-loginTest = do
+login :: M H.Response
+login = do
   (user,mi) <- lift Session.getSession
   lift . Session.putSession . Just $ maybe 0 succ mi
-  return . H.toResponse $ show user ++ "\nCounter: " ++ show mi
+  host <- ask
+  H.seeOther host $ H.toResponse ()
