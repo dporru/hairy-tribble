@@ -12,23 +12,23 @@
         <textarea name="open_answer" placeholder="Antwoord"></textarea>
     </div>
     <div class="form-group multiple-choice-answers-holder" ng-show="questionType == 'multipleChoice'">
-        <div class="input-group">
-            <span class="input-group-addon">
-                <i class="glyphicon glyphicon-ok text-success"></i>
-            </span>
-            <input type="text" class="form-control" ng-model="multipleChoice.correct" ng-change="updateMultipleAnswers()">
-        </div>
-        <div class="input-group" ng-repeat="answer in multipleChoice.incorrect">
-            <span class="input-group-addon">
+        <div class="input-group" ng-repeat="answer in multipleChoice.answers">
+            <span class="input-group-addon" ng-click="switchCorrectAnswer(answer)">
                 <i ng-class="multipleChoiceAnswerClass(answer)"></i>
             </span>
             <input type="text" class="form-control" ng-model="answer.value" ng-change="updateMultipleAnswers()">
         </div>
     </div>
     <div class="form-group">
-        <button type="button" class="btn btn-default" ng-click="cancelEditing()">Annuleer</button>
-        <input type="submit" class="btn btn-primary pull-right" value="Opslaan">
+        <div class="row">
+            <div class="col-md-6">
+                <button type="button" class="btn btn-default" ng-click="cancelEditing()">Annuleer</button>
+            </div>
+            <div class="col-md-6 text-right">
+                <button type="button" class="btn btn-danger" ng-click="remove(question)" ng-show="question.id">Verwijderen</button>
+                <input type="submit" class="btn btn-primary" value="Opslaan">
+            </div>
+        </div>
     </div>
     <div class="clearfix"></div>
 </form>
-<br>

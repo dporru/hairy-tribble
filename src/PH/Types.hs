@@ -4,7 +4,7 @@ module PH.Types
   (
     RichText(..),plainText
   , Question(..),question,answer
-  , Answer(..),correct,incorrect,order
+  , Answer(..),choices,order
   , AnswerOrder
   , Test(..),name,elements
   , TestElement(..)
@@ -42,9 +42,8 @@ data Answer
   = Open RichText
   | MultipleChoice
     {
-      _correct   :: RichText
-    , _incorrect :: [RichText]
-    , _order     :: AnswerOrder
+      _choices :: [(Bool,RichText)]
+    , _order   :: AnswerOrder
     }
   deriving (Generic,Typeable,Show)
 

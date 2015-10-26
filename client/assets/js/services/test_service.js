@@ -1,4 +1,4 @@
-angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', function($http, Question, Alert, API_PATH){
+angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 'localStorageService', function($http, Question, Alert, API_PATH, localStorageService){
     var currentTestId = null;
     var tests = [];
     var testsById = {};
@@ -35,12 +35,17 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             return testsById[id];
         },
         getCurrentTest: function() {
+            if (!currentTestId && tests.length) {
+                currentTestId = localStorageService.get('currentTestId');
+                methods.setCurrentTest(currentTestId);
+            }
             if (currentTestId) {
                 return methods.getTestById(currentTestId);
             }
         },
         setCurrentTest: function(testId) {
             currentTestId = testId;
+            localStorageService.set('currentTestId', testId);
             changedExecute();
         },
         getCurrentTestElements: function() {
@@ -144,7 +149,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
 
         },
         removeTest: function(testId) {
-            return $http.delete(API_PATH + 'test/' + testId)
+            return $http.delete(API_PATH + 'test/id/' + testId)
                 .then(function(){
                     methods.load();
                 })
@@ -179,6 +184,8 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 });
         }
     };
+
+    Question.setTestMethods(methods);
 
     return methods;
 }]);

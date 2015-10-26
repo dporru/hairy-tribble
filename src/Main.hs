@@ -13,8 +13,6 @@ import qualified System.Console.Argument as CP
 import qualified System.Console.Command  as CP
 import qualified System.Console.Program  as CP
 
-serverBaseURI :: String
-serverBaseURI = "http://localhost:8000/"
 
 main :: IO ()
 main = do
@@ -29,10 +27,10 @@ commands = flip CP.Node [] . CP.command "serve" "" $
     CP.io $ serve googleID googleSecret serverHost
 
 serverHostOption :: CP.Option String
-serverHostOption = CP.option [] ["serverBase"] CP.string "http://localhost:8000/" ""
+serverHostOption = CP.option [] ["serverHost"] CP.string "http://localhost:8000/" ""
 
 googleIDOption :: CP.Option String
-googleIDOption = CP.option [] ["googleID"] CP.string (error "google ID not specified") ""
+googleIDOption = CP.option [] ["googleID"] CP.string (error "google OAuth2 ID not specified") ""
 
 googleSecretOption :: CP.Option String
-googleSecretOption = CP.option [] ["googleSecret"] CP.string (error "google secret not specified") ""
+googleSecretOption = CP.option [] ["googleSecret"] CP.string (error "google OAuth2 secret not specified") ""

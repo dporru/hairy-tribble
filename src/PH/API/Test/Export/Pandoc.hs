@@ -42,8 +42,7 @@ renderTest mode name qs = P.setTitle (textP name) . P.doc $
         $ map renderChoice answers
        where
         answers :: [(Bool,RichText)]
-        answers = ((True,view correct m) : map ((,) False) (view incorrect m))
-          `orderBy` view order m
+        answers = view choices m `orderBy` view order m
         renderChoice :: (Bool,RichText) -> P.Blocks
         renderChoice (corr,Pandoc t) = case mode of
           OnlyQuestions -> P.fromList t

@@ -7,6 +7,7 @@ angular.module('ph').directive('question', function(){
             placeholder: '@',
             ngSubmit: '=',
             ngCancel: '=',
+            ngRemove: '=',
             reset: '='
         },
         link: function(scope, element, attrs) {
@@ -16,16 +17,26 @@ angular.module('ph').directive('question', function(){
                     scope.questionType = 'open';
                     scope.question.object = {answer: {open: ''}, question: ''};
                     scope.question.labels = [];
-                    scope.multipleChoice = {correct: '', incorrect: [], order: []};
+                    scope.multipleChoice = {answers: []};
                 }else{
                     if (typeof scope.question.object.answer.multipleChoice !== 'undefined'){
                         scope.questionType = 'multipleChoice';
-                        scope.multipleChoice.correct = scope.question.object.answer.multipleChoice.correct;
-                        scope.multipleChoice.order = scope.question.object.answer.multipleChoice.order;
-                        if (scope.question.object.answer.multipleChoice.incorrect.length) {
-                            for (var i=0;i<scope.question.object.answer.multipleChoice.incorrect.length;i++) {
-                                scope.multipleChoice.incorrect.push({value: scope.question.object.answer.multipleChoice.incorrect[i]});
+                        scope.multipleChoice.answers = [];
+                        for (var i in scope.question.object.answer.multipleChoice.order) {
+                            var question = {};
+                            var order = scope.question.object.answer.multipleChoice.order[i];
+                            if (order == 0) {
+                                question = {
+                                    'value': scope.question.object.answer.multipleChoice.correct,
+                                    'correct': true
+                                }
+                            } else {
+                                question = {
+                                    'value': scope.question.object.answer.multipleChoice.incorrect[order-1],
+                                    'correct': false
+                                }
                             }
+                            scope.multipleChoice.answers.push(question);
                         }
                         scope.updateMultipleAnswers();
                     }else{
@@ -44,7 +55,9 @@ angular.module('ph').directive('question', function(){
                     $(this).trumbowyg('destroy');
                     $(this).trumbowyg({
                         fullscreenable: true,
-                        btns: ['bold','italic','|','btnGrp-lists','|','upload'],
+                        removeformatPasted: true,
+                        autogrow: true,
+                        btns: ['bold','italic','underline','|','btnGrp-lists','|','upload'],
                         lang: 'nl'
                     });
                 });
@@ -61,11 +74,18 @@ angular.module('ph').directive('question', function(){
             };
 
             scope.multipleChoiceAnswerClass = function(answer) {
-                classes = 'glyphicon glyphicon-remove';
+                var classes = 'glyphicon';
+                var filledClass = ' text-danger';
+                if (answer.correct) {
+                    classes = classes + ' glyphicon-ok';
+                    filledClass = ' text-success';
+                } else {
+                    classes = classes + ' glyphicon-remove';
+                }
                 if (answer.value === '') {
                     classes = classes + ' text-muted';
                 }else{
-                    classes = classes + ' text-danger';
+                    classes = classes + filledClass;
                 }
                 return classes;
             };
@@ -75,31 +95,50 @@ angular.module('ph').directive('question', function(){
                     delete(scope.question.object.answer.multipleChoice);
                 }else{
                     delete(scope.question.object.answer.open);
-                    scope.question.object.answer.multipleChoice.order = [];
                 }
                 scope.ngSubmit(scope.question);
             };
 
             scope.updateMultipleAnswers = function() {
-                if (typeof scope.multipleChoice.incorrect === 'undefined' || !scope.multipleChoice.incorrect.length) {
-                    scope.multipleChoice.incorrect = [{value: ''}];
-                }else if (scope.multipleChoice.incorrect[scope.multipleChoice.incorrect.length-1].value !== ''){
-                    scope.multipleChoice.incorrect.push({value: ''});
+                if (typeof scope.multipleChoice.answers === 'undefined' || !scope.multipleChoice.answers.length) {
+                    scope.multipleChoice.answers = [{value: '', correct: true}];
+                }else if (scope.multipleChoice.answers[scope.multipleChoice.answers.length-1].value !== ''){
+                    scope.multipleChoice.answers.push({value: '', correct: false});
+                } else if (scope.multipleChoice.answers[scope.multipleChoice.answers.length-2].value === '') {
+                    scope.multipleChoice.answers.pop(scope.multipleChoice.answers.length-1);
                 }
                 var answer = scope.question.object.answer;
                 if (typeof answer.multipleChoice === 'undefined') {
                     answer.multipleChoice = {};
                 }
-                answer.multipleChoice.correct = scope.multipleChoice.correct;
+                scope.question.object.answer.multipleChoice.order = [];
                 answer.multipleChoice.incorrect = [];
-                for (var i=0;i<scope.multipleChoice.incorrect.length;i++) {
-                    if (scope.multipleChoice.incorrect[i].value !== '') {
-                        answer.multipleChoice.incorrect.push(scope.multipleChoice.incorrect[i].value);
+                var order = 0;
+                for (var i in scope.multipleChoice.answers) {
+                    var a = scope.multipleChoice.answers[i];
+                    if (a.value !== '') {
+                        if (a.correct){
+                            scope.question.object.answer.multipleChoice.order.push(0);
+                            answer.multipleChoice.correct = a.value;
+                        } else {
+                            scope.question.object.answer.multipleChoice.order.push(order + 1);
+                            answer.multipleChoice.incorrect.push(a.value);
+                            order++;
+                        }
                     }
                 }
             };
 
+            scope.switchCorrectAnswer = function(answer) {
+                for (var i in scope.multipleChoice.answers) {
+                    scope.multipleChoice.answers[i].correct = false;
+                }
+                answer.correct = true;
+                scope.updateMultipleAnswers();
+            };
+
             scope.cancelEditing = scope.ngCancel;
+            scope.remove = scope.ngRemove;
 
             element.find('textarea[name=question]').on('tbwchange', function () {
                 if ($(this).trumbowyg('html')) {
