@@ -66,13 +66,10 @@ instance JSONSchema RichText where
 
 instance (FromJSON a) => FromJSON (ID.ID a) where
   parseJSON = (ID.ID <$>) . parseJSON
-
 instance (ToJSON a) => ToJSON (ID.ID a) where
   toJSON (ID.ID t) = toJSON t
-
 instance (JSONSchema a) => JSONSchema (ID.ID a) where
   schema _ = schema (Proxy :: Proxy Text)
-
 
 instance (Typeable a,FromJSON a) => FromJSON (ID.WithID a) where
   parseJSON = gparseJson
