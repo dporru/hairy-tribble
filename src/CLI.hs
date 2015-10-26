@@ -73,8 +73,9 @@ instance Input Question where
     if null others
       then return $ Question q (Open a)
       else do
+        let answers = (True,a) : map ((,) False) others
         randomOrder <- shuffleM [0 .. length others]
-        return $ Question q (MultipleChoice a others randomOrder)
+        return $ Question q (MultipleChoice answers randomOrder)
 
 instance Input Test where
   input = do
