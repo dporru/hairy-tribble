@@ -4,6 +4,7 @@ module Server where
 
 
 import           Common
+import qualified Image
 import qualified OAuth2
 import           PH.API                     (M,api)
 import qualified Session
@@ -27,7 +28,7 @@ serve clientID clientSecret serverHost = Session.withServerSession $ \ state -> 
       [
         H.dir "api" apiHandle
       , H.dir "docs" docsHandle
-      , H.dir "uploaded" imageHandle
+      , H.dir "uploaded" Image.handler
       , H.serveDirectory H.DisableBrowsing ["index.html"] "./client/"
       , H.serveDirectory H.DisableBrowsing [] "./rest-gen-files/Docs/"
       , H.dir "logout" logout
@@ -45,21 +46,6 @@ apiHandle = do
 docsHandle :: M H.Response
 docsHandle = apiDocsHandler "/docs/" "rest-gen-files/Docs/" api
 
-imageHandle :: M H.Response
-imageHandle = do
-  H.decodeBody $ H.defaultBodyPolicy "./uploaded/" (10*1048576) 1024 1024
-  msum [upload,view]
- where
-  view = H.serveDirectory H.DisableBrowsing [] "./uploaded/"
-  upload = do
-    H.method H.POST
-    (tempFileName,clientFileName,_contentType) <- H.lookFile "fileToUpload"
-    fileName <- (++) "uploaded/" <$> liftIO randomName
-    liftIO $ renameFile tempFileName fileName
-    serverHost <- ask
-    return $ H.redirect 201 (serverHost ++ fileName) . H.toResponse $
-      "File created at " ++ show fileName
-  randomName = take 16 . randomRs ('a','z') <$> newStdGen
 
 deriving instance (Rest m) => Rest (Session.ServerSessionT s m)
 
