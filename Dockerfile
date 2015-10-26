@@ -1,45 +1,8 @@
-FROM debian:jessie
+FROM dporru/tribble-base
 MAINTAINER Daan Porru <daan@porru.nl>
-
-# Update package list and install GHC and Cabal requirements.
-RUN apt-get -y update &&\
-    apt-get -y install build-essential curl zlib1g-dev libgmp3-dev libedit2 wget
-
-# Install GHC 7.8.4, newer version of GHC comes with an incompatible version of Base.
-RUN wget https://www.haskell.org/ghc/dist/7.8.4/ghc-7.8.4-x86_64-unknown-linux-deb7.tar.bz2 &&\
-    tar xvfj ghc-7.8.4-x86_64-unknown-linux-deb7.tar.bz2 &&\
-    cd ghc-7.8.4 &&\
-    ./configure &&\
-    make install &&\
-    ghc --version &&\
-    cd .. &&\
-    rm -fr ghc-7.8.4-x86_64-unknown-linux-deb7.tar.bz2 ghc-7.8.4
-
-# Install app-specific requirements.
-RUN apt-get update -y &&\
-    apt-get install -y git libtinfo-dev texlive-xetex darcs npm nodejs-legacy
-
-# Install Bower and Gulp sytem wide.
-RUN npm install -g bower &&\
-    npm install -g gulp
-
-# Add user ph.
-RUN groupadd -g 9000 ph &&\
-    useradd -mg 9000 ph &&\
-    chown ph:ph /home/ph &&\
-    mkdir -p /hairy-tribble/TCache &&\
-    chown -R ph:ph /hairy-tribble
 
 # Run the rest of the statements as user ph.
 USER ph
-
-# Install Cabal install 1.22.3.0
-RUN cd /home/ph &&\
-    wget http://hackage.haskell.org/package/cabal-install-1.22.3.0/cabal-install-1.22.3.0.tar.gz &&\
-    tar xvfz cabal-install-1.22.3.0.tar.gz &&\
-    cd cabal-install-1.22.3.0 && ./bootstrap.sh &&\
-    cd .. &&\
-    rm -fr cabal-install-1.22.3.0*
 
 # Add cabal binaries to the PATH
 ENV PATH /home/ph/.cabal/bin:$PATH
@@ -53,7 +16,7 @@ WORKDIR /hairy-tribble
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout cf0c7a06c0c57cc8a8eabf6bcab6d34348d4e39b
+    git checkout 42d7096d61856d07a504b835a978d2171f51f722
 
 # Download enhanced version of tst.
 RUN cd /home/ph &&\
@@ -113,11 +76,11 @@ RUN cp -r /home/ph/client /hairy-tribble/client &&\
     gulp uglify
 
 # Copy the configuration file to the container.
-RUN mkdir /home/ph/.serve
-COPY ./config /home/ph/.serve/config
+RUN mkdir /home/ph/.serve &&\
+    ln -s /hairy-tribble/config /home/ph/.serve/config
 
 # Expose /hairy-tribble as a volume for development.
-VOLUME ["/hairy-tribble", "/hairy-tribble/TCache"]
+VOLUME ["/hairy-tribble", "/hairy-tribble/.tcachedata", "/hairy-tribble/config", "/uploaded", "/hairy-tribble/state"]
 
 # Run rest when this container is started.
 CMD ["rest"]
