@@ -8,7 +8,7 @@ do
     sleep 15
 done
 
-if [ $n -ge 5]
+if [ $n -ge 5 ]
 then
     exit 1
 fi
