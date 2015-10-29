@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module PH.API.Test.Export where
 
+import           Accounts (Account)
 import           Common
 import qualified PH.API.Test.Export.LaTeX    as LaTeX
 import qualified PH.API.Test.Export.Markdown as Markdown
@@ -9,6 +10,7 @@ import qualified PH.API.Test.Export.PDF      as PDF
 import qualified PH.API.Test.Export.Word     as Word
 import qualified PH.DB                       as DB
 import           PH.Types
+import           Session (MonadServerSession,SessionData,getSessionData)
 
 import qualified Data.ByteString.Lazy.Char8 as B8
 import qualified Data.TCache                as T
@@ -21,7 +23,11 @@ import qualified Rest.Handler               as R
 import qualified Rest.Resource              as R
 
 
-resource :: forall m. (MonadIO m) => R.Resource
+resource :: forall m.
+  ( MonadServerSession m
+  , SessionData m ~ Account
+  , MonadIO m
+  ) => R.Resource
   (ReaderT (ID.Ref (Decorated Test)) m)
   (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
   Format
@@ -34,16 +40,21 @@ resource = R.mkResourceReader
   , R.get    = Just get
   }
 
-get :: forall m. (MonadIO m) => R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
+get :: forall m.
+  ( MonadServerSession m
+  , SessionData m ~ Account
+  , MonadIO m
+  ) => R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
-    ID.WithID _ dtest <- DB.run $ ID.deref testRef
+    account <- getSessionData
+    ID.WithID _ dtest <- DB.run account . DB.withStore $ \ s -> ID.deref s testRef
     let test = view undecorated dtest
     let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
-      _         -> liftIO $ Pandoc.build mode dtest >>= export >>= \case
+      _         -> Pandoc.build mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
         Right b -> return $ Right (b,suggestedFileName test format,False)
        where

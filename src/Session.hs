@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase #-}
@@ -8,8 +7,9 @@ module Session
     ServerSessionT(..)
   , withServerSession
   , runServerSessionT
-  , MonadServerSession
+  , MonadServerSession,SessionData
   , getSession
+  , getSessionData
   , putSession
   , expireSession
   ) where
@@ -20,6 +20,7 @@ import           Control.Monad              (MonadPlus)
 import           Control.Monad.Fix          (MonadFix)
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
 import           Control.Monad.Trans.Class  (lift)
+import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Reader (ReaderT,runReaderT,ask)
 import           Control.Monad.Trans.State  (StateT,evalStateT,get,put)
 import qualified Data.Acid.Local           as Acid
@@ -41,7 +42,10 @@ import qualified Web.ServerSession.Core    as S
 newtype ServerSessionT sessionData m a
   = ServerSessionT
     {
-      unServerSessionT :: ReaderT (S.State (AcidStorage (SD sessionData)),OAuth2.ClientKey) (StateT (SessionStatus sessionData) m) a
+      unServerSessionT :: ReaderT
+        (S.State (AcidStorage (SD sessionData)),OAuth2.ClientKey,OAuth2.User -> Maybe sessionData)
+        (StateT (SessionStatus sessionData) m)
+        a
     }
     deriving (Functor,Applicative,Alternative,Monad,MonadPlus,MonadIO,MonadFix,H.HasRqData,H.FilterMonad r,H.WebMonad r,H.ServerMonad)
 
@@ -49,14 +53,17 @@ data SessionStatus sessionData
   = Unread
   | Existing
       OAuth2.User
-      (Maybe sessionData)
+      sessionData
       (S.SaveSessionToken (AcidStorage (SD sessionData)))
 
-class MonadServerSession m where
+class (Monad m) => MonadServerSession m where
   type SessionData m
-  getSession    :: m (OAuth2.User,Maybe (SessionData m)) -- ^ get the current @sessionData@
-  putSession    :: Maybe (SessionData m) -> m ()         -- ^ set the @sessionData@
-  expireSession :: m ()                                  -- ^ expire the session (deletes the cookie)
+  getSession    :: m (OAuth2.User,SessionData m) -- ^ Get the current user and session data.
+  putSession    :: SessionData m -> m ()         -- ^ Set the session data.
+  expireSession :: m ()                          -- ^ Expire the session and delete the cookie.
+
+getSessionData :: (MonadServerSession m) => m (SessionData m)
+getSessionData = snd <$> getSession
 
 instance
   ( H.HasRqData m
@@ -75,7 +82,7 @@ instance
     lift get >>= \case
       Existing user ms _ -> return (user,ms)
       Unread            -> do
-        (state,oauth2) <- ask
+        (state,oauth2,newSession) <- ask
         maybeCookie <- optional $ BS8.pack <$> H.lookCookieValue "serversession"
         maybeNewUser <- case maybeCookie of
           Just _  -> do
@@ -91,24 +98,30 @@ instance
               Just code -> do
                 -- Yes, there is a login code. Try to log in.
                 liftIO (OAuth2.login oauth2 code) >>= \case
-                  Left errorString -> H.finishWith =<< H.internalServerError (H.toResponse errorString)
+                  Left errorString -> H.finishWith =<< H.internalServerError
+                    (H.toResponse $ "Session: error logging in:\n" ++ errorString)
                   Right user       -> return $ Just user
         (sd,saveSessionToken) <- liftIO $ S.loadSession state maybeCookie
-        (user,ms) <- case sd of
+        (user,s) <- case sd of
           EmptySession -> case maybeNewUser of
-            Just user -> return (user,Nothing)
+            Just user -> do
+              case newSession user of
+                Just s  -> return (user,s)
+                Nothing -> do
+                  liftIO . putStrLn $ "User without account: " ++ show user
+                  H.finishWith =<< H.forbidden
+                    (H.toResponse ("There is no account registered for you. Sorry!\nYour details:\n" ++ show user))
             Nothing   -> do
-              H.finishWith =<< H.internalServerError (H.toResponse ("Session: session cookie is set, but the session is empty" :: String))
-          SD user s    -> return (user,Just s)
-        lift . put $ Existing user ms saveSessionToken
-        return (user,ms)
+              H.finishWith =<< H.internalServerError
+                (H.toResponse ("Session: session cookie is set, but the session is empty" :: String))
+          SD user s    -> return (user,s)
+        lift . put $ Existing user s saveSessionToken
+        return (user,s)
   
-  putSession ms = (getSession >>) . ServerSessionT $ do
-    (state,_) <- ask
+  putSession s = (getSession >>) . ServerSessionT $ do
+    (state,_,_) <- ask
     Existing user _ saveSessionToken <- lift get
-    newSessionData <- case ms of
-      Nothing -> return $ EmptySession
-      Just s  -> return $ SD user s
+    let newSessionData = SD user s
     liftIO (S.saveSession state saveSessionToken newSessionData) >>= \case
       Nothing      -> H.expireCookie "serversession"
       Just session -> do
@@ -120,8 +133,12 @@ instance
 
 runServerSessionT ::
   ( Monad m
-  ) => OAuth2.ClientKey -> S.State (AcidStorage (SD sessionData)) -> ServerSessionT sessionData m a -> m a
-runServerSessionT oauth2 state (ServerSessionT h) = flip evalStateT Unread . flip runReaderT (state,oauth2) $ h
+  ) => OAuth2.ClientKey
+    -> S.State (AcidStorage (SD sessionData))
+    -> (OAuth2.User -> Maybe sessionData)
+    -> ServerSessionT sessionData m a
+    -> m a
+runServerSessionT oauth2 state new (ServerSessionT h) = flip evalStateT Unread . flip runReaderT (state,oauth2,new) $ h
 
 withServerSession ::
   ( MonadIO m
@@ -154,3 +171,15 @@ instance (Eq s,Show s,Typeable s) => S.IsSessionData (SD s) where
   isSameDecomposed _ = (==)
   isDecomposedEmpty _ EmptySession  = True
   isDecomposedEmpty _ (SD _ _)      = False
+
+instance (MonadServerSession m) => MonadServerSession (ReaderT r m) where
+  type SessionData (ReaderT r m) = SessionData m
+  getSession    = lift getSession
+  putSession    = lift . putSession
+  expireSession = lift expireSession
+
+instance (MonadServerSession m) => MonadServerSession (ExceptT e m) where
+  type SessionData (ExceptT e m) = SessionData m
+  getSession    = lift getSession
+  putSession    = lift . putSession
+  expireSession = lift expireSession

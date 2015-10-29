@@ -3,6 +3,7 @@
 module Server where
 
 
+import           Accounts (Accounts,userAccount)
 import           Common
 import qualified Image
 import qualified OAuth2
@@ -17,12 +18,12 @@ import           System.Directory           (renameFile)
 import           System.Random              (newStdGen,randomRs)
 
 
-serve :: String -> String -> String -> IO ()
-serve clientID clientSecret serverHost = Session.withServerSession $ \ state -> do
+serve :: String -> String -> String -> Accounts -> IO ()
+serve clientID clientSecret serverHost accounts = Session.withServerSession $ \ state -> do
   let redirect = serverHost ++ "login"
       oauth2 = OAuth2.specifyGoogleKey clientID clientSecret redirect
   H.simpleHTTP H.nullConf .
-    Session.runServerSessionT oauth2 state .
+    Session.runServerSessionT oauth2 state (userAccount accounts . OAuth2.id) .
     flip runReaderT serverHost .
     msum $
       [
@@ -31,33 +32,31 @@ serve clientID clientSecret serverHost = Session.withServerSession $ \ state -> 
       , H.dir "uploaded" Image.handler
       , H.serveDirectory H.DisableBrowsing ["index.html"] "./client/"
       , H.serveDirectory H.DisableBrowsing [] "./rest-gen-files/Docs/"
-      , H.dir "logout" logout
       , H.dir "login" login
+      , H.dir "logout" logout
       ]
 
 apiHandle :: M H.Response
 apiHandle = do
-  (user,maybeCounter) <- lift Session.getSession
+  (_user,account) <- Session.getSession
   H.decodeBody $ H.defaultBodyPolicy "/tmp/" 1048576 1048576 4096
   response <- apiToHandler api
-  lift . Session.putSession . Just $ maybe 0 succ maybeCounter
+  Session.putSession account
   return response
 
 docsHandle :: M H.Response
 docsHandle = apiDocsHandler "/docs/" "rest-gen-files/Docs/" api
 
-
 deriving instance (Rest m) => Rest (Session.ServerSessionT s m)
-
-logout :: M H.Response
-logout = do
-  lift . Session.putSession $ Nothing
-  lift Session.expireSession
-  return . H.toResponse $ ("Logged out" :: String)
 
 login :: M H.Response
 login = do
-  (user,mi) <- lift Session.getSession
-  lift . Session.putSession . Just $ maybe 0 succ mi
+  (_user,account) <- Session.getSession
+  Session.putSession account
   host <- ask
   H.seeOther host $ H.toResponse ()
+
+logout :: M H.Response
+logout = do
+  Session.expireSession
+  return . H.toResponse $ ("Logged out" :: String)

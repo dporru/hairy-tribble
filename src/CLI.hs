@@ -1,5 +1,6 @@
 module CLI where
 
+import qualified Accounts
 import           Common
 import qualified PH.DB as DB
 import           PH.Types
@@ -18,42 +19,43 @@ import           System.Random.Shuffle (shuffleM)
 
 main :: IO ()
 main = do
-  DB.initialise
-  CP.interactive commands
+  account <- input
+  DB.initialise $ Accounts.accountStore account
+  CP.interactive $ commands account
 
-commands :: CP.Commands IO
-commands = Node
-  (CP.command "DB" "Manage the database." $ CP.io $ CP.showUsage commands)
+commands :: Accounts.Account -> CP.Commands IO
+commands account = Node
+  (CP.command "DB" "Manage the database." . CP.io . CP.showUsage $ commands account)
   [
-    Node (CP.command "list" "" $ CP.io $ CP.showUsage commands)
+    Node (CP.command "list" "" . CP.io . CP.showUsage $ commands account)
       [
-        Node (CP.command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID (Decorated Question)])
+        Node (CP.command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+          (ID.listWithID s :: STM [ID.WithID (Decorated Question)])
         ) []
-       ,Node (CP.command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID (Decorated Test)])
+       ,Node (CP.command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+          (ID.listWithID s :: STM [ID.WithID (Decorated Test)])
         ) []
       ]
-  , Node (CP.command "show" "" $ CP.io $ CP.showUsage commands)
+  , Node (CP.command "show" "" . CP.io . CP.showUsage $ commands account)
       [
         Node (CP.command "question" "Show a specific question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io
             . (>>= maybe (putStrLn "Question not found.") print)
-            . DB.run $ T.readDBRef (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
         ) []
       , Node (CP.command "test" "Show a specific test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io
             . (>>= maybe (putStrLn "Test not found.") print)
-            . DB.run $ T.readDBRef (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
         ) []
       ]
-  , Node (CP.command "new" "" $ CP.io $ CP.showUsage commands)
+  , Node (CP.command "new" "" . CP.io . CP.showUsage $ commands account)
       [
-        Node (CP.command "question" "Add a new question." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
+        Node (CP.command "question" "Add a new question." . CP.io
+          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
           ) []
-      , Node (CP.command "test" "Add a new test." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
+      , Node (CP.command "test" "Add a new test." . CP.io
+          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
           ) []
       ]
   ]
@@ -92,6 +94,9 @@ instance (Input x) => Input (Labelled x) where
     putStrLn "Labels:"
     ls <- Set.fromList <$> askMany
     return $ Labelled ls x
+
+instance Input Accounts.Account where
+  input = promptF Accounts.fromString "Enter account:"
 
 instance Input RichText where
   input = plainText <$> input

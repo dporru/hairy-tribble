@@ -7,7 +7,7 @@ module Common
   , MonadIO,liftIO,lift
   , throwError,ExceptT(ExceptT)
   , ReaderT(ReaderT),runReaderT,ask
-  , for
+  , for,for_
   , STM,atomically
   , Text,utf8ByteString
   , ToJSON,toJSON,FromJSON,parseJSON
@@ -18,7 +18,6 @@ module Common
   , mempty,(<>),mconcat
   , UTCTime,getCurrentTime
   , Lens,Lens',view,set,over,overM,makeLenses
-  , Range,takeRange
   , ExportMode(OnlyQuestions,WithAnswers)
   ) where
 
@@ -38,9 +37,10 @@ import           Control.Monad.Trans.Reader (ReaderT(ReaderT),runReaderT,ask)
 import           Data.Aeson                 (ToJSON,toJSON,FromJSON,parseJSON)
 import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Builder as B
+import           Data.Foldable              (for_)
 import qualified Data.Text               as Text
 import qualified Data.Text.Encoding      as Text
-import           Data.Time.Clock
+import           Data.Time.Clock            (UTCTime,getCurrentTime)
 import           Data.Functor               (void)
 import           Data.JSON.Schema           (JSONSchema,schema,gSchema)
 import           Data.Monoid                (mempty,(<>),mconcat)
@@ -52,10 +52,6 @@ import           GHC.Generics               (Generic)
 
 import           Data.Aeson       (encode,eitherDecode)
 import qualified Data.TCache.Defs as T
-import           Rest             (Range(..))
-
-takeRange :: Range -> [a] -> [a]
-takeRange r = take (count r) . drop (offset r)
 
 data ExportMode
   = OnlyQuestions

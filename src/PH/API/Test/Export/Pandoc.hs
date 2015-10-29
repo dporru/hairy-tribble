@@ -5,9 +5,11 @@ module PH.API.Test.Export.Pandoc
   , export
   ) where
 
+import           Accounts (Account)
 import           Common
 import qualified PH.DB                 as DB
 import           PH.Types
+import           Session (MonadServerSession,SessionData,getSessionData)
 
 import           Data.ByteString.Lazy (ByteString)
 import qualified Data.TCache.ID          as ID
@@ -17,13 +19,18 @@ import qualified Text.Pandoc.Builder     as P
 import qualified Text.Pandoc.Walk        as P
 
 
-export:: P.Pandoc -> IO (Either ByteString ByteString)
+export :: (Monad m) => P.Pandoc -> m (Either ByteString ByteString)
 export = return . Right . utf8ByteString . P.writeNative P.def
 
-build :: ExportMode -> Decorated Test -> IO P.Pandoc
+build ::
+  ( MonadServerSession m
+  , SessionData m ~ Account
+  , MonadIO m
+  ) => ExportMode -> Decorated Test -> m P.Pandoc
 build mode test = do
-  qts <- DB.run $ for (view (undecorated . elements) test) $ \case
-    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref i
+  s <- getSessionData
+  qts <- DB.run s . DB.withStore $ \ store -> for (view (undecorated . elements) test) $ \case
+    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref store i
     TestText t     -> return $ Left t
   return $ renderTest mode (view (undecorated . name) test) qts
 

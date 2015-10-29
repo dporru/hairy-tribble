@@ -4,6 +4,7 @@ module PH.API
   , api
   ) where
 
+import           Accounts      (Account)
 import           Common
 import qualified PH.API.ID          as ID
 import qualified PH.API.Test.Export as Export
@@ -20,7 +21,7 @@ import qualified Rest.Resource      as R
 import qualified Rest.Schema        as R
 
 type M
-  = ReaderT ServerHost (Session.ServerSessionT Integer (H.ServerPartT IO))
+  = ReaderT ServerHost (Session.ServerSessionT Account (H.ServerPartT IO))
 
 type ServerHost
   = String
@@ -39,7 +40,8 @@ admin = R.mkResourceId
   {
     R.name = "admin"
   , R.schema = R.noListing $ R.named [("flush",R.single ())]
-  , R.get = Just $ R.mkInputHandler id $ \ _ -> liftIO $ do
-      putStrLn "Flushing database..."
-      DB.run DB.flush
+  , R.get = Just $ R.mkInputHandler id $ \ _ -> do
+      liftIO $ putStrLn "Flushing database caches..."
+      account <- Session.getSessionData
+      DB.run account DB.flush
   }

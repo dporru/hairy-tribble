@@ -16,7 +16,7 @@ WORKDIR /hairy-tribble
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/TCache.git &&\
     cd TCache &&\
-    git checkout 42d7096d61856d07a504b835a978d2171f51f722
+    git checkout 2d5c01ea9d3fba92fc6d4877c0544673fe3f281f
 
 # Download enhanced version of tst.
 RUN cd /home/ph &&\
@@ -56,8 +56,8 @@ RUN cd /home/ph &&\
 ADD ./src/ /hairy-tribble/src/
 RUN cd /home/ph &&\
     touch /hairy-tribble/LICENSE &&\
-	cabal install ph &&\
-	rm /hairy-tribble/LICENSE
+        cabal install ph &&\
+        rm /hairy-tribble/LICENSE
 
 # Put sanbox binaries in path.
 ENV PATH /home/ph/.cabal-sandbox/bin:$PATH
@@ -80,7 +80,7 @@ RUN mkdir /home/ph/.serve &&\
     ln -s /hairy-tribble/config /home/ph/.serve/config
 
 # Expose /hairy-tribble as a volume for development.
-VOLUME ["/hairy-tribble", "/hairy-tribble/.tcachedata", "/hairy-tribble/config", "/uploaded", "/hairy-tribble/state"]
+VOLUME ["/hairy-tribble", "/hairy-tribble/data", "/hairy-tribble/config", "/uploaded", "/hairy-tribble/state"]
 
 # Run rest when this container is started.
 CMD ["rest"]
