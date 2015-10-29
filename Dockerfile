@@ -34,7 +34,7 @@ RUN cd /home/ph &&\
 RUN cd /home/ph &&\
     git clone https://github.com/ariep/text-index.git &&\
     cd text-index &&\
-    git checkout 5d8fa412f2a4478d515932bba372a26c433208a4
+    git checkout 2a772d473286098d5a59e4711eb9349400ae2704
 
 # Copy Cabal install file and only install dependecies.
 COPY ./ph.cabal /hairy-tribble/ph.cabal
