@@ -77,7 +77,7 @@ RUN cp -r /home/ph/client /hairy-tribble/client &&\
 
 # Copy the configuration file to the container.
 RUN mkdir /home/ph/.serve &&\
-    ln -s /hairy-tribble/config /home/ph/.serve/config
+    ln -s /hairy-tribble/config/config /home/ph/.serve/config
 
 # Expose /hairy-tribble as a volume for development.
 VOLUME ["/hairy-tribble", "/hairy-tribble/.tcachedata", "/hairy-tribble/config", "/uploaded", "/hairy-tribble/state"]
