@@ -16,7 +16,8 @@ module Session
 
 
 import           Control.Applicative        (Alternative,optional)
-import           Control.Monad              (MonadPlus)
+import           Control.Monad              (MonadPlus,(<=<))
+import           Control.Monad.Catch        (MonadMask,bracket)
 import           Control.Monad.Fix          (MonadFix)
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
 import           Control.Monad.Trans.Class  (lift)
@@ -142,16 +143,16 @@ runServerSessionT oauth2 state new (ServerSessionT h) = flip evalStateT Unread .
 
 withServerSession ::
   ( MonadIO m
+  , MonadMask m
   , SC.SafeCopy sessionData
   , Eq sessionData
   , Show sessionData
   , Typeable sessionData
   ) => (S.State (AcidStorage (SD sessionData)) -> m ()) -> m ()
-withServerSession h = do
-  storage <- liftIO $ AcidStorage <$> Acid.openLocalState emptyState
-  state <- S.createState storage
-  h state
-  liftIO . Acid.createCheckpointAndClose . acidState $ storage
+withServerSession h = bracket
+  (liftIO $ AcidStorage <$> Acid.openLocalState emptyState)
+  (liftIO . Acid.createCheckpointAndClose . acidState)
+  (h <=< S.createState)
 
 data SD s
   = EmptySession
