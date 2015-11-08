@@ -1,4 +1,4 @@
-angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 'localStorageService', function($http, Question, Alert, API_PATH, localStorageService){
+angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 'localStorageService', 'Auth', function($http, Question, Alert, API_PATH, localStorageService, Auth){
     var currentTestId = null;
     var tests = [];
     var testsById = {};
@@ -8,6 +8,17 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
         for (var i in changedCallbacks) {
             changedCallbacks[i]();
         }
+    }
+
+    function handleRequestError(msg) {
+        return function(request) {
+            if (request.status === 401) {
+                Auth.setLoginNeeded(request.data);
+                throw 'Authentication needed';
+            } else {
+                Alert.add(msg, 'danger');
+            }
+        };
     }
 
     var methods = {
@@ -26,10 +37,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 .then(function() {
                     return methods.load();
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het aanmaken van de toets.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het aanmaken van de toets.'));
         },
         getTestById: function(id) {
             return testsById[id];
@@ -76,10 +84,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                     changedExecute();
                     return tests;
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het ophalen van de toetsen.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het ophalen van de toetsen.', 'danger'));
         },
         addQuestion: function(testId, questionId) {
             var test = testsById[testId];
@@ -100,10 +105,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 .then(function(){
                     methods.load();
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het opslaan van de vragenlijst.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het opslaan van de vragenlijst.'));
         },
         saveElementList: function(testId, elementList) {
             var elementIdList = [];
@@ -153,10 +155,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 .then(function(){
                     methods.load();
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het verwijderen van de toets.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het verwijderen van de toets.'));
         },
         changed: function(callback) {
             changedCallbacks.push(callback);
@@ -178,10 +177,7 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
                 .then(function(){
                     methods.load();
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het opslaan van de nieuwe toetsnaam.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het opslaan van de nieuwe toetsnaam.'));
         }
     };
 

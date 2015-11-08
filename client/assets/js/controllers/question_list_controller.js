@@ -1,5 +1,9 @@
-angular.module('ph').controller('QuestionListController', ['$http', 'Question', 'Test', '$filter', '$modal', function($http, Question, Test, $filter, $modal){
+angular.module('ph').controller('QuestionListController', ['$http', 'Question', 'Test', '$filter', '$modal', 'Auth', function($http, Question, Test, $filter, $modal, Auth){
     var questionList = this;
+
+    questionList.loginNeeded = function() {
+        return Auth.getLoginNeeded();
+    };
 
     questionList.pageNumber = 1;
     questionList.itemsPerPage = 10;
