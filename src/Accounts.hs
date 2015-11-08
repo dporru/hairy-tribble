@@ -6,7 +6,7 @@ module Accounts
   , Accounts
   , userAccount
   , accountsOptionType
-  
+
   -- For CLI
   , fromString
   ) where

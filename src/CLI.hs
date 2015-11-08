@@ -23,6 +23,7 @@ main = do
   DB.initialise $ Accounts.accountStore account
   CP.interactive $ commands account
 
+-- The tree of possible commands of the program.
 commands :: Accounts.Account -> CP.Commands IO
 commands account = Node
   (CP.command "DB" "Manage the database." . CP.io . CP.showUsage $ commands account)

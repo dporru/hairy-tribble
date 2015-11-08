@@ -5,6 +5,8 @@
 module Session
   (
     ServerSessionT(..)
+  , ServerSessionSettings(..)
+  , RedirectPolicy(..)
   , withServerSession
   , runServerSessionT
   , MonadServerSession,SessionData
@@ -34,6 +36,7 @@ import qualified Happstack.Server          as H
 import qualified Happstack.Server.Cookie   as H
 import qualified Happstack.Server.RqData   as H
 import qualified Happstack.Server.Response as H
+import           Network.URI                (URI)
 import qualified OAuth2
 import           Web.PathPieces             (toPathPiece)
 import           Web.ServerSession.Backend.Acid (AcidStorage(..),emptyState)
@@ -44,11 +47,34 @@ newtype ServerSessionT sessionData m a
   = ServerSessionT
     {
       unServerSessionT :: ReaderT
-        (S.State (AcidStorage (SD sessionData)),OAuth2.ClientKey,OAuth2.User -> Maybe sessionData)
+        (S.State (AcidStorage (SD sessionData)), ServerSessionSettings sessionData)
         (StateT (SessionStatus sessionData) m)
         a
     }
     deriving (Functor,Applicative,Alternative,Monad,MonadPlus,MonadIO,MonadFix,H.HasRqData,H.FilterMonad r,H.WebMonad r,H.ServerMonad)
+
+data ServerSessionSettings sessionData
+  = ServerSessionSettings
+    {
+      oauth2ClientKey :: OAuth2.ClientKey
+    , newSessionData  :: OAuth2.User -> Maybe sessionData
+    , redirectPolicy  :: RedirectPolicy
+    }
+
+data RedirectPolicy
+  = Redirect
+  | Unauthorized
+
+redirect ::
+  ( H.FilterMonad H.Response m
+  , H.WebMonad H.Response m
+  ) => URI -> ReaderT (s,ServerSessionSettings sessionData) m ()
+redirect uri = do
+  let u = show uri
+  (_state,settings) <- ask
+  case redirectPolicy settings of
+    Redirect     -> H.finishWith =<< H.seeOther u (H.toResponse ("" :: String))
+    Unauthorized -> H.finishWith =<< H.unauthorized (H.toResponse u)
 
 data SessionStatus sessionData
   = Unread
@@ -83,7 +109,7 @@ instance
     lift get >>= \case
       Existing user ms _ -> return (user,ms)
       Unread            -> do
-        (state,oauth2,newSession) <- ask
+        (state,settings) <- ask
         maybeCookie <- optional $ BS8.pack <$> H.lookCookieValue "serversession"
         maybeNewUser <- case maybeCookie of
           Just _  -> do
@@ -95,10 +121,11 @@ instance
             case maybeCode of
               Nothing -> do
                 -- No, there is no login code set. We redirect the user to the login page.
-                H.finishWith =<< H.seeOther (OAuth2.loginRedirect oauth2) (H.toResponse ("" :: String))
+                redirect $ OAuth2.loginRedirect $ oauth2ClientKey settings
+                error "Session: should not be reached due to redirect."
               Just code -> do
                 -- Yes, there is a login code. Try to log in.
-                liftIO (OAuth2.login oauth2 code) >>= \case
+                liftIO (OAuth2.login (oauth2ClientKey settings) code) >>= \case
                   Left errorString -> H.finishWith =<< H.internalServerError
                     (H.toResponse $ "Session: error logging in:\n" ++ errorString)
                   Right user       -> return $ Just user
@@ -106,7 +133,7 @@ instance
         (user,s) <- case sd of
           EmptySession -> case maybeNewUser of
             Just user -> do
-              case newSession user of
+              case newSessionData settings user of
                 Just s  -> return (user,s)
                 Nothing -> do
                   liftIO . putStrLn $ "User without account: " ++ show user
@@ -120,7 +147,7 @@ instance
         return (user,s)
   
   putSession s = (getSession >>) . ServerSessionT $ do
-    (state,_,_) <- ask
+    (state,_) <- ask
     Existing user _ saveSessionToken <- lift get
     let newSessionData = SD user s
     liftIO (S.saveSession state saveSessionToken newSessionData) >>= \case
@@ -134,12 +161,11 @@ instance
 
 runServerSessionT ::
   ( Monad m
-  ) => OAuth2.ClientKey
+  ) => ServerSessionSettings sessionData
     -> S.State (AcidStorage (SD sessionData))
-    -> (OAuth2.User -> Maybe sessionData)
     -> ServerSessionT sessionData m a
     -> m a
-runServerSessionT oauth2 state new (ServerSessionT h) = flip evalStateT Unread . flip runReaderT (state,oauth2,new) $ h
+runServerSessionT settings state (ServerSessionT h) = flip evalStateT Unread . flip runReaderT (state,settings) $ h
 
 withServerSession ::
   ( MonadIO m

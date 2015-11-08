@@ -22,8 +22,13 @@ serve :: String -> String -> String -> Accounts -> IO ()
 serve clientID clientSecret serverHost accounts = Session.withServerSession $ \ state -> do
   let redirect = serverHost ++ "login"
       oauth2 = OAuth2.specifyGoogleKey clientID clientSecret redirect
+      settings = Session.ServerSessionSettings
+        { Session.oauth2ClientKey = oauth2
+        , Session.newSessionData = userAccount accounts . OAuth2.id
+        , Session.redirectPolicy = Session.Unauthorized
+        }
   H.simpleHTTP H.nullConf .
-    Session.runServerSessionT oauth2 state (userAccount accounts . OAuth2.id) .
+    Session.runServerSessionT settings state  .
     flip runReaderT serverHost .
     msum $
       [
