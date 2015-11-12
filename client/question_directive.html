@@ -12,11 +12,11 @@
         <textarea name="open_answer" placeholder="Antwoord"></textarea>
     </div>
     <div class="form-group multiple-choice-answers-holder" ng-show="questionType == 'multipleChoice'">
-        <div class="input-group" ng-repeat="answer in multipleChoice.answers">
-            <span class="input-group-addon" ng-click="switchCorrectAnswer(answer)">
-                <i ng-class="multipleChoiceAnswerClass(answer)"></i>
+        <div class="input-group" ng-repeat="choice in multipleChoice.choices">
+            <span class="input-group-addon" ng-click="switchCorrectAnswer(choice)">
+                <i ng-class="multipleChoiceAnswerClass(choice)"></i>
             </span>
-            <input type="text" class="form-control" ng-model="answer.value" ng-change="updateMultipleAnswers()">
+            <input type="text" class="form-control" ng-model="choice[1]" ng-change="updateMultipleAnswers()">
         </div>
     </div>
     <div class="form-group">
