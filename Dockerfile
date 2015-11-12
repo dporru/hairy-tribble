@@ -66,20 +66,22 @@ ENV PATH /home/ph/.cabal-sandbox/bin:$PATH
 ADD ./rest-gen-files/ /hairy-tribble/rest-gen-files/
 
 # Add web-client files.
-ADD ./client/ /home/ph/client/
+ADD ./client/ /tmp/client/
 
 # Install Bower and npm dependencies and minify js files.
-RUN cp -r /home/ph/client /hairy-tribble/client &&\
-    cd /hairy-tribble/client/assets &&\
+# Files need to be copied to be writable for user ph.
+RUN cp -r /tmp/client /home/ph/ &&\
+    cd /home/ph/client/assets &&\
     npm install &&\
     bower install &&\
-    gulp uglify
+    gulp uglify &&\
+    cp -r /home/ph/client /hairy-tribble/client
 
 # Copy the configuration file to the container.
 RUN mkdir /home/ph/.serve &&\
     ln -s /hairy-tribble/config/config /home/ph/.serve/config
 
-# Expose /hairy-tribble as a volume for development.
+# Expose directory for development and deployment.
 VOLUME ["/hairy-tribble/client", "/hairy-tribble/.tcachedata", "/hairy-tribble/config", "/uploaded", "/hairy-tribble/state"]
 
 # Run rest when this container is started.
