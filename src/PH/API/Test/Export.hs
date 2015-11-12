@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 module PH.API.Test.Export where
 
+import           Accounts (Account)
 import           Common
 import qualified PH.API.Test.Export.LaTeX    as LaTeX
 import qualified PH.API.Test.Export.Markdown as Markdown
@@ -9,6 +10,7 @@ import qualified PH.API.Test.Export.PDF      as PDF
 import qualified PH.API.Test.Export.Word     as Word
 import qualified PH.DB                       as DB
 import           PH.Types
+import           Session (MonadServerSession,SessionData,getSessionData)
 
 import qualified Data.ByteString.Lazy.Char8 as B8
 import qualified Data.TCache                as T
@@ -21,9 +23,13 @@ import qualified Rest.Handler               as R
 import qualified Rest.Resource              as R
 
 
-resource :: R.Resource
-  (ReaderT (ID.Ref (Decorated Test)) IO)
-  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
+resource :: forall m.
+  ( MonadServerSession m
+  , SessionData m ~ Account
+  , MonadIO m
+  ) => R.Resource
+  (ReaderT (ID.Ref (Decorated Test)) m)
+  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
   Format
   Void
   Void
@@ -34,11 +40,16 @@ resource = R.mkResourceReader
   , R.get    = Just get
   }
 
-get :: R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) IO))
+get :: forall m.
+  ( MonadServerSession m
+  , SessionData m ~ Account
+  , MonadIO m
+  ) => R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testRef -> do
-    ID.WithID _ dtest <- DB.run $ ID.deref testRef
+    account <- getSessionData
+    ID.WithID _ dtest <- DB.run account . DB.withStore $ \ s -> ID.deref s testRef
     let test = view undecorated dtest
     let mode = R.param env
     case format of

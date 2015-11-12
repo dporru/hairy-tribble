@@ -14,32 +14,14 @@ angular.module('ph').directive('question', function(){
             scope.multipleChoice = {correct: '', incorrect: []};
             scope.$watch('question', function(){
                 if (typeof scope.question.object == 'undefined') {
-                    if (typeof scope.questionType == 'undefined') {
-                        scope.questionType = 'open';
-                    }
-                    scope.question.object = {answer: {}, question: ''};
+                    scope.questionType = 'open';
+                    scope.question.object = {answer: {open: ''}, question: ''};
                     scope.question.labels = [];
-                    scope.multipleChoice = {answers: []};
+                    scope.multipleChoice = {choices: [[true, '']]};
                 }else{
                     if (typeof scope.question.object.answer.multipleChoice !== 'undefined'){
                         scope.questionType = 'multipleChoice';
-                        scope.multipleChoice.answers = [];
-                        for (var i in scope.question.object.answer.multipleChoice.order) {
-                            var question = {};
-                            var order = scope.question.object.answer.multipleChoice.order[i];
-                            if (order == 0) {
-                                question = {
-                                    'value': scope.question.object.answer.multipleChoice.correct,
-                                    'correct': true
-                                }
-                            } else {
-                                question = {
-                                    'value': scope.question.object.answer.multipleChoice.incorrect[order-1],
-                                    'correct': false
-                                }
-                            }
-                            scope.multipleChoice.answers.push(question);
-                        }
+                        scope.multipleChoice = scope.question.object.answer.multipleChoice
                         scope.updateMultipleAnswers();
                     }else{
                         scope.questionType = 'open';
@@ -78,13 +60,13 @@ angular.module('ph').directive('question', function(){
             scope.multipleChoiceAnswerClass = function(answer) {
                 var classes = 'glyphicon';
                 var filledClass = ' text-danger';
-                if (answer.correct) {
+                if (answer[0]) {
                     classes = classes + ' glyphicon-ok';
                     filledClass = ' text-success';
                 } else {
                     classes = classes + ' glyphicon-remove';
                 }
-                if (answer.value === '') {
+                if (answer[1] === '') {
                     classes = classes + ' text-muted';
                 }else{
                     classes = classes + filledClass;
@@ -102,40 +84,30 @@ angular.module('ph').directive('question', function(){
             };
 
             scope.updateMultipleAnswers = function() {
-                if (typeof scope.multipleChoice.answers === 'undefined' || !scope.multipleChoice.answers.length) {
-                    scope.multipleChoice.answers = [{value: '', correct: true}];
-                }else if (scope.multipleChoice.answers[scope.multipleChoice.answers.length-1].value !== ''){
-                    scope.multipleChoice.answers.push({value: '', correct: false});
-                } else if (scope.multipleChoice.answers[scope.multipleChoice.answers.length-2].value === '') {
-                    scope.multipleChoice.answers.pop(scope.multipleChoice.answers.length-1);
+                if (typeof scope.multipleChoice.choices === 'undefined' || !scope.multipleChoice.choices.length) {
+                    scope.multipleChoice.choices = [[true, '']];
+                } else if (scope.multipleChoice.choices[scope.multipleChoice.choices.length-1][1] !== ''){
+                    scope.multipleChoice.choices.push([false, '']);
+                } else if (scope.multipleChoice.choices[scope.multipleChoice.choices.length-2][1] === '') {
+                    scope.multipleChoice.choices.pop(scope.multipleChoice.choices.length-1);
                 }
-                var answer = scope.question.object.answer;
-                if (typeof answer.multipleChoice === 'undefined') {
-                    answer.multipleChoice = {};
-                }
+
+                scope.question.object.answer.multipleChoice = {choices: []};
                 scope.question.object.answer.multipleChoice.order = [];
-                answer.multipleChoice.incorrect = [];
-                var order = 0;
-                for (var i in scope.multipleChoice.answers) {
-                    var a = scope.multipleChoice.answers[i];
-                    if (a.value !== '') {
-                        if (a.correct){
-                            scope.question.object.answer.multipleChoice.order.push(0);
-                            answer.multipleChoice.correct = a.value;
-                        } else {
-                            scope.question.object.answer.multipleChoice.order.push(order + 1);
-                            answer.multipleChoice.incorrect.push(a.value);
-                            order++;
-                        }
+
+                for (var i in scope.multipleChoice.choices) {
+                    if (scope.multipleChoice.choices[i][1] !== '') {
+                        scope.question.object.answer.multipleChoice.choices.push(scope.multipleChoice.choices[i]);
                     }
+                    scope.question.object.answer.multipleChoice.order.push(parseInt(i, 10));
                 }
             };
 
             scope.switchCorrectAnswer = function(answer) {
-                for (var i in scope.multipleChoice.answers) {
-                    scope.multipleChoice.answers[i].correct = false;
+                for (var i in scope.multipleChoice.choices) {
+                    scope.multipleChoice.choices[i][0] = false;
                 }
-                answer.correct = true;
+                answer[0] = true;
                 scope.updateMultipleAnswers();
             };
 

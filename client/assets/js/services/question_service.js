@@ -1,4 +1,4 @@
-angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function($http, Alert, API_PATH) {
+angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', 'Auth', function($http, Alert, API_PATH, Auth) {
     var questions = [];
     var questionsById = {};
     var changedCallbacks = [];
@@ -8,6 +8,17 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function
         for (var i in changedCallbacks) {
             changedCallbacks[i]();
         }
+    }
+
+    function handleRequestError(msg) {
+        return function(request) {
+            if (request.status === 401) {
+                Auth.setLoginNeeded(request.data);
+                throw 'Authentication needed';
+            } else {
+                Alert.add(msg, 'danger');
+            }
+        };
     }
 
     var methods = {
@@ -34,10 +45,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function
                     }
                     changedExecute();
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het ophalen van de vragen.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het ophalen van de vragen.'));
         },
         create: function(question) {
             var newQuestion = {
@@ -49,10 +57,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function
                     methods.load();
                     return result.data;
                 })
-                .catch(function(){
-                    Alert.add('Er trad een fout op bij het aanmaken van de vraag.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het aanmaken van de vraag.'));
         },
         save: function(question) {
             var updateQuestion = {
@@ -63,10 +68,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function
                 .then(function(result) {
                     methods.load();
                 })
-                .catch(function(e){
-                    Alert.add('Er trad een fout op bij het opslaan van de vraag.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het opslaan van de vraag.'));
         },
         remove: function(question_id) {
             return $http.delete(API_PATH + 'question/id/' + question_id)
@@ -78,10 +80,7 @@ angular.module('ph').factory('Question', ['$http', 'Alert', 'API_PATH', function
                         }
                     }
                 })
-                .catch(function(e){
-                    Alert.add('Er trad een fout op bij het verwijderen van de vraag.', 'danger');
-                    throw e;
-                });
+                .catch(handleRequestError('Er trad een fout op bij het verwijderen van de vraag.'));
         },
         changed: function(callback) {
             changedCallbacks.push(callback);

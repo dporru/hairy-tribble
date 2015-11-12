@@ -10,6 +10,7 @@ import           PH.Types
 import           PH.Types.Storage () -- Needed for instance Indexable (WithID a).
 
 import           Data.Aeson.Types (typeMismatch,Value(String))
+import qualified Text.Pandoc      as Pandoc
 
 
 instance ToJSON (T.DBRef a) where
@@ -55,15 +56,20 @@ instance JSONSchema Dates where
   schema = gSchema
 
 
-instance (FromJSON a) => FromJSON (ID.ID a) where
-  parseJSON = (ID.ID <$>) . parseJSON
-
-instance (ToJSON a) => ToJSON (ID.ID a) where
-  toJSON (ID.ID t) = toJSON t
-
-instance (JSONSchema a) => JSONSchema (ID.ID a) where
+instance ToJSON RichText where
+  toJSON (Pandoc p) = toJSON . Text.pack $ Pandoc.writeHtmlString Pandoc.def (Pandoc.Pandoc Pandoc.nullMeta p)
+instance FromJSON RichText where
+  parseJSON s = either (fail . show) r . Pandoc.readHtml Pandoc.def . Text.unpack =<< parseJSON s where
+    r (Pandoc.Pandoc _ p) = return $ Pandoc p
+instance JSONSchema RichText where
   schema _ = schema (Proxy :: Proxy Text)
 
+instance (FromJSON a) => FromJSON (ID.ID a) where
+  parseJSON = (ID.ID <$>) . parseJSON
+instance (ToJSON a) => ToJSON (ID.ID a) where
+  toJSON (ID.ID t) = toJSON t
+instance (JSONSchema a) => JSONSchema (ID.ID a) where
+  schema _ = schema (Proxy :: Proxy Text)
 
 instance (Typeable a,FromJSON a) => FromJSON (ID.WithID a) where
   parseJSON = gparseJson

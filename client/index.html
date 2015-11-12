@@ -20,8 +20,19 @@
             <alert ng-repeat="alert in alerts" type="{{ alert.type }}" close="closeAlert(alert.id)">{{ alert.msg }}</alert>
         </div>
 
+        <!-- Auth Controller -->
+        <div ng-controller="AuthCtrl">
+            <div class="auth-overlay" ng-show="loginNeeded()">
+                <div>
+                    <h2>Inloggen</h2>
+                    <p>Om deze applicatie te gebruiken moet je inloggen met een Google account.{{ loginRedirectUrl }}</p>
+                    <a href="{{ loginRedirectUrl() }}" target="_top" class="btn btn-info btn-lg">Login met Google</a>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
-            <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl">
+            <div class="col-md-7 col-lg-8" ng-controller="TestController as testCtrl" ng-hide="testCtrl.loginNeeded()">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <div class="row">
@@ -99,7 +110,7 @@
                 </div>
             </div>
             <div class="col-md-5 col-lg-4">
-                <div ng-controller="QuestionListController as questionList" class="question-list">
+                <div ng-controller="QuestionListController as questionList" class="question-list" ng-hide="questionList.loginNeeded()">
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <form>

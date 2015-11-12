@@ -1,6 +1,11 @@
 TCache
 .tcachedata
+state
 client/assets/node_modules
 client/assets/bower_components
 client/assets/dist
 client/assets/maps
+dist
+cabal.sandbox.config
+.cabal-sandbox
+config/*

@@ -1,9 +1,13 @@
-angular.module('ph').controller('TestController', ['$modal', '$http', 'Question', 'Test', 'Alert', function($modal, $http, Question, Test, Alert){
+angular.module('ph').controller('TestController', ['$modal', '$http', 'Question', 'Test', 'Alert', 'Auth', function($modal, $http, Question, Test, Alert, Auth){
     var testCtrl = this;
     testCtrl.elements = [];
     testCtrl.newQuestion = {};
     testCtrl.editingNewQuestion = false;
     testCtrl.editingQuestionId = null;
+
+    testCtrl.loginNeeded = function() {
+        return Auth.getLoginNeeded();
+    };
 
     testCtrl.getCurrentTest = function() {
         return Test.getCurrentTest();

@@ -13,8 +13,8 @@ import qualified Text.Pandoc.Options  as P
 import qualified Text.Pandoc.PDF      as P
 
 
-export:: P.Pandoc -> IO (Either ByteString ByteString)
-export = P.makePDF "xelatex" P.writeLaTeX
+export:: (MonadIO m) => P.Pandoc -> m (Either ByteString ByteString)
+export = liftIO . P.makePDF "xelatex" P.writeLaTeX
   P.def
     {
       P.writerStandalone = True

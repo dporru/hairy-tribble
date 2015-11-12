@@ -25,7 +25,9 @@ angular.module('ph').controller('TestListController', ['$modalInstance', '$modal
     };
 
     test_list.isCurrentTest = function(testId) {
-        return Test.getCurrentTest().id === testId;
+        if (Test.getCurrentTest()) {
+            return Test.getCurrentTest().id === testId;
+        }
     };
 
     test_list.setCurrentTest = function(testId) {

@@ -1,5 +1,6 @@
 module CLI where
 
+import qualified Accounts
 import           Common
 import qualified PH.DB as DB
 import           PH.Types
@@ -18,42 +19,44 @@ import           System.Random.Shuffle (shuffleM)
 
 main :: IO ()
 main = do
-  DB.initialiseIndices
-  CP.interactive commands
+  account <- input
+  DB.initialise $ Accounts.accountStore account
+  CP.interactive $ commands account
 
-commands :: CP.Commands IO
-commands = Node
-  (CP.Command "DB" "Manage the database." $ CP.io $ CP.showUsage commands)
+-- The tree of possible commands of the program.
+commands :: Accounts.Account -> CP.Commands IO
+commands account = Node
+  (CP.command "DB" "Manage the database." . CP.io . CP.showUsage $ commands account)
   [
-    Node (CP.Command "list" "" $ CP.io $ CP.showUsage commands)
+    Node (CP.command "list" "" . CP.io . CP.showUsage $ commands account)
       [
-        Node (CP.Command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID (Decorated Question)])
+        Node (CP.command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+          (ID.listWithID s :: STM [ID.WithID (Decorated Question)])
         ) []
-       ,Node (CP.Command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run
-          $ (ID.listWithID :: STM [ID.WithID (Decorated Test)])
+       ,Node (CP.command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+          (ID.listWithID s :: STM [ID.WithID (Decorated Test)])
         ) []
       ]
-  , Node (CP.Command "show" "" $ CP.io $ CP.showUsage commands)
+  , Node (CP.command "show" "" . CP.io . CP.showUsage $ commands account)
       [
-        Node (CP.Command "question" "Show a specific question." $
+        Node (CP.command "question" "Show a specific question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io
             . (>>= maybe (putStrLn "Question not found.") print)
-            . DB.run $ T.readDBRef (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
         ) []
-      , Node (CP.Command "test" "Show a specific test." $
+      , Node (CP.command "test" "Show a specific test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io
             . (>>= maybe (putStrLn "Test not found.") print)
-            . DB.run $ T.readDBRef (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
         ) []
       ]
-  , Node (CP.Command "new" "" $ CP.io $ CP.showUsage commands)
+  , Node (CP.command "new" "" . CP.io . CP.showUsage $ commands account)
       [
-        Node (CP.Command "question" "Add a new question." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
+        Node (CP.command "question" "Add a new question." . CP.io
+          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
           ) []
-      , Node (CP.Command "test" "Add a new test." $ CP.io
-          $ (DB.run . ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
+      , Node (CP.command "test" "Add a new test." . CP.io
+          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
           ) []
       ]
   ]
@@ -66,20 +69,21 @@ class Input x where
 
 instance Input Question where
   input = do
-    q <- ask "Question:"
-    a <- ask "Answer:"
+    q <- putStrLn "Question:" >> input
+    a <- putStrLn "Answer:" >> input
     putStrLn "Enter more answers for multiple choice, empty line when done:"
-    others <- askMany
+    others <- map plainText <$> askMany
     if null others
       then return $ Question q (Open a)
       else do
+        let answers = (True,a) : map ((,) False) others
         randomOrder <- shuffleM [0 .. length others]
-        return $ Question q (MultipleChoice a others randomOrder)
+        return $ Question q (MultipleChoice answers randomOrder)
 
 instance Input Test where
   input = do
-    name <- ask "Name:"
-    qs <- map (TestQuestion . ID.ref . ID.ID . pack) <$> askF read "Questions:"
+    name <- prompt "Name:"
+    qs <- map (TestQuestion . ID.ref . ID.ID . pack) <$> promptF read "Questions:"
     return $ Test name qs
 
 instance (Input x) => Input (Dated x) where
@@ -92,11 +96,20 @@ instance (Input x) => Input (Labelled x) where
     ls <- Set.fromList <$> askMany
     return $ Labelled ls x
 
-ask :: String -> IO Text
-ask = askF pack
+instance Input Accounts.Account where
+  input = promptF Accounts.fromString "Enter account:"
 
-askF :: (String -> a) -> String -> IO a
-askF f s = do
+instance Input RichText where
+  input = plainText <$> input
+
+instance Input Text where
+  input = pack <$> getLine
+
+prompt :: String -> IO Text
+prompt = promptF pack
+
+promptF :: (String -> a) -> String -> IO a
+promptF f s = do
   putStrLn s
   f <$> getLine
 
