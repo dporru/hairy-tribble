@@ -92,7 +92,7 @@ class (Monad m) => MonadServerSession m where
 getSessionData :: (MonadServerSession m) => m (SessionData m)
 getSessionData = snd <$> getSession
 
-instance
+instance forall m sessionData.
   ( H.HasRqData m
   , H.FilterMonad H.Response m
   , H.WebMonad H.Response m
@@ -110,38 +110,39 @@ instance
       Existing user ms _ -> return (user,ms)
       Unread            -> do
         (state,settings) <- ask
+        let redirectToLogin :: ReaderT (s, ServerSessionSettings sessionData)
+              (StateT (SessionStatus sessionData) m) a
+            redirectToLogin = do
+              redirect $ OAuth2.loginRedirect $ oauth2ClientKey settings
+              error "Session: should not be reached due to redirect."
         maybeCookie <- optional $ BS8.pack <$> H.lookCookieValue "serversession"
         maybeNewUser <- case maybeCookie of
-          Just _  -> do
-            -- Cookie is set, just continue.
-            return Nothing
+          -- Cookie is set, just continue.
+          Just _  -> return Nothing
           Nothing -> do
             -- There is no session cookie set. Maybe the user has just logged in?
             maybeCode <- optional $ LBS.toStrict <$> H.lookBS "code"
             case maybeCode of
-              Nothing -> do
-                -- No, there is no login code set. We redirect the user to the login page.
-                redirect $ OAuth2.loginRedirect $ oauth2ClientKey settings
-                error "Session: should not be reached due to redirect."
-              Just code -> do
-                -- Yes, there is a login code. Try to log in.
-                liftIO (OAuth2.login (oauth2ClientKey settings) code) >>= \case
-                  Left errorString -> H.finishWith =<< H.internalServerError
-                    (H.toResponse $ "Session: error logging in:\n" ++ errorString)
-                  Right user       -> return $ Just user
+              -- No, there is no login code set. We redirect the user to the login page.
+              Nothing -> redirectToLogin
+              -- Yes, there is a login code. Try to log in.
+              Just code -> liftIO (OAuth2.login (oauth2ClientKey settings) code) >>= \case
+                Left errorString -> H.finishWith =<< H.internalServerError
+                  (H.toResponse $ "Session: error logging in:\n" ++ errorString)
+                Right user       -> return $ Just user
         (sd,saveSessionToken) <- liftIO $ S.loadSession state maybeCookie
         (user,s) <- case sd of
           EmptySession -> case maybeNewUser of
-            Just user -> do
-              case newSessionData settings user of
-                Just s  -> return (user,s)
-                Nothing -> do
-                  liftIO . putStrLn $ "User without account: " ++ show user
-                  H.finishWith =<< H.forbidden
-                    (H.toResponse ("There is no account registered for you. Sorry!\nYour details:\n" ++ show user))
-            Nothing   -> do
-              H.finishWith =<< H.internalServerError
-                (H.toResponse ("Session: session cookie is set, but the session is empty" :: String))
+            -- A session cookie is set, but the session is empty.
+            -- Maybe the session store was emptied and the user has a stale session.
+            Nothing   -> redirectToLogin
+            Just user -> case newSessionData settings user of
+              Just s  -> return (user,s)
+              Nothing -> do
+                liftIO . putStrLn $ "User without account: " ++ show user
+                (H.finishWith =<<) . H.forbidden . H.toResponse $ 
+                  "There is no account registered for you. Sorry!\nYour details:\n"
+                    ++ show user
           SD user s    -> return (user,s)
         lift . put $ Existing user s saveSessionToken
         return (user,s)
