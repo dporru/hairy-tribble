@@ -168,12 +168,14 @@ angular.module('ph').factory('Test', ['$http', 'Question', 'Alert', 'API_PATH', 
             return API_PATH + 'test/id/' + currentTestId + '/export/' + type + parameters;
         },
         updateTestName: function(testId, newName) {
+            var test = testsById[testId];
+            test.object.name = newName;
             var updatedTest = {
-                name: newName,
-                questions: testsById[testId].object.questions
+                object_: test.object,
+                labels_: test.labels
             };
 
-            return $http.put(API_PATH + 'test/' + testId, updatedTest)
+            return $http.put(API_PATH + 'test/id/' + testId, updatedTest)
                 .then(function(){
                     methods.load();
                 })
