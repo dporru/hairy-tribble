@@ -7,13 +7,13 @@ code is meant to explore the problem space.
 ## Running
 
 Easiest way to run the current version is using docker. The docker image
-`dporru/tribble` is automatically build from master.
+`dporru/tribble` is automatically built from master.
 
 
 ## Config
 
 In order to run the application you need to create the config file
-`config/config` with the follwoing content:
+`config/config` with the following content:
 
 ```
 serverHost=http://localhost:8000/
@@ -47,11 +47,11 @@ mount a local directory where the images can be stored.
 
 ```
 $ mkdir /tmp/uploaded
-$ docker run -d -v <path/to/tribble>/config:hairy-tribble/config -v /tmp/uploaded:/uploaded -p 8000:8000 dporru/tribble
+$ docker run -d -v <path/to/tribble>/config:hairy-tribble/config -v /tmp/uploaded:hairy-tribble/uploaded -p 8000:8000 dporru/tribble
 ```
 
 ## Permanent storage
 
 If you want data entered in the app to be retained when stopping the container
-you have to mount the `/hairy-tribble/.tcachedata` and `/hairy-tribble/state`
+you have to mount the `/hairy-tribble/data` and `/hairy-tribble/state`
 folders.
