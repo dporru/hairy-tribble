@@ -6,6 +6,7 @@ module PH.Types.Dated
   , date
   , isDeleted
   , deleteDated
+  , undeleteDated
   , updateDated
   , getCurrentTime
   ) where
@@ -50,6 +51,9 @@ isDeleted = isJust . view (dates . deletionDate)
 
 deleteDated :: UTCTime -> Dated x -> Dated x
 deleteDated t = over (dates . deletionDate) $ maybe (Just t) Just
+
+undeleteDated :: Dated x -> Dated x
+undeleteDated = over (dates . deletionDate) $ const Nothing
 
 updateDated :: UTCTime -> Dated x -> Dated x
 updateDated = over (dates . modificationDate) . const

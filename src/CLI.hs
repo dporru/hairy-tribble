@@ -50,6 +50,21 @@ commands account = Node
             . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
         ) []
       ]
+  , Node (CP.command "undelete" "" . CP.io . CP.showUsage $ commands account)
+      [
+        Node (CP.command "question" "Undelete a question." $
+          CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io $ do
+            m <- DB.run account . DB.withStore $ \ s -> 
+              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
+            putStrLn . maybe "Failed" (const "Succeeded") $ m
+        ) []
+      , Node (CP.command "test" "Undelete a test." $
+          CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io $ do
+            m <- DB.run account . DB.withStore $ \ s -> 
+              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
+            putStrLn . maybe "Failed" (const "Succeeded") $ m
+        ) []
+      ]
   , Node (CP.command "new" "" . CP.io . CP.showUsage $ commands account)
       [
         Node (CP.command "question" "Add a new question." . CP.io
