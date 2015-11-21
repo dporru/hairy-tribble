@@ -82,7 +82,7 @@ RUN mkdir /home/ph/.serve &&\
     ln -s /hairy-tribble/config/config /home/ph/.serve/config
 
 # Expose directory for development and deployment.
-VOLUME ["/hairy-tribble/client", "/hairy-tribble/data", "/hairy-tribble/config", "/hairy-tribble/uploaded", "/hairy-tribble/state"]
+VOLUME ["/hairy-tribble/client", "/hairy-tribble/config"]
 
 # Run rest when this container is started.
 CMD ["rest"]
