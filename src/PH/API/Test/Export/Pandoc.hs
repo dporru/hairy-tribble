@@ -61,8 +61,9 @@ strong = map $ P.walk $ P.Strong . (: [])
 strikeout :: [P.Block] -> [P.Block]
 strikeout = map $ P.walk $ P.Strikeout . (: [])
 
-orderBy :: [a] -> [Int] -> [a]
-orderBy = map . (!!)
+orderBy :: [a] -> AnswerOrder -> [a]
+-- orderBy = map . (!!)
+orderBy = const
 
 textP :: Text -> P.Inlines
 textP = P.str . Text.unpack
