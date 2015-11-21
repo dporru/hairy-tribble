@@ -115,7 +115,7 @@ instance forall m sessionData.
             redirectToLogin = do
               redirect $ OAuth2.loginRedirect $ oauth2ClientKey settings
               error "Session: should not be reached due to redirect."
-        maybeCookie <- optional $ BS8.pack <$> H.lookCookieValue "serversession"
+        maybeCookie <- optional $ BS8.pack <$> H.lookCookieValue cookieName
         maybeNewUser <- case maybeCookie of
           -- Cookie is set, just continue.
           Just _  -> return Nothing
@@ -135,7 +135,9 @@ instance forall m sessionData.
           EmptySession -> case maybeNewUser of
             -- A session cookie is set, but the session is empty.
             -- Maybe the session store was emptied and the user has a stale session.
-            Nothing   -> redirectToLogin
+            Nothing   -> do
+              H.expireCookie cookieName
+              redirectToLogin
             Just user -> case newSessionData settings user of
               Just s  -> return (user,s)
               Nothing -> do
@@ -152,13 +154,16 @@ instance forall m sessionData.
     Existing user _ saveSessionToken <- lift get
     let newSessionData = SD user s
     liftIO (S.saveSession state saveSessionToken newSessionData) >>= \case
-      Nothing      -> H.expireCookie "serversession"
+      Nothing      -> H.expireCookie cookieName
       Just session -> do
-        let cookie = H.mkCookie "serversession" $ Text.unpack . toPathPiece $ S.sessionKey session
+        let cookie = H.mkCookie cookieName $ Text.unpack . toPathPiece $ S.sessionKey session
         let lifetime = maybe H.Session H.Expires $ S.cookieExpires state session
         H.addCookie lifetime cookie
   
-  expireSession = H.expireCookie "serversession"
+  expireSession = H.expireCookie cookieName
+
+cookieName :: String
+cookieName = "serversession"
 
 runServerSessionT ::
   ( Monad m
