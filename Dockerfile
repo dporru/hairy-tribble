@@ -86,7 +86,7 @@ VOLUME ["/hairy-tribble/client", "/hairy-tribble/config"]
 
 # Work around docker not passing sigTERM to PID 1.
 ADD ./my_init /
-ENTRYPOINT ["/my_init"]
+ENTRYPOINT ["/my_init","--skip-runit","--skip-startup-files"]
 
 # Run rest when this container is started.
 CMD ["rest"]

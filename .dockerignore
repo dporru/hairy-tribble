@@ -2,3 +2,5 @@ Dockerfile
 .dockerignore
 .git
 tmp
+.cabal-sandbox
+dist
