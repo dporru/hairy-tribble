@@ -2,6 +2,7 @@
 module PH.DB
   (
     initialise
+  , finalise
   , run
   , withStore
   , store
@@ -24,6 +25,9 @@ initialise :: T.Persist -> IO ()
 initialise store = do
   T.initialise store
   initialiseIndices store
+
+finalise :: T.Persist -> IO ()
+finalise store = T.syncCache store
 
 newtype DBM a
   = DBM (ReaderT T.Persist STM a)

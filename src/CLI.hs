@@ -54,13 +54,13 @@ commands account = Node
       [
         Node (CP.command "question" "Undelete a question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io $ do
-            m <- DB.run account . DB.withStore $ \ s -> 
+            m <- DB.run account . DB.withStore $ \ s ->
               overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []
       , Node (CP.command "test" "Undelete a test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io $ do
-            m <- DB.run account . DB.withStore $ \ s -> 
+            m <- DB.run account . DB.withStore $ \ s ->
               overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []

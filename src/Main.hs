@@ -9,15 +9,33 @@ import           PH.API    (M,api)
 import qualified PH.DB                   as DB
 import           Server    (serve)
 
+import           Control.Concurrent (myThreadId)
+import           Control.Exception
+  ( throwTo
+  , AsyncException(UserInterrupt)
+  , finally
+  )
 import           Data.List (nub)
 import qualified Data.Map                as Map
 import qualified System.Console.Argument as CP
 import qualified System.Console.Command  as CP
 import qualified System.Console.Program  as CP
+import           System.Posix.Signals
+  ( installHandler
+  , sigTERM
+  , Handler(CatchOnce)
+  )
 
 
 main :: IO ()
-main = CP.single commands
+main = do
+  threadId <- myThreadId
+  installHandler sigTERM
+    (CatchOnce $ do
+      putStrLn "Program caught sigTERM, interrupting..."
+      throwTo threadId UserInterrupt
+    ) Nothing
+  CP.single commands
 
 commands :: CP.Commands IO
 commands = flip CP.Node [] . CP.command "serve" "" $
@@ -25,9 +43,12 @@ commands = flip CP.Node [] . CP.command "serve" "" $
   CP.withOption googleIDOption     $ \ googleID     ->
   CP.withOption googleSecretOption $ \ googleSecret ->
   CP.withOption accountsOption     $ \ accounts     -> CP.io $ do
-    for_ (nub . Map.elems $ accounts) $
-      DB.initialise . accountStore
+    final <- fmap sequence_ . for (nub . Map.elems $ accounts) $ \ a -> do
+      let s = accountStore a
+      DB.initialise s
+      return $ DB.finalise s
     serve googleID googleSecret serverHost accounts
+      `finally` final
 
 serverHostOption :: CP.Option String
 serverHostOption = CP.option [] ["serverHost"] CP.string
