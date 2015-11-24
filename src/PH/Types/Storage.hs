@@ -43,6 +43,3 @@ SC.deriveSafeCopy 0 'SC.base ''Labelled
 SC.deriveSafeCopy 0 'SC.base ''Dates
 SC.deriveSafeCopy 0 'SC.base ''ID.ID
 SC.deriveSafeCopy 0 'SC.base ''ID.WithID
-instance (T.IResource a,Typeable a) => SC.SafeCopy (T.DBRef a) where
-  putCopy = SC.contain . SC.safePut . Text.pack . T.keyObjDBRef
-  getCopy = SC.contain $ T.getDBRef . Text.unpack <$> SC.safeGet

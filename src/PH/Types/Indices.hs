@@ -21,19 +21,25 @@ initialiseIndices store = do
   T.index store questionLabels
   T.index store testLabels
 
-questionID :: IndexMap.Field (ID.WithID (Decorated Question)) Identity (ID.ID (Decorated Question))
+questionID :: IDIndex Question
 questionID = idIndex
-testID :: IndexMap.Field (ID.WithID (Decorated Test)) Identity (ID.ID (Decorated Test))
+testID :: IDIndex Test
 testID = idIndex
-questionLabels :: IndexMap.Field (ID.WithID (Decorated Question)) Set.Set Text
+questionLabels :: LabelsIndex Question
 questionLabels = labelsIndex
-testLabels :: IndexMap.Field (ID.WithID (Decorated Test)) Set.Set Text
+testLabels :: LabelsIndex Test
 testLabels = labelsIndex
 
-labelsIndex :: IndexMap.Field (ID.WithID (Decorated o)) Set.Set Text
+type LabelsIndex o
+  = IndexMap.Field (ID.WithID (Decorated o)) Set.Set Text
+
+labelsIndex :: LabelsIndex o
 labelsIndex = IndexMap.namedFields (view labels . ID._object) "labels"
 
-idIndex :: IndexMap.Field (ID.WithID (Decorated o)) Identity (ID.ID (Decorated o))
+type IDIndex o
+  = IndexMap.Field (ID.WithID (Decorated o)) Identity (ID.ID (Decorated o))
+
+idIndex :: IDIndex o
 idIndex = IndexMap.field ID.__ID
 
 instance T.Indexable (Map.Map k v) where

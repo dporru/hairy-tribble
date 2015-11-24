@@ -28,8 +28,8 @@ resource :: forall m.
   , SessionData m ~ Account
   , MonadIO m
   ) => R.Resource
-  (ReaderT (ID.Ref (Decorated Test)) m)
-  (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
+  (ReaderT (ID.ID (Decorated Test)) m)
+  (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
   Format
   Void
   Void
@@ -44,12 +44,12 @@ get :: forall m.
   ( MonadServerSession m
   , SessionData m ~ Account
   , MonadIO m
-  ) => R.Handler (ReaderT Format (ReaderT (ID.Ref (Decorated Test)) m))
+  ) => R.Handler (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
 get = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
-  ReaderT $ \ testRef -> do
+  ReaderT $ \ testID -> do
     account <- getSessionData
-    ID.WithID _ dtest <- DB.run account . DB.withStore $ \ s -> ID.deref s testRef
+    ID.WithID _ dtest <- DB.run account . DB.withStore $ \ s -> ID.fromID s testID
     let test = view undecorated dtest
     let mode = R.param env
     case format of

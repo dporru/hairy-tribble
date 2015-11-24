@@ -59,7 +59,7 @@ data Test
   deriving (Generic,Typeable,Show)
 
 data TestElement
-  = TestQuestion (ID.Ref (Decorated Question))
+  = TestQuestion (ID.ID (Decorated Question))
   | TestText RichText
   deriving (Generic,Typeable,Show)
 

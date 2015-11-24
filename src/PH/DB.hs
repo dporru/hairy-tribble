@@ -50,4 +50,4 @@ withStore :: (T.Persist -> STM a) -> DBM a
 withStore f = store >>= stm . f
 
 flush :: DBM ()
-flush = stm T.flushAll
+flush = withStore T.flushAll

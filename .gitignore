@@ -1,5 +1,4 @@
-TCache
-.tcachedata
+data
 state
 client/assets/node_modules
 client/assets/bower_components
@@ -9,3 +8,4 @@ dist
 cabal.sandbox.config
 .cabal-sandbox
 config/*
+*.swp

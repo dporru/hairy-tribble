@@ -30,7 +30,7 @@ build ::
 build mode test = do
   s <- getSessionData
   qts <- DB.run s . DB.withStore $ \ store -> for (view (undecorated . elements) test) $ \case
-    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref store i
+    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref store (ID.ref store i)
     TestText t     -> return $ Left t
   return $ renderTest mode (view (undecorated . name) test) qts
 

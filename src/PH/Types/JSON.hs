@@ -13,13 +13,6 @@ import           Data.Aeson.Types (typeMismatch,Value(String))
 import qualified Text.Pandoc      as Pandoc
 
 
-instance ToJSON (T.DBRef a) where
-  toJSON = toJSON . Text.pack . T.keyObjDBRef
-instance (T.IResource a,Typeable a) => FromJSON (T.DBRef a) where
-  parseJSON = (T.getDBRef . Text.unpack <$>) . parseJSON
-instance JSONSchema (T.DBRef a) where
-  schema _ = schema (Proxy :: Proxy Text)
-
 instance ToJSON Question where
   toJSON = gtoJson
 instance FromJSON Question where

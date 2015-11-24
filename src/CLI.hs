@@ -42,12 +42,12 @@ commands account = Node
         Node (CP.command "question" "Show a specific question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io
             . (>>= maybe (putStrLn "Question not found.") print)
-            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> ID.fromIDMaybe s i
         ) []
       , Node (CP.command "test" "Show a specific test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io
             . (>>= maybe (putStrLn "Test not found.") print)
-            . DB.run account . DB.withStore $ \ s -> T.readDBRef s (ID.ref i)
+            . DB.run account . DB.withStore $ \ s -> ID.fromIDMaybe s i
         ) []
       ]
   , Node (CP.command "undelete" "" . CP.io . CP.showUsage $ commands account)
@@ -55,13 +55,13 @@ commands account = Node
         Node (CP.command "question" "Undelete a question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io $ do
             m <- DB.run account . DB.withStore $ \ s ->
-              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
+              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref s i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []
       , Node (CP.command "test" "Undelete a test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io $ do
             m <- DB.run account . DB.withStore $ \ s ->
-              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref i)
+              overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref s i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []
       ]
@@ -98,7 +98,7 @@ instance Input Question where
 instance Input Test where
   input = do
     name <- prompt "Name:"
-    qs <- map (TestQuestion . ID.ref . ID.ID . pack) <$> promptF read "Questions:"
+    qs <- map (TestQuestion . ID.ID . pack) <$> promptF read "Questions:"
     return $ Test name qs
 
 instance (Input x) => Input (Dated x) where
