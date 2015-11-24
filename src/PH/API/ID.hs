@@ -57,7 +57,7 @@ resource name = R.mkResourceReader
     R.name   = name
   , R.schema = R.withListing [] $ R.named
       [
-        ("id"   ,R.singleBy read)
+        ("id"   ,R.singleBy readID)
       , ("label",R.listingBy parseLabels)
       ]
   , R.list   = list
@@ -110,6 +110,9 @@ resource name = R.mkResourceReader
 
   takeRange :: R.Range -> [a] -> [a]
   takeRange r = take (R.count r) . drop (R.offset r)
+
+  readID :: String -> ID.ID a
+  readID = ID.ID . Text.pack
 
 maybeNotFound :: (MonadError (R.Reason e) m) => Maybe () -> m ()
 maybeNotFound = maybe (throwError R.NotFound) return
