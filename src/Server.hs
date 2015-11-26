@@ -5,6 +5,7 @@ module Server where
 
 import           Accounts (Accounts,userAccount)
 import           Common
+import qualified PH.DB as DB
 import qualified Image
 import qualified OAuth2
 import           PH.API                     (M,api)
@@ -18,8 +19,8 @@ import           System.Directory           (renameFile)
 import           System.Random              (newStdGen,randomRs)
 
 
-serve :: String -> String -> String -> Accounts -> IO ()
-serve clientID clientSecret serverHost accounts = Session.withServerSession $ \ state -> do
+serve :: String -> String -> String -> Accounts -> DB.Stores -> IO ()
+serve clientID clientSecret serverHost accounts stores = Session.withServerSession $ \ state -> do
   let redirect = serverHost ++ "login"
       oauth2 = OAuth2.specifyGoogleKey clientID clientSecret redirect
       settings = Session.ServerSessionSettings
@@ -29,6 +30,7 @@ serve clientID clientSecret serverHost accounts = Session.withServerSession $ \ 
         }
   H.simpleHTTP H.nullConf .
     Session.runServerSessionT settings state  .
+    flip evalStateT stores .
     flip runReaderT serverHost .
     msum $
       [

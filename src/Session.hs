@@ -211,6 +211,12 @@ instance (MonadServerSession m) => MonadServerSession (ReaderT r m) where
   putSession    = lift . putSession
   expireSession = lift expireSession
 
+instance (MonadServerSession m) => MonadServerSession (StateT r m) where
+  type SessionData (StateT r m) = SessionData m
+  getSession    = lift getSession
+  putSession    = lift . putSession
+  expireSession = lift expireSession
+
 instance (MonadServerSession m) => MonadServerSession (ExceptT e m) where
   type SessionData (ExceptT e m) = SessionData m
   getSession    = lift getSession

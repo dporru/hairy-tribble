@@ -3,7 +3,7 @@ module Main
     main
   ) where
 
-import           Accounts  (Accounts,accountsOptionType,accountStore)
+import           Accounts  (Accounts,accountsOptionType)
 import           Common
 import           PH.API    (M,api)
 import qualified PH.DB                   as DB
@@ -43,12 +43,11 @@ commands = flip CP.Node [] . CP.command "serve" "" $
   CP.withOption googleIDOption     $ \ googleID     ->
   CP.withOption googleSecretOption $ \ googleSecret ->
   CP.withOption accountsOption     $ \ accounts     -> CP.io $ do
-    final <- fmap sequence_ . for (nub . Map.elems $ accounts) $ \ a -> do
-      let s = accountStore a
-      DB.initialise s
-      return $ DB.finalise s
-    serve googleID googleSecret serverHost accounts
-      `finally` final
+    (stores,finals) <- fmap unzip . for (nub . Map.elems $ accounts) $ \ a -> do
+      store <- DB.initialise a
+      return ((a, store), DB.finalise store)
+    serve googleID googleSecret serverHost accounts (Map.fromList stores)
+      `finally` (sequence_ finals)
 
 serverHostOption :: CP.Option String
 serverHostOption = CP.option [] ["serverHost"] CP.string

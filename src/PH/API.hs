@@ -13,6 +13,7 @@ import           PH.Types
 import           PH.Types.JSON ()
 import qualified Session
 
+import qualified Data.Map           as Map
 import qualified Happstack.Server   as H
 import           Rest.Api      (Api,mkVersion,Some1(Some1),Router,root,route,(-/),(--/))
 import           Rest.Dictionary.Combinators
@@ -21,7 +22,7 @@ import qualified Rest.Resource      as R
 import qualified Rest.Schema        as R
 
 type M
-  = ReaderT ServerHost (Session.ServerSessionT Account (H.ServerPartT IO))
+  = ReaderT ServerHost (StateT DB.Stores (Session.ServerSessionT Account (H.ServerPartT IO)))
 
 type ServerHost
   = String
@@ -42,6 +43,6 @@ admin = R.mkResourceId
   , R.schema = R.noListing $ R.named [("flush",R.single ())]
   , R.get = Just $ R.mkInputHandler id $ \ _ -> do
       liftIO $ putStrLn "Flushing database caches..."
-      account <- Session.getSessionData
-      DB.run account DB.flush
+      stores <- Map.elems <$> get
+      for_ stores $ flip DB.run DB.flush
   }

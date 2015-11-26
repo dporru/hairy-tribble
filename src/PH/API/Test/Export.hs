@@ -13,6 +13,7 @@ import           PH.Types
 import           Session (MonadServerSession,SessionData,getSessionData)
 
 import qualified Data.ByteString.Lazy.Char8 as B8
+import qualified Data.Map                   as Map
 import qualified Data.TCache                as T
 import qualified Data.TCache.ID             as ID
 import qualified Data.Text                  as Text
@@ -26,6 +27,7 @@ import qualified Rest.Resource              as R
 resource :: forall m.
   ( MonadServerSession m
   , SessionData m ~ Account
+  , MonadState DB.Stores m
   , MonadIO m
   ) => R.Resource
   (ReaderT (ID.ID (Decorated Test)) m)
@@ -37,19 +39,21 @@ resource = R.mkResourceReader
   {
     R.name   = "export"
   , R.schema = R.noListing $ R.unnamedSingle readFormat
-  , R.get    = Just get
+  , R.get    = Just getHandler
   }
 
-get :: forall m.
-  ( MonadServerSession m
-  , SessionData m ~ Account
+getHandler :: forall m.
+  ( MonadServerSession m, SessionData m ~ Account
+  , MonadState DB.Stores m
   , MonadIO m
   ) => R.Handler (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
-get = R.mkHandler dict $ \ env -> ExceptT $
+getHandler = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testID -> do
     account <- getSessionData
-    ID.WithID _ dtest <- DB.run account . DB.withStore $ \ s -> ID.fromID s testID
+    stores <- get
+    let Just store = Map.lookup account stores
+    ID.WithID _ dtest <- DB.run store . DB.withStore $ \ s -> ID.fromID s testID
     let test = view undecorated dtest
     let mode = R.param env
     case format of

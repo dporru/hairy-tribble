@@ -93,7 +93,8 @@ executable rest
     DeriveGeneric,
     DeriveDataTypeable,
     ScopedTypeVariables,
-    TypeFamilies
+    TypeFamilies,
+    FlexibleContexts
 
 executable cli
   main-is:             CLI.hs

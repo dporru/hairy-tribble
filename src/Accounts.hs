@@ -1,8 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 module Accounts
   (
-    Account
-  , accountStore
+    Account(Account)
   , Accounts
   , userAccount
   , accountsOptionType
@@ -25,14 +24,8 @@ import qualified System.Console.Argument as CP
 
 data Account
   = Account String
-  deriving (Generic,Typeable,Eq,Show)
+  deriving (Generic,Typeable,Eq,Ord,Show)
 SC.deriveSafeCopy 0 'SC.base ''Account
-
-accountPath :: Account -> String
-accountPath (Account a) = "account/" ++ a
-
-accountStore :: Account -> T.Persist
-accountStore account = T.filePersist $ "data/" ++ accountPath account
 
 type Accounts
   = Map.Map UserID Account

@@ -20,58 +20,58 @@ import           System.Random.Shuffle (shuffleM)
 main :: IO ()
 main = do
   account <- input
-  DB.initialise $ Accounts.accountStore account
-  CP.interactive $ commands account
+  store <- DB.initialise account
+  CP.interactive $ commands store
 
 -- The tree of possible commands of the program.
-commands :: Accounts.Account -> CP.Commands IO
-commands account = Node
-  (CP.command "DB" "Manage the database." . CP.io . CP.showUsage $ commands account)
+commands :: DB.Store -> CP.Commands IO
+commands store = Node
+  (CP.command "DB" "Manage the database." . CP.io . CP.showUsage $ commands store)
   [
-    Node (CP.command "list" "" . CP.io . CP.showUsage $ commands account)
+    Node (CP.command "list" "" . CP.io . CP.showUsage $ commands store)
       [
-        Node (CP.command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+        Node (CP.command "questions" "List questions." $ CP.io . (>>= mapM_ print) . DB.run store . DB.withStore $ \ s ->
           (ID.listWithID s :: STM [ID.WithID (Decorated Question)])
         ) []
-       ,Node (CP.command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run account . DB.withStore $ \ s ->
+       ,Node (CP.command "tests" "List tests." $ CP.io . (>>= mapM_ print) . DB.run store . DB.withStore $ \ s ->
           (ID.listWithID s :: STM [ID.WithID (Decorated Test)])
         ) []
       ]
-  , Node (CP.command "show" "" . CP.io . CP.showUsage $ commands account)
+  , Node (CP.command "show" "" . CP.io . CP.showUsage $ commands store)
       [
         Node (CP.command "question" "Show a specific question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io
             . (>>= maybe (putStrLn "Question not found.") print)
-            . DB.run account . DB.withStore $ \ s -> ID.fromIDMaybe s i
+            . DB.run store . DB.withStore $ \ s -> ID.fromIDMaybe s i
         ) []
       , Node (CP.command "test" "Show a specific test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io
             . (>>= maybe (putStrLn "Test not found.") print)
-            . DB.run account . DB.withStore $ \ s -> ID.fromIDMaybe s i
+            . DB.run store . DB.withStore $ \ s -> ID.fromIDMaybe s i
         ) []
       ]
-  , Node (CP.command "undelete" "" . CP.io . CP.showUsage $ commands account)
+  , Node (CP.command "undelete" "" . CP.io . CP.showUsage $ commands store)
       [
         Node (CP.command "question" "Undelete a question." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Question)) -> CP.io $ do
-            m <- DB.run account . DB.withStore $ \ s ->
+            m <- DB.run store . DB.withStore $ \ s ->
               overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref s i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []
       , Node (CP.command "test" "Undelete a test." $
           CP.withNonOption idArg $ \ (i :: ID.ID (Decorated Test)) -> CP.io $ do
-            m <- DB.run account . DB.withStore $ \ s ->
+            m <- DB.run store . DB.withStore $ \ s ->
               overM (ID.refLens s . withoutLabels) undeleteDated (ID.ref s i)
             putStrLn . maybe "Failed" (const "Succeeded") $ m
         ) []
       ]
-  , Node (CP.command "new" "" . CP.io . CP.showUsage $ commands account)
+  , Node (CP.command "new" "" . CP.io . CP.showUsage $ commands store)
       [
         Node (CP.command "question" "Add a new question." . CP.io
-          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
+          $ (DB.run store . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Question))) >> putStrLn "Question added."
           ) []
       , Node (CP.command "test" "Add a new test." . CP.io
-          $ (DB.run account . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
+          $ (DB.run store . DB.withStore . flip ID.newRef =<< (input :: IO (Decorated Test))) >> putStrLn "Test added."
           ) []
       ]
   ]

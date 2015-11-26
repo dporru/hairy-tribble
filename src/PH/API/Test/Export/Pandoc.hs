@@ -12,6 +12,7 @@ import           PH.Types
 import           Session (MonadServerSession,SessionData,getSessionData)
 
 import           Data.ByteString.Lazy (ByteString)
+import qualified Data.Map                as Map
 import qualified Data.TCache.ID          as ID
 import qualified Data.Text               as Text
 import qualified Text.Pandoc             as P
@@ -25,10 +26,13 @@ export = return . Right . utf8ByteString . P.writeNative P.def
 build ::
   ( MonadServerSession m
   , SessionData m ~ Account
+  , MonadState DB.Stores m
   , MonadIO m
   ) => ExportMode -> Decorated Test -> m P.Pandoc
 build mode test = do
-  s <- getSessionData
+  account <- getSessionData
+  stores <- get
+  let Just s = Map.lookup account stores
   qts <- DB.run s . DB.withStore $ \ store -> for (view (undecorated . elements) test) $ \case
     TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref store (ID.ref store i)
     TestText t     -> return $ Left t

@@ -7,6 +7,7 @@ module Common
   , MonadIO,liftIO,lift
   , throwError,ExceptT(ExceptT)
   , ReaderT(ReaderT),runReaderT,ask
+  , MonadState,StateT(StateT),evalStateT,get,put
   , for,for_
   , STM,atomically
   , Text,utf8ByteString
@@ -32,8 +33,10 @@ import           Control.Monad              (msum,(<=<))
 import           Control.Monad.Except       (throwError,ExceptT(ExceptT))
 import           Control.Monad.Identity     (Identity(Identity))
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
+import           Control.Monad.State        (MonadState,get,put)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Reader (ReaderT(ReaderT),runReaderT,ask)
+import           Control.Monad.Trans.State  (StateT(StateT),evalStateT)
 import           Data.Aeson                 (ToJSON,toJSON,FromJSON,parseJSON)
 import           Data.ByteString.Lazy (ByteString)
 import qualified Data.ByteString.Builder as B
