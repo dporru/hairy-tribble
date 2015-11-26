@@ -34,6 +34,7 @@ SC.deriveSafeCopy 0 'SC.base ''Pandoc.ListNumberDelim
 SC.deriveSafeCopy 0 'SC.base ''Pandoc.ListNumberStyle
 SC.deriveSafeCopy 0 'SC.base ''Pandoc.Block
 SC.deriveSafeCopy 0 'SC.base ''RichText
+SC.deriveSafeCopy 0 'SC.base ''Title
 SC.deriveSafeCopy 0 'SC.base ''Question
 SC.deriveSafeCopy 0 'SC.base ''Answer
 SC.deriveSafeCopy 0 'SC.base ''Test

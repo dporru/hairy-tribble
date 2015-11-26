@@ -20,6 +20,13 @@ instance FromJSON Question where
 instance JSONSchema Question where
   schema = gSchema
 
+instance ToJSON Title where
+  toJSON = gtoJson
+instance FromJSON Title where
+  parseJSON = gparseJson
+instance JSONSchema Title where
+  schema = gSchema
+
 instance ToJSON Answer where
   toJSON = gtoJson
 instance FromJSON Answer where

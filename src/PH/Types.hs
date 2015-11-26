@@ -6,6 +6,8 @@ module PH.Types
   , Question(..),question,answer
   , Answer(..),choices,order
   , AnswerOrder
+  , Title(..),titleText,generated
+  , generateTitle
   , Test(..),name,elements
   , TestElement(..)
   , module PH.Types.Dated
@@ -35,6 +37,7 @@ data Question
     {
       _question      :: RichText
     , _answer        :: Answer
+    , _title         :: Title
     }
   deriving (Generic,Typeable,Show)
 
@@ -49,6 +52,18 @@ data Answer
 
 type AnswerOrder
   = [Int]
+
+data Title
+  = Title
+    {
+      _titleText :: Text
+    , _generated :: Bool
+    }
+    deriving (Generic,Typeable,Show)
+
+generateTitle :: RichText -> Title
+generateTitle (Pandoc ps) = flip Title True . Text.pack $
+  Pandoc.writePlain Pandoc.def $ Pandoc.Pandoc Pandoc.nullMeta ps
 
 data Test
   = Test
@@ -68,6 +83,7 @@ type Decorated x
 
 makeLenses ''Question
 makeLenses ''Answer
+makeLenses ''Title
 makeLenses ''Test
 makeLenses ''TestElement
 

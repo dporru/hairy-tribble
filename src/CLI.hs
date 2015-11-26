@@ -86,14 +86,15 @@ instance Input Question where
   input = do
     q <- putStrLn "Question:" >> input
     a <- putStrLn "Answer:" >> input
+    let title = generateTitle q
     putStrLn "Enter more answers for multiple choice, empty line when done:"
     others <- map plainText <$> askMany
     if null others
-      then return $ Question q (Open a)
+      then return $ Question q (Open a) title
       else do
         let answers = (True,a) : map ((,) False) others
         randomOrder <- shuffleM [0 .. length others]
-        return $ Question q (MultipleChoice answers randomOrder)
+        return $ Question q (MultipleChoice answers randomOrder) title
 
 instance Input Test where
   input = do
