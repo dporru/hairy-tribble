@@ -1,5 +1,6 @@
 data
 state
+uploaded
 client/assets/node_modules
 client/assets/bower_components
 client/assets/dist
