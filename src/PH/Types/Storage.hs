@@ -1,6 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RecordWildCards #-}
 module PH.Types.Storage where
 
 import           Common
@@ -35,7 +36,7 @@ SC.deriveSafeCopy 0 'SC.base ''Pandoc.ListNumberStyle
 SC.deriveSafeCopy 0 'SC.base ''Pandoc.Block
 SC.deriveSafeCopy 0 'SC.base ''RichText
 SC.deriveSafeCopy 0 'SC.base ''Title
-SC.deriveSafeCopy 0 'SC.base ''Question
+SC.deriveSafeCopy 1 'SC.extension ''Question
 SC.deriveSafeCopy 0 'SC.base ''Answer
 SC.deriveSafeCopy 0 'SC.base ''Test
 SC.deriveSafeCopy 0 'SC.base ''TestElement
@@ -44,3 +45,19 @@ SC.deriveSafeCopy 0 'SC.base ''Labelled
 SC.deriveSafeCopy 0 'SC.base ''Dates
 SC.deriveSafeCopy 0 'SC.base ''ID.ID
 SC.deriveSafeCopy 0 'SC.base ''ID.WithID
+
+data Question_v0
+  = Question_v0
+    {
+      _question_v0      :: RichText
+    , _answer_v0        :: Answer
+    }
+  deriving (Generic,Typeable,Show)
+SC.deriveSafeCopy 0 'SC.base ''Question_v0
+instance SC.Migrate Question where
+  type MigrateFrom Question = Question_v0
+  migrate (Question_v0 { .. }) = Question
+    { _question = _question_v0
+    , _answer   = _answer_v0
+    , _title    = generateTitle _question_v0
+    }

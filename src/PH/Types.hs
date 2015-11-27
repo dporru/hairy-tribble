@@ -2,13 +2,13 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module PH.Types
   (
-    RichText(..),plainText
-  , Question(..),question,answer
-  , Answer(..),choices,order
+    RichText(..), plainText
+  , Question(..), question, answer, title
+  , Answer(..), choices, order
   , AnswerOrder
-  , Title(..),titleText,generated
+  , Title(..), titleText, generated
   , generateTitle
-  , Test(..),name,elements
+  , Test(..), name, elements
   , TestElement(..)
   , module PH.Types.Dated
   , module PH.Types.Labelled
@@ -62,8 +62,9 @@ data Title
     deriving (Generic,Typeable,Show)
 
 generateTitle :: RichText -> Title
-generateTitle (Pandoc ps) = flip Title True . Text.pack $
-  Pandoc.writePlain Pandoc.def $ Pandoc.Pandoc Pandoc.nullMeta ps
+generateTitle (Pandoc ps) = flip Title True . Text.pack . take maxTitleLength
+  $ Pandoc.writePlain Pandoc.def $ Pandoc.Pandoc Pandoc.nullMeta ps where
+  maxTitleLength = 120
 
 data Test
   = Test

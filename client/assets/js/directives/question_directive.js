@@ -15,7 +15,7 @@ angular.module('ph').directive('question', function(){
             scope.$watch('question', function(){
                 if (typeof scope.question.object == 'undefined') {
                     scope.questionType = 'open';
-                    scope.question.object = {answer: {open: ''}, question: ''};
+                    scope.question.object = {answer: {open: ''}, question: '', title: {generated: true, titleText: ''}};
                     scope.question.labels = [];
                     scope.multipleChoice = {choices: [[true, '']]};
                 }else{

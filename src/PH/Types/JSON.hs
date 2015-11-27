@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 module PH.Types.JSON where
 
 import           Common
@@ -7,6 +8,7 @@ import qualified Data.TCache.ID   as ID
 import qualified Data.Text        as Text
 import           Data.Typeable    (typeRep,Proxy(Proxy))
 import           PH.Types
+import           PH.Types.InOut
 import           PH.Types.Storage () -- Needed for instance Indexable (WithID a).
 
 import           Data.Aeson.Types (typeMismatch,Value(String))
@@ -90,4 +92,14 @@ instance (Typeable a,FromJSON a) => FromJSON (Labelled a) where
 instance (Typeable a,ToJSON a) => ToJSON (Labelled a) where
   toJSON = gtoJson
 instance (JSONSchema a) => JSONSchema (Labelled a) where
+  schema = gSchema
+
+instance (Typeable a,ToJSON a,ToJSON (ID.ID (Decorated a))) => ToJSON (DecoratedOut a) where
+  toJSON = gtoJson
+instance (JSONSchema a,JSONSchema (ID.ID (Decorated a))) => JSONSchema (DecoratedOut a) where
+  schema = gSchema
+
+instance (Typeable a,FromJSON a) => FromJSON (LabelledIn a) where
+  parseJSON = gparseJson
+instance (JSONSchema a) => JSONSchema (LabelledIn a) where
   schema = gSchema
