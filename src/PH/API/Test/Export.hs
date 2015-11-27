@@ -60,7 +60,7 @@ getHandler = R.mkHandler dict $ \ env -> ExceptT $
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
       _         -> Pandoc.build mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
-        Right b -> return $ Right (b,suggestedFileName test format,False)
+        Right b -> return $ Right (b,suggestedFileName test mode format,False)
        where
         export = case format of
           PDF      -> PDF.export
@@ -91,10 +91,16 @@ readFormat "show"     = Show
 readFormat "word"     = Word
 readFormat s          = Unknown s
 
-suggestedFileName :: Test -> Format -> String
-suggestedFileName test PDF         = Text.unpack (view name test) ++ ".pdf"
-suggestedFileName test LaTeX       = Text.unpack (view name test) ++ ".latex"
-suggestedFileName test Markdown    = Text.unpack (view name test) ++ ".md"
-suggestedFileName test Show        = Text.unpack (view name test) ++ ".text"
-suggestedFileName test Word        = Text.unpack (view name test) ++ ".docx"
-suggestedFileName _    (Unknown s) = ""
+suggestedFileName :: Test -> ExportMode -> Format -> String
+suggestedFileName test mode format = prefix ++ title ++ extension where
+  prefix = case mode of
+    OnlyQuestions -> "Toets."
+    WithAnswers   -> "Antwoorden."
+  title = Text.unpack $ view name test
+  extension = case format of
+    PDF       -> ".pdf"
+    LaTeX     -> ".latex"
+    Markdown  -> ".md"
+    Show      -> ".text"
+    Word      -> ".docx"
+    Unknown s -> ""
