@@ -1,4 +1,4 @@
-https://img.shields.io/shippable/5457ba44a85d45d063d8dff6/test.svg
+[Shippable build image](https://img.shields.io/shippable/5457ba44a85d45d063d8dff6/develop.svg)
 
 # Tribble
 
