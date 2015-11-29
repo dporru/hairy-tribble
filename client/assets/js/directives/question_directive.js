@@ -98,8 +98,8 @@ angular.module('ph').directive('question', function(){
                 for (var i in scope.multipleChoice.choices) {
                     if (scope.multipleChoice.choices[i][1] !== '') {
                         scope.question.object.answer.multipleChoice.choices.push(scope.multipleChoice.choices[i]);
+                        scope.question.object.answer.multipleChoice.order.push(parseInt(i, 10));
                     }
-                    scope.question.object.answer.multipleChoice.order.push(parseInt(i, 10));
                 }
             };
 
