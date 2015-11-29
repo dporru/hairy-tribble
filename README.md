@@ -1,3 +1,5 @@
+https://img.shields.io/shippable/5457ba44a85d45d063d8dff6/test.svg
+
 # Tribble
 
 Tribble is work in progress. The first goal is creating a minimal viable
