@@ -66,8 +66,7 @@ strikeout :: [P.Block] -> [P.Block]
 strikeout = map $ P.walk $ P.Strikeout . (: [])
 
 orderBy :: [a] -> AnswerOrder -> [a]
--- orderBy = map . (!!)
-orderBy = const
+orderBy = map . (!!)
 
 textP :: Text -> P.Inlines
 textP = P.str . Text.unpack
