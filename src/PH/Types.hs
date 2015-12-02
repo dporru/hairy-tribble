@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module PH.Types
   (
-    RichText(..), plainText
+    RichText(..), plainText, renderPlain
   , Question(..), question, answer, title
   , Answer(..), choices, order
   , AnswerOrder
@@ -31,6 +31,10 @@ newtype RichText
 
 plainText :: Text -> RichText
 plainText = Pandoc . (: []) . Pandoc.Plain . (: []) . Pandoc.Str . Text.unpack
+
+renderPlain :: RichText -> Text
+renderPlain (Pandoc ps) = Text.pack $ Pandoc.writePlain Pandoc.def $
+  Pandoc.Pandoc Pandoc.nullMeta ps
 
 data Question
   = Question
@@ -62,8 +66,8 @@ data Title
     deriving (Generic,Typeable,Show)
 
 generateTitle :: RichText -> Title
-generateTitle (Pandoc ps) = flip Title True . Text.pack . take maxTitleLength
-  $ Pandoc.writePlain Pandoc.def $ Pandoc.Pandoc Pandoc.nullMeta ps where
+generateTitle = flip Title True . Text.take maxTitleLength . renderPlain
+ where
   maxTitleLength = 120
 
 data Test

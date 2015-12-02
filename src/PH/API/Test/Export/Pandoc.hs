@@ -13,6 +13,7 @@ import           PH.Types.Server (Config, stores)
 import           Session (MonadServerSession,SessionData,getSessionData)
 
 import           Data.ByteString.Lazy (ByteString)
+import           Data.List            (sortOn)
 import qualified Data.Map                as Map
 import qualified Data.TCache.ID          as ID
 import qualified Data.Text               as Text
@@ -55,7 +56,8 @@ renderTest mode name qs = P.setTitle (textP name) . P.doc $
         $ map renderChoice answers
        where
         answers :: [(Bool,RichText)]
-        answers = view choices m `orderBy` view order m
+        -- answers = view choices m `orderBy` view order m
+        answers = sortOn (textLength . snd) $ view choices m
         renderChoice :: (Bool,RichText) -> P.Blocks
         renderChoice (corr,Pandoc t) = case mode of
           OnlyQuestions -> P.fromList t
@@ -69,6 +71,9 @@ strikeout = map $ P.walk $ P.Strikeout . (: [])
 
 orderBy :: [a] -> AnswerOrder -> [a]
 orderBy = map . (!!)
+
+textLength :: RichText -> Int
+textLength = Text.length . renderPlain
 
 textP :: Text -> P.Inlines
 textP = P.str . Text.unpack
