@@ -13,6 +13,7 @@ import           PH.Types.Dated
 import           PH.Types.Indices (IDIndex, idIndex, LabelsIndex, labelsIndex)
 import           PH.Types.InOut (RestIn, In, fromIn, RestOut, Out, toOut)
 import           PH.Types.Labelled
+import           PH.Types.Server (M, Config, stores)
 import           Session (MonadServerSession, SessionData, getSessionData)
 
 import qualified Data.TCache           as T
@@ -36,7 +37,7 @@ type Resource m o
 
 resource :: forall m o.
   ( MonadServerSession m, SessionData m ~ Account
-  , MonadState (Map.Map Account DB.Store) m
+  , MonadReader Config m
   , MonadIO m
   , RestIn o, In o ~ o
   , RestOut o, Out o ~ o
@@ -54,8 +55,8 @@ resource :: forall m o.
   , T.Serializable (Map.Map (ID.ID (Decorated o)) (Set.Set T.Key))
   , T.Indexable    (Map.Map (ID.ID (Decorated o)) (Set.Set T.Key))
   , T.Serializable (Map.Map Text.Text             (Set.Set T.Key))
-  ) => String -> Resource m o
-resource name = R.mkResourceReader
+  ) => Config -> String -> Resource m o
+resource config name = R.mkResourceReader
   {
     R.name   = name
   , R.schema = R.withListing [] $ R.named
@@ -107,13 +108,12 @@ resource name = R.mkResourceReader
 
   db :: forall m a.
     ( MonadServerSession m, SessionData m ~ Account
-    , MonadState DB.Stores m
     , MonadIO m
     ) => (DB.Store -> STM a) -> m a
   db f = do
     account <- getSessionData
-    stores <- get
-    let Just store = Map.lookup account stores
+    s <- liftIO $ readMVar (view stores config)
+    let Just store = Map.lookup account s
     DB.run store $ DB.withStore f
 
   takeRange :: R.Range -> [a] -> [a]

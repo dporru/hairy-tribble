@@ -3,13 +3,15 @@
 module Common
   (
     (<$>),msum,(<<<),(>>>),(<=<),void
+  , (&&&)
   , Identity(Identity)
   , MonadIO,liftIO,lift
   , throwError,ExceptT(ExceptT)
-  , ReaderT(ReaderT),runReaderT,ask
-  , MonadState,StateT(StateT),evalStateT,get,put
+  , MonadReader,ReaderT(ReaderT),runReaderT,ask
+  , MonadState,StateT(StateT),evalStateT,get,put,modify
   , for,for_
   , STM,atomically
+  , MVar,readMVar,modifyMVar_,newMVar
   , Text,utf8ByteString
   , ToJSON,toJSON,FromJSON,parseJSON
   , gtoJson,gparseJson
@@ -24,7 +26,8 @@ module Common
 
 
 import           Control.Applicative        ((<$>))
-import           Control.Arrow              ((<<<),(>>>))
+import           Control.Arrow              ((<<<),(>>>),(&&&))
+import           Control.Concurrent         (MVar,readMVar,modifyMVar_,newMVar)
 import           Control.Concurrent.STM     (STM,atomically)
 import           Control.Lens               (Lens,Lens',view,set,over)
 import           Control.Lens.Monadic       (overM)
@@ -33,9 +36,10 @@ import           Control.Monad              (msum,(<=<))
 import           Control.Monad.Except       (throwError,ExceptT(ExceptT))
 import           Control.Monad.Identity     (Identity(Identity))
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
-import           Control.Monad.State        (MonadState,get,put)
+import           Control.Monad.Reader       (MonadReader,ask)
+import           Control.Monad.State        (MonadState,get,put,modify)
 import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Trans.Reader (ReaderT(ReaderT),runReaderT,ask)
+import           Control.Monad.Trans.Reader (ReaderT(ReaderT),runReaderT)
 import           Control.Monad.Trans.State  (StateT(StateT),evalStateT)
 import           Data.Aeson                 (ToJSON,toJSON,FromJSON,parseJSON)
 import           Data.ByteString.Lazy (ByteString)

@@ -10,6 +10,7 @@ import qualified PH.API.Test.Export.PDF      as PDF
 import qualified PH.API.Test.Export.Word     as Word
 import qualified PH.DB                       as DB
 import           PH.Types
+import           PH.Types.Server (Config, stores)
 import           Session (MonadServerSession,SessionData,getSessionData)
 
 import qualified Data.ByteString.Lazy.Char8 as B8
@@ -27,38 +28,36 @@ import qualified Rest.Resource              as R
 resource :: forall m.
   ( MonadServerSession m
   , SessionData m ~ Account
-  , MonadState DB.Stores m
   , MonadIO m
-  ) => R.Resource
+  ) => Config -> R.Resource
   (ReaderT (ID.ID (Decorated Test)) m)
   (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
   Format
   Void
   Void
-resource = R.mkResourceReader
+resource config = R.mkResourceReader
   {
     R.name   = "export"
   , R.schema = R.noListing $ R.unnamedSingle readFormat
-  , R.get    = Just getHandler
+  , R.get    = Just $ getHandler config
   }
 
 getHandler :: forall m.
   ( MonadServerSession m, SessionData m ~ Account
-  , MonadState DB.Stores m
   , MonadIO m
-  ) => R.Handler (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
-getHandler = R.mkHandler dict $ \ env -> ExceptT $
+  ) => Config -> R.Handler (ReaderT Format (ReaderT (ID.ID (Decorated Test)) m))
+getHandler config = R.mkHandler dict $ \ env -> ExceptT $
   ReaderT $ \ format ->
   ReaderT $ \ testID -> do
     account <- getSessionData
-    stores <- get
-    let Just store = Map.lookup account stores
+    s <- liftIO . readMVar $ view stores config
+    let Just store = Map.lookup account s
     ID.WithID _ dtest <- DB.run store . DB.withStore $ \ s -> ID.fromID s testID
     let test = view undecorated dtest
     let mode = R.param env
     case format of
       Unknown f -> return . Left . R.ParamError $ R.UnsupportedFormat f
-      _         -> Pandoc.build mode dtest >>= export >>= \case
+      _         -> Pandoc.build config mode dtest >>= export >>= \case
         Left e  -> return . Left . R.OutputError . R.PrintError . B8.unpack $ e
         Right b -> return $ Right (b,suggestedFileName test mode format,False)
        where

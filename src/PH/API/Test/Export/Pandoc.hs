@@ -9,6 +9,7 @@ import           Accounts (Account)
 import           Common
 import qualified PH.DB                 as DB
 import           PH.Types
+import           PH.Types.Server (Config, stores)
 import           Session (MonadServerSession,SessionData,getSessionData)
 
 import           Data.ByteString.Lazy (ByteString)
@@ -26,16 +27,17 @@ export = return . Right . utf8ByteString . P.writeNative P.def
 build ::
   ( MonadServerSession m
   , SessionData m ~ Account
-  , MonadState DB.Stores m
   , MonadIO m
-  ) => ExportMode -> Decorated Test -> m P.Pandoc
-build mode test = do
+  ) => Config -> ExportMode -> Decorated Test -> m P.Pandoc
+build config mode test = do
   account <- getSessionData
-  stores <- get
-  let Just s = Map.lookup account stores
-  qts <- DB.run s . DB.withStore $ \ store -> for (view (undecorated . elements) test) $ \case
-    TestQuestion i -> return . Right . view (ID.object . undecorated) =<< ID.deref store (ID.ref store i)
-    TestText t     -> return $ Left t
+  s <- liftIO . readMVar $ view stores config
+  let Just store = Map.lookup account s
+  qts <- DB.run store . DB.withStore $ \ s ->
+    for (view (undecorated . elements) test) $ \case
+      TestQuestion i -> return . Right . view (ID.object . undecorated)
+        =<< ID.fromID s i
+      TestText t     -> return $ Left t
   return $ renderTest mode (view (undecorated . name) test) qts
 
 renderTest :: ExportMode -> Text -> [Either RichText Question] -> P.Pandoc

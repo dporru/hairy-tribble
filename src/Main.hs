@@ -7,6 +7,7 @@ import           Accounts  (Accounts,accountsOptionType)
 import           Common
 import           PH.API    (M,api)
 import qualified PH.DB                   as DB
+import           PH.Types.Server (Config(Config))
 import           Server    (serve)
 
 import           Control.Concurrent (myThreadId)
@@ -39,14 +40,16 @@ main = do
 
 commands :: CP.Commands IO
 commands = flip CP.Node [] . CP.command "serve" "" $
-  CP.withOption serverHostOption   $ \ serverHost   ->
+  CP.withOption serverHostOption   $ \ host         ->
   CP.withOption googleIDOption     $ \ googleID     ->
   CP.withOption googleSecretOption $ \ googleSecret ->
   CP.withOption accountsOption     $ \ accounts     -> CP.io $ do
-    (stores,finals) <- fmap unzip . for (nub . Map.elems $ accounts) $ \ a -> do
+    (s,finals) <- fmap unzip . for (nub . Map.elems $ accounts) $ \ a -> do
       store <- DB.initialise a
       return ((a, store), DB.finalise store)
-    serve googleID googleSecret serverHost accounts (Map.fromList stores)
+    stores <- newMVar $ Map.fromList s
+    let config = Config host stores
+    serve googleID googleSecret config accounts
       `finally` (sequence_ finals)
 
 serverHostOption :: CP.Option String

@@ -1,5 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE LambdaCase #-}
 module Session
@@ -22,10 +25,11 @@ import           Control.Monad              (MonadPlus,(<=<))
 import           Control.Monad.Catch        (MonadMask,bracket)
 import           Control.Monad.Fix          (MonadFix)
 import           Control.Monad.IO.Class     (MonadIO,liftIO)
+import           Control.Monad.State        (MonadState,get,put)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (ExceptT)
 import           Control.Monad.Trans.Reader (ReaderT,runReaderT,ask)
-import           Control.Monad.Trans.State  (StateT,evalStateT,get,put)
+import           Control.Monad.Trans.State  (StateT,evalStateT)
 import qualified Data.Acid.Local           as Acid
 import qualified Data.ByteString.Char8     as BS8
 import qualified Data.ByteString.Lazy      as LBS
@@ -47,17 +51,22 @@ newtype ServerSessionT sessionData m a
   = ServerSessionT
     {
       unServerSessionT :: ReaderT
-        (S.State (AcidStorage (SD sessionData)), ServerSessionSettings sessionData)
+        (S.State (AcidStorage (SD sessionData))
+          , ServerSessionSettings sessionData m)
         (StateT (SessionStatus sessionData) m)
         a
     }
     deriving (Functor,Applicative,Alternative,Monad,MonadPlus,MonadIO,MonadFix,H.HasRqData,H.FilterMonad r,H.WebMonad r,H.ServerMonad)
 
-data ServerSessionSettings sessionData
+instance (MonadState s m) => MonadState s (ServerSessionT a m) where
+  get = ServerSessionT . lift . lift $ get
+  put = ServerSessionT . lift . lift . put
+
+data ServerSessionSettings sessionData m
   = ServerSessionSettings
     {
       oauth2ClientKey :: OAuth2.ClientKey
-    , newSessionData  :: OAuth2.User -> Maybe sessionData
+    , newSessionData  :: OAuth2.User -> m (Maybe sessionData)
     , redirectPolicy  :: RedirectPolicy
     }
 
@@ -65,10 +74,10 @@ data RedirectPolicy
   = Redirect
   | Unauthorized
 
-redirect ::
+redirect :: forall m n s sessionData.
   ( H.FilterMonad H.Response m
   , H.WebMonad H.Response m
-  ) => URI -> ReaderT (s,ServerSessionSettings sessionData) m ()
+  ) => URI -> ReaderT (s,ServerSessionSettings sessionData n) m ()
 redirect uri = do
   let u = show uri
   (_state,settings) <- ask
@@ -109,8 +118,8 @@ instance forall m sessionData.
     lift get >>= \case
       Existing user ms _ -> return (user,ms)
       Unread            -> do
-        (state,settings) <- ask
-        let redirectToLogin :: ReaderT (s, ServerSessionSettings sessionData)
+        (state,settings :: ServerSessionSettings sessionData m) <- ask
+        let redirectToLogin :: ReaderT (s, ServerSessionSettings sessionData m)
               (StateT (SessionStatus sessionData) m) a
             redirectToLogin = do
               redirect $ OAuth2.loginRedirect $ oauth2ClientKey settings
@@ -120,10 +129,12 @@ instance forall m sessionData.
           -- Cookie is set, just continue.
           Just _  -> return Nothing
           Nothing -> do
-            -- There is no session cookie set. Maybe the user has just logged in?
+            -- There is no session cookie set.
+            -- Maybe the user has just logged in?
             maybeCode <- optional $ LBS.toStrict <$> H.lookBS "code"
             case maybeCode of
-              -- No, there is no login code set. We redirect the user to the login page.
+              -- No, there is no login code set.
+              -- We redirect the user to the login page.
               Nothing -> redirectToLogin
               -- Yes, there is a login code. Try to log in.
               Just code -> liftIO (OAuth2.login (oauth2ClientKey settings) code) >>= \case
@@ -132,28 +143,28 @@ instance forall m sessionData.
                 Right user       -> return $ Just user
         (sd,saveSessionToken) <- liftIO $ S.loadSession state maybeCookie
         (user,s) <- case sd of
+          SD user s    -> return (user,s)
           EmptySession -> case maybeNewUser of
             -- A session cookie is set, but the session is empty.
             -- Maybe the session store was emptied and the user has a stale session.
             Nothing   -> do
               H.expireCookie cookieName
               redirectToLogin
-            Just user -> case newSessionData settings user of
+            Just user -> lift (lift $ newSessionData settings user) >>= \case
               Just s  -> return (user,s)
               Nothing -> do
                 liftIO . putStrLn $ "User without account: " ++ show user
                 (H.finishWith =<<) . H.forbidden . H.toResponse $ 
-                  "There is no account registered for you. Sorry!\nYour details:\n"
-                    ++ show user
-          SD user s    -> return (user,s)
+                  "There is no account registered for you. Sorry!\n"
+                    ++ "Your details:\n" ++ show user
         lift . put $ Existing user s saveSessionToken
         return (user,s)
   
   putSession s = (getSession >>) . ServerSessionT $ do
     (state,_) <- ask
     Existing user _ saveSessionToken <- lift get
-    let newSessionData = SD user s
-    liftIO (S.saveSession state saveSessionToken newSessionData) >>= \case
+    let newSD = SD user s
+    liftIO (S.saveSession state saveSessionToken newSD) >>= \case
       Nothing      -> H.expireCookie cookieName
       Just session -> do
         let cookie = H.mkCookie cookieName $ Text.unpack . toPathPiece $ S.sessionKey session
@@ -167,7 +178,7 @@ cookieName = "serversession"
 
 runServerSessionT ::
   ( Monad m
-  ) => ServerSessionSettings sessionData
+  ) => ServerSessionSettings sessionData m
     -> S.State (AcidStorage (SD sessionData))
     -> ServerSessionT sessionData m a
     -> m a
