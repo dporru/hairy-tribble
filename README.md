@@ -2,8 +2,7 @@
 
 # Tribble
 
-Tribble is work in progress. The first goal is creating a minimal viable
-product for teachers, to help them create and organise their tests. Current
+Tribble is an online tool for teachers to help them create and organise their tests. Current
 code is meant to explore the problem space.
 
 ## Running
@@ -42,18 +41,8 @@ $ docker run -d -v <path/to/tribble>/config:hairy-tribble/config -p 8000:8000 dp
 ```
 
 
-## Image uploads
-
-It is possible to upload images in questions. For this to work you have to
-mount a local directory where the images can be stored.
-
-```
-$ mkdir /tmp/uploaded
-$ docker run -d -v <path/to/tribble>/config:hairy-tribble/config -v /tmp/uploaded:hairy-tribble/uploaded -p 8000:8000 dporru/tribble
-```
-
 ## Permanent storage
 
 If you want data entered in the app to be retained when stopping the container
-you have to mount the `/hairy-tribble/data` and `/hairy-tribble/state`
-folders.
+you have to mount the folders `/hairy-tribble/data`, `/hairy-tribble/uploaded`
+and `/hairy-tribble/state`.
