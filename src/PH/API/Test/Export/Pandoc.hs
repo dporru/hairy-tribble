@@ -43,12 +43,19 @@ build config mode test = do
 
 renderTest :: ExportMode -> Text -> [Either RichText Question] -> P.Pandoc
 renderTest mode name qs = P.setTitle (textP name) . P.doc $
-  P.orderedList (map renderQuestion qs)
+  mconcat . map (either renderText renderQuestion) . numberRight $ qs
  where
-  renderQuestion :: Either RichText Question -> P.Blocks
-  renderQuestion (Left (Pandoc b)) = P.fromList b
-  renderQuestion (Right q)         = let Pandoc b = view question q in
-    P.fromList b <> case view answer q of
+  numberRight :: [Either a b] -> [Either a (Int,b)]
+  numberRight xs = go 1 xs where
+    go _ []             = []
+    go i (Left x  : xs) = Left x      : go i        xs
+    go i (Right x : xs) = Right (i,x) : go (succ i) xs
+  renderText :: RichText -> P.Blocks
+  renderText (Pandoc b) = P.fromList b
+  renderQuestion :: (Int,Question) -> P.Blocks
+  renderQuestion (i,q) = let Pandoc b = view question q in
+    P.orderedListWith (i,P.Decimal,P.Period) . (: []) $
+      P.fromList b <> case view answer q of
       Open (Pandoc a)       -> case mode of
         OnlyQuestions -> mempty
         WithAnswers   -> P.fromList $ strong a
